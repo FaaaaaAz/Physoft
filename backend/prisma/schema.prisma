@@ -1,0 +1,89 @@
+// ============================================
+// PRISMA SCHEMA - Physoft Database
+// ============================================
+// Base de datos para análisis deportivo musculoesquelético
+// Desarrollo: SQLite (dev.db)
+// Producción: PostgreSQL
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"  // Cambiar a "postgresql" en producción
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MODELO: Atleta
+// ============================================
+// Representa a un atleta con sus características físicas y demográficas
+
+model Atleta {
+  id          Int       @id @default(autoincrement())
+  nombre      String
+  genero      String    // "Masculino", "Femenino", "Otro"
+  disciplina  String    // Deporte que practica
+  posicion    String?   // Posición en el deporte (opcional)
+  somatotipo  String    // "Mesomorfo", "Ectomorfo", "Endomorfo"
+  altura      Float     // En centímetros
+  peso        Float     // En libras
+  edad        Int       // Edad del atleta
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relación con análisis
+  analisis    Analisis[]
+  
+  @@index([genero, disciplina, somatotipo])
+  @@index([edad, altura, peso])
+}
+
+// ============================================
+// MODELO: Análisis
+// ============================================
+// Representa un análisis musculoesquelético (BTS) de un atleta
+
+model Analisis {
+  id              Int       @id @default(autoincrement())
+  atletaId        Int
+  fechaAnalisis   DateTime  @default(now())
+  tipoAnalisis    String    // "BTS", "Biomecánico", etc.
+  
+  // Datos del análisis (JSON flexible para MVP)
+  datosJson       String    // Almacena datos estructurados en JSON
+  
+  // Resultados de comparación
+  estadoGeneral   String?   // "Bajo", "Promedio", "Alto"
+  puntoDebil1     String?
+  puntoDebil2     String?
+  puntoDebil3     String?
+  margenMejora    Float?    // Porcentaje de mejora posible
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relación con atleta
+  atleta          Atleta    @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  
+  @@index([atletaId, fechaAnalisis])
+}
+
+// ============================================
+// MODELO: Cohorte (Futura implementación)
+// ============================================
+// Representa grupos de comparación para estadísticas
+
+// model Cohorte {
+//   id          Int       @id @default(autoincrement())
+//   nombre      String
+//   descripcion String?
+//   genero      String
+//   disciplina  String
+//   somatotipo  String
+//   
+//   createdAt   DateTime  @default(now())
+//   updatedAt   DateTime  @updatedAt
+// }

@@ -1,0 +1,21 @@
+# Backend specific ignores
+node_modules/
+dist/
+*.log
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.db-journal
+dev.db
+dev.db-journal
+
+# Prisma
+migrations/
+
+# IDE
+.vscode/
+.idea/
