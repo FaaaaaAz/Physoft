@@ -1,32 +1,51 @@
-# Physoft - Plataforma de Análisis Deportivo
+# Physoft - Plataforma de Análisis Kinesiológico Deportivo
 
-Plataforma de análisis deportivo que permite subir análisis musculoesqueléticos (BTS) y compararlos con una base de datos de atletas para generar reportes de rendimiento.
+Sistema profesional de análisis kinesiológico para deportistas que permite crear evaluaciones completas, comparar métricas y generar reportes de rendimiento y mejora.
 
 ---
 
-## 🚀 Cómo Usar
+## � Cómo Usar
 
 ### Primera Vez (Instalación)
 
 ```powershell
-# 1. Instalar dependencias del frontend
-cd frontend
-npm install
-cd ..
+# Clonar e instalar
+git clone <repo-url>
+cd Physoft
 
-# 2. Instalar dependencias del backend
+# Backend
 cd backend
 npm install
-
-# 3. Configurar variables de entorno
-Copy-Item .env.example .env
-
-# 4. Generar Prisma y crear base de datos
 npx prisma generate
-npx prisma migrate dev --name init
+npx prisma migrate dev
+npm run dev  # Puerto 3000
 
-cd ..
+# Frontend (nueva terminal)
+cd frontend
+npm install
+npm run dev  # Puerto 5173
 ```
+
+**Listo!** Abre http://localhost:5173
+
+---
+
+### Comandos Útiles de Prisma
+
+```powershell
+# Ver la base de datos en interfaz gráfica
+cd backend
+npx prisma studio
+# Abre en http://localhost:5555
+
+# Crear nueva migración (después de cambiar schema.prisma)
+npx prisma migrate dev --name nombre_migracion
+
+# Regenerar cliente Prisma
+npx prisma generate
+```
+
+---
 
 ### Uso Diario (Levantar el Proyecto)
 
@@ -48,12 +67,65 @@ npm run dev
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:3000
 - **Health Check**: http://localhost:3000/api/ping
+- **Prisma Studio**: http://localhost:5555 (después de `npx prisma studio`)
 
 ---
 
+## 🧪 Probar la Aplicación
+
+### Flujo Completo Actual (con mock data):
+
+1. **Welcome** → Click "Comenzar"
+2. **Dashboard** → Ver 10 atletas mock
+   - Buscar por nombre
+   - Filtrar por género/disciplina/somatotipo
+   - Click en atleta para ver modal de detalles
+3. **Análisis** → Click en navbar "Análisis"
+   - Ver stats y tabla de análisis recientes
+   - Click "Crear Nuevo Análisis"
+4. **Modal Selección** → "¿El atleta ya existe?"
+   - Sí → Buscar atleta en lista
+   - No → Ir a formulario directamente
+5. **Formulario** → Completar evaluación kinesiológica
+   - Expandir/colapsar bloques A-G
+   - Subir archivos (simulado)
+   - Guardar borrador (simulado)
+   - Enviar análisis (simulado)
+
+**Nota:** Todo funciona visualmente, pero NO se guarda en base de datos todavía.
+
 ---
 
-## � Base de Datos
+## 🗂️ Estructura del Proyecto
+
+```
+Physoft/
+├── backend/
+│   ├── src/
+│   │   ├── domain/          # Entidades y lógica de negocio
+│   │   ├── application/     # Casos de uso
+│   │   ├── infrastructure/  # Prisma, DB, servicios externos
+│   │   └── presentation/    # Controllers, routes, middleware
+│   ├── prisma/
+│   │   ├── schema.prisma    # Modelos de base de datos
+│   │   └── seed.ts          # Datos de prueba
+│   └── package.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/           # Welcome, Dashboard, Analisis
+│   │   ├── components/      # Atleta cards, modals, forms
+│   │   ├── styles/          # CSS modules
+│   │   ├── assets/          # Imágenes (player1-5.png)
+│   │   └── App.tsx          # Router principal
+│   └── package.json
+│
+└── README.md
+```
+
+---
+
+## 📊 Base de Datos
 
 ### Modelos Principales
 
@@ -67,162 +139,34 @@ npm run dev
 - `datosJson` (datos flexibles en JSON)
 - `estadoGeneral`, `puntoDebil1/2/3`, `margenMejora`
 
-### Comandos Útiles de Prisma
-
-```powershell
-# Ver la base de datos en interfaz gráfica
-cd backend
-npx prisma studio
-# Abre en http://localhost:5555
-
-# Crear nueva migración (después de cambiar schema.prisma)
-npx prisma migrate dev --name nombre_migracion
-
-# Regenerar cliente Prisma
-npx prisma generate
-```
-
 ---
 
-## 🛠️ Tecnologías
+## 🛠️ Stack Tecnológico
 
 ### Frontend
-- React 18 + TypeScript
-- Vite (build tool)
-- React Router DOM (navegación)
-- Axios (HTTP client)
-- CSS plano (modo oscuro + turquesa)
+- **React 18.3.1** - Biblioteca UI
+- **TypeScript 5.6.2** - Tipado estático
+- **Vite 5.4.21** - Build tool ultrarrápido
+- **React Icons** - Iconografía (io5)
+- **CSS Modules** - Estilos con tema oscuro profesional
+- **Axios** (por implementar) - Cliente HTTP
 
 ### Backend
-- Node.js + Express + TypeScript
-- Prisma ORM
-- SQLite (desarrollo) / PostgreSQL (producción)
-- CORS + Helmet (seguridad)
+- **Node.js** - Runtime JavaScript
+- **Express 4.21.1** - Framework web
+- **TypeScript 5.6.3** - Tipado estático
+- **Prisma ORM 5.20.0** - ORM moderno
+- **SQLite** - Base de datos desarrollo
+- **PostgreSQL** - Base de datos producción (futuro)
+- **CORS + Helmet** - Seguridad
+- **Morgan** - Logging HTTP
+- **ts-node-dev** - Hot reload en desarrollo
+
+### Arquitectura Backend
+- **Clean Architecture** - Separación de capas
+  - `domain/` - Entidades y lógica de negocio
+  - `application/` - Casos de uso
+  - `infrastructure/` - Prisma, DB, servicios externos
+  - `presentation/` - Controllers, routes, middleware
 
 ---
-
-## 📁 Estructura del Proyecto
-
-```
-Physoft/
-├── frontend/               # React + Vite
-│   ├── src/
-│   │   ├── pages/          # Páginas
-│   │   ├── components/     # Componentes reutilizables
-│   │   ├── services/       # API calls (axios)
-│   │   └── styles/         # CSS
-│   └── package.json
-│
-└── backend/                # Express + Prisma
-    ├── src/
-    │   ├── domain/         # Entidades y reglas de negocio
-    │   ├── application/    # Servicios y lógica
-    │   ├── infrastructure/ # Prisma client
-    │   └── presentation/   # Routes y controllers
-    ├── prisma/
-    │   ├── schema.prisma   # Modelos de DB
-    │   └── dev.db          # SQLite (no se sube a Git)
-    └── package.json
-```
-
----
-
-## 🔧 Endpoints API
-
-```
-GET    /api/ping              # Health check
-GET    /api/atletas           # Obtener todos los atletas
-GET    /api/atletas/:id       # Obtener un atleta
-POST   /api/atletas           # Crear atleta
-PUT    /api/atletas/:id       # Actualizar atleta
-DELETE /api/atletas/:id       # Eliminar atleta
-GET    /api/atletas/:id/comparar  # Comparar con cohorte
-```
-
----
-
-## 🎨 Reglas de Comparación (MVP)
-
-### Atletas ≥ 17 años
-- Altura: ±7 cm
-- Peso: ±20 lbs
-- Edad: ±3 años
-
-### Atletas < 17 años
-- Altura: ±5 cm
-- Peso: ±15 lbs
-- Edad: ±1 año
-
-**Criterios adicionales:**
-- Mismo género
-- Misma disciplina
-- Mismo somatotipo
-- Posición comparable (si aplica)
-
----
-
-## 🐛 Troubleshooting
-
-### Puerto ocupado
-```powershell
-# Ver qué está usando el puerto 3000
-netstat -ano | findstr :3000
-taskkill /PID <PID> /F
-
-# Ver qué está usando el puerto 5173
-netstat -ano | findstr :5173
-taskkill /PID <PID> /F
-```
-
-### Reinstalar dependencias
-```powershell
-# Frontend o Backend
-Remove-Item -Recurse -Force node_modules
-Remove-Item package-lock.json
-npm install
-```
-
-### Error de Prisma
-```powershell
-cd backend
-npx prisma generate
-npx prisma migrate dev
-```
-
----
-
-## 🌿 Flujo de Trabajo Git
-
-```bash
-# Crear feature branch
-git checkout -b feature/nombre-feature
-
-# Hacer commits
-git add .
-git commit -m "feat: descripción del cambio"
-
-# Push
-git push origin feature/nombre-feature
-```
-
-**Convenciones de commits:**
-- `feat:` Nueva funcionalidad
-- `fix:` Corrección de bug
-- `docs:` Documentación
-- `refactor:` Refactorización
-- `style:` Estilos/formato
-- `test:` Tests
-
----
-
-## 📝 Notas Importantes
-
-- Los archivos `.env`, `node_modules/` y `dev.db` NO se suben a Git
-- Prisma corre automáticamente con el backend, no necesitas levantarlo aparte
-- El frontend se recarga automáticamente al hacer cambios (hot-reload)
-- El backend se recarga automáticamente con ts-node-dev
-
----
-
-**Versión**: 1.0.0 MVP  
-**Última actualización**: Octubre 2025
