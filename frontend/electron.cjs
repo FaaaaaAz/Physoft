@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const db = require('./electron/database.cjs');
 
 let mainWindow;
 
@@ -29,9 +30,47 @@ function createWindow() {
   });
 }
 
-app.on('ready', createWindow);
+// ============================================
+// IPC Handlers para Base de Datos
+// ============================================
+
+// Atletas
+ipcMain.handle('db:crear-atleta', async (event, data) => {
+  return await db.crearAtleta(data);
+});
+
+ipcMain.handle('db:obtener-atletas', async () => {
+  return await db.obtenerAtletas();
+});
+
+ipcMain.handle('db:obtener-atleta', async (event, id) => {
+  return await db.obtenerAtletaPorId(id);
+});
+
+ipcMain.handle('db:actualizar-atleta', async (event, id, data) => {
+  return await db.actualizarAtleta(id, data);
+});
+
+ipcMain.handle('db:eliminar-atleta', async (event, id) => {
+  return await db.eliminarAtleta(id);
+});
+
+// Análisis
+ipcMain.handle('db:crear-analisis', async (event, data) => {
+  return await db.crearAnalisis(data);
+});
+
+ipcMain.handle('db:obtener-analisis', async (event, atletaId) => {
+  return await db.obtenerAnalisisPorAtleta(atletaId);
+});
+
+app.on('ready', () => {
+  db.initDatabase();
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
+  db.closeDatabase();
   if (process.platform !== 'darwin') {
     app.quit();
   }

@@ -1,35 +1,21 @@
-import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Welcome from './pages/Welcome'
 import Dashboard from './pages/Dashboard'
 import Analisis from './pages/Analisis'
+import AgregarAtleta from './pages/AgregarAtleta'
 import './styles/index.css'
 
-type PageType = 'welcome' | 'dashboard' | 'analisis' | 'agregar' | 'settings' | 'profile'
-
 function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>('welcome')
-
-  const handleEnterPlatform = () => {
-    setCurrentPage('dashboard')
-  }
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'welcome':
-        return <Welcome onEnter={handleEnterPlatform} />
-      case 'dashboard':
-        return <Dashboard onNavigate={setCurrentPage} />
-      case 'analisis':
-        return <Analisis />
-      default:
-        return <Dashboard onNavigate={setCurrentPage} />
-    }
-  }
-
   return (
-    <div className="app">
-      {renderPage()}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Welcome />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/analisis" element={<Analisis />} />
+        <Route path="/agregar-atleta" element={<AgregarAtleta />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   )
 }
 

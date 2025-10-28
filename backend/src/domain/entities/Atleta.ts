@@ -12,8 +12,9 @@ export interface Atleta {
   posicion?: string | null
   somatotipo: string
   altura: number  // cm
-  peso: number    // lbs
+  peso: number    // kg
   edad: number
+  session: string[]
   createdAt: Date
   updatedAt: Date
 }

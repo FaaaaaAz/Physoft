@@ -1,0 +1,69 @@
+// ============================================
+// PRISMA SCHEMA - Physoft Frontend (SQLite)
+// ============================================
+// Base de datos local para modo offline
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./physoft.db"
+}
+
+// ============================================
+// MODELO: Atleta
+// ============================================
+model Atleta {
+  id          String    @id @default(uuid())
+  nombre      String
+  genero      String    // "Masculino", "Femenino", "Otro"
+  disciplina  String    // Deporte que practica
+  posicion    String?   // Posición en el deporte (opcional)
+  somatotipo  String    // "Mesomorfo", "Ectomorfo", "Endomorfo"
+  altura      Float     // En centímetros
+  peso        Float     // En libras
+  edad        Int       // Edad del atleta
+  
+  // Campos de sincronización
+  syncedAt    DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  deviceId    String?   // ID del dispositivo que creó el registro
+  
+  // Relación con análisis
+  analisis    Analisis[]
+}
+
+// ============================================
+// MODELO: Análisis
+// ============================================
+model Analisis {
+  id              String    @id @default(uuid())
+  atletaId        String
+  fechaAnalisis   DateTime  @default(now())
+  tipoAnalisis    String    // "BTS", "Biomecánico", etc.
+  
+  // Datos del análisis (JSON flexible)
+  datosJson       String    // Almacena datos estructurados en JSON
+  
+  // Resultados de comparación
+  estadoGeneral   String?   // "Bajo", "Promedio", "Alto"
+  puntoDebil1     String?
+  puntoDebil2     String?
+  puntoDebil3     String?
+  margenMejora    Float?    // Porcentaje de mejora posible
+  
+  // Campos de sincronización
+  syncedAt        DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  deviceId        String?
+  
+  // Relación con atleta
+  atleta          Atleta    @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+}

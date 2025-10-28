@@ -1,18 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { IoFootball } from 'react-icons/io5'
 import '../styles/Welcome.css'
 
-interface WelcomeProps {
-  onEnter: () => void
-}
-
-function Welcome({ onEnter }: WelcomeProps) {
+function Welcome() {
   const [isAnimating, setIsAnimating] = useState(false)
+  const navigate = useNavigate()
 
   const handleEnter = () => {
     setIsAnimating(true)
     setTimeout(() => {
-      onEnter()
+      navigate('/dashboard')
     }, 600)
   }
 

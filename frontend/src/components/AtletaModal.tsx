@@ -9,11 +9,11 @@ interface AtletaModalProps {
     foto: string
     deporte: string
     edad: number
-    nacionalidad: string
-    altura: number
-    peso: number
+    nacionalidad?: string
+    altura?: number
+    peso?: number
     club: string
-    somatotipo: string
+    somatotipo?: string
     capacidades: {
       potencia: number
       fuerza: number
@@ -179,19 +179,19 @@ function AtletaModal({ atleta, onClose }: AtletaModalProps) {
               </div>
               <div className="info-item">
                 <span className="info-label">Nacionalidad</span>
-                <span className="info-value">{atleta.nacionalidad}</span>
+                <span className="info-value">{atleta.nacionalidad || 'No especificado'}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Altura</span>
-                <span className="info-value">{atleta.altura} cm</span>
+                <span className="info-value">{atleta.altura || 'N/A'} cm</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Peso</span>
-                <span className="info-value">{atleta.peso} kg</span>
+                <span className="info-value">{atleta.peso || 'N/A'} kg</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Somatotipo</span>
-                <span className="info-value">{atleta.somatotipo}</span>
+                <span className="info-value">{atleta.somatotipo || 'No especificado'}</span>
               </div>
             </div>
           </div>
