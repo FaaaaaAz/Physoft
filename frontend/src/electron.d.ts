@@ -4,14 +4,20 @@ export {};
 // Tipos para Atleta
 export interface Atleta {
   id: string;
+  codigoAcceso: string;
+  foto?: string;
   nombre: string;
   genero: string;
+  fechaNacimiento?: string;
+  nacionalidad?: string;
   disciplina: string;
+  club?: string;
   posicion?: string;
   somatotipo: string;
   altura: number;
   peso: number;
-  edad: number;
+  email?: string;
+  telefono?: string;
   syncedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -20,14 +26,20 @@ export interface Atleta {
 }
 
 export interface CrearAtletaDTO {
+  codigoAcceso: string;
+  foto?: string;
   nombre: string;
   genero: string;
+  fechaNacimiento?: string;
+  nacionalidad?: string;
   disciplina: string;
+  club?: string;
   posicion?: string;
   somatotipo: string;
   altura: number;
   peso: number;
-  edad: number;
+  email?: string;
+  telefono?: string;
 }
 
 export interface Analisis {

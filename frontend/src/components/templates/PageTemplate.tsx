@@ -44,7 +44,7 @@ function PageTemplate({
       {/* Navbar Superior */}
       {showNavbar && (
         <Navbar
-          showBackButton={showBackButton}
+          showBackButton={false}
           backTo={backTo}
           onBack={handleBack}
           showAddButton={showAddButton}

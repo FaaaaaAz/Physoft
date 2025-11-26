@@ -93,7 +93,15 @@
 .card-club {
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
+  margin: 0 0 8px 0;
+}
+
+.card-codigo {
+  color: rgba(20, 184, 166, 0.9);
+  font-size: 0.8rem;
+  font-weight: 600;
   margin: 0 0 16px 0;
+  letter-spacing: 0.05em;
 }
 
 .card-stats {

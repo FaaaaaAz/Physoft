@@ -130,7 +130,20 @@ class DatabaseService {
     const atletas = this.getLocalStorageAtletas();
     const nuevoAtleta: Atleta = {
       id: crypto.randomUUID(),
-      ...data,
+      codigoAcceso: data.codigoAcceso,
+      foto: data.foto || '',
+      nombre: data.nombre,
+      genero: data.genero,
+      fechaNacimiento: data.fechaNacimiento,
+      nacionalidad: data.nacionalidad,
+      disciplina: data.disciplina,
+      club: data.club,
+      posicion: data.posicion,
+      somatotipo: data.somatotipo,
+      altura: data.altura,
+      peso: data.peso,
+      email: data.email,
+      telefono: data.telefono,
       syncedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()

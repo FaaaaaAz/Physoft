@@ -14,6 +14,7 @@ interface AtletaModalProps {
     peso?: number
     club: string
     somatotipo?: string
+    codigoAcceso?: string
     capacidades: {
       potencia: number
       fuerza: number
@@ -173,6 +174,12 @@ function AtletaModal({ atleta, onClose }: AtletaModalProps) {
           <div className="modal-section">
             <h3 className="section-title">Información Personal</h3>
             <div className="info-grid">
+              {atleta.codigoAcceso && (
+                <div className="info-item">
+                  <span className="info-label">Código de Acceso</span>
+                  <span className="info-value codigo-acceso">{atleta.codigoAcceso}</span>
+                </div>
+              )}
               <div className="info-item">
                 <span className="info-label">Edad</span>
                 <span className="info-value">{atleta.edad} años</span>

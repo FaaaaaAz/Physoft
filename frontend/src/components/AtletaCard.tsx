@@ -9,6 +9,7 @@ interface AtletaCardProps {
     deporte: string
     edad: number
     club: string
+    codigoAcceso?: string
     capacidades: {
       potencia: number
       fuerza: number
@@ -44,6 +45,9 @@ function AtletaCard({ atleta, onClick }: AtletaCardProps) {
       <div className="card-content">
         <h3 className="card-nombre">{atleta.nombre}</h3>
         <p className="card-club">{atleta.club}</p>
+        {atleta.codigoAcceso && (
+          <p className="card-codigo">Código: {atleta.codigoAcceso}</p>
+        )}
         
         <div className="card-stats">
           <div className="stat-item">

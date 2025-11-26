@@ -21,6 +21,7 @@ interface AtletaMostrado {
   peso?: number
   club: string
   somatotipo?: string
+  codigoAcceso?: string
   capacidades: {
     potencia: number
     fuerza: number
@@ -60,26 +61,41 @@ function Dashboard() {
     ...atletasEjemplo.map(a => ({ ...a, esHardcoded: true })),
     
     // Atletas de la base de datos
-    ...atletasDB.map(atleta => ({
-      id: 0,
-      nombre: atleta.nombre,
-      foto: '/src/assets/players/default.png',
-      deporte: atleta.disciplina,
-      edad: atleta.edad,
-      nacionalidad: 'No especificado',
-      altura: atleta.altura,
-      peso: atleta.peso,
-      club: atleta.posicion || 'Sin equipo',
-      somatotipo: atleta.somatotipo,
-      capacidades: {
-        potencia: 75,
-        fuerza: 75,
-        velocidad: 75,
-        flexibilidad: 75,
-        resistencia: 75
-      },
-      esHardcoded: false
-    }))
+    ...atletasDB.map(atleta => {
+      // Calcular edad desde fecha de nacimiento
+      let edad = 0
+      if (atleta.fechaNacimiento) {
+        const birthDate = new Date(atleta.fechaNacimiento)
+        const today = new Date()
+        edad = today.getFullYear() - birthDate.getFullYear()
+        const monthDiff = today.getMonth() - birthDate.getMonth()
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          edad--
+        }
+      }
+
+      return {
+        id: 0,
+        nombre: atleta.nombre,
+        foto: atleta.foto || '/src/assets/players/default.png',
+        deporte: atleta.disciplina,
+        edad: edad,
+        nacionalidad: atleta.nacionalidad || 'No especificado',
+        altura: atleta.altura,
+        peso: atleta.peso,
+        club: atleta.club || 'Sin equipo',
+        somatotipo: atleta.somatotipo,
+        codigoAcceso: atleta.codigoAcceso,
+        capacidades: {
+          potencia: 0,
+          fuerza: 0,
+          velocidad: 0,
+          flexibilidad: 0,
+          resistencia: 0
+        },
+        esHardcoded: false
+      }
+    })
   ]
 
   const atletasFiltrados = todosLosAtletas.filter(atleta => {

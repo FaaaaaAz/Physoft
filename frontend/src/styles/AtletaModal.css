@@ -236,6 +236,13 @@
   font-weight: 600;
 }
 
+.info-value.codigo-acceso {
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  letter-spacing: 0.1em;
+  font-family: monospace;
+}
+
 .chart-container {
   display: flex;
   align-items: center;
