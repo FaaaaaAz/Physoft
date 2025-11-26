@@ -1,21 +1,29 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { IoCheckmarkCircle, IoCloseCircle, IoRocket } from 'react-icons/io5'
+import PageTemplate from '../components/templates/PageTemplate'
 import { apiClient } from '../services/api'
+import '../styles/Home.css'
 
 function Home() {
+  const navigate = useNavigate()
   const [status, setStatus] = useState<string>('Conectando...')
   const [loading, setLoading] = useState<boolean>(true)
+  const [isConnected, setIsConnected] = useState<boolean>(false)
 
   useEffect(() => {
     // Verificar conexión con el backend
     const checkBackend = async () => {
       try {
         const response = await apiClient.get('/ping')
-        setStatus(response.data.message || '✓ Backend conectado')
+        setStatus(response.data.message || 'Backend conectado')
+        setIsConnected(true)
         setLoading(false)
       } catch (error) {
-        setStatus('✗ Error al conectar con el backend')
+        setStatus('Trabajando en modo offline con SQLite local')
+        setIsConnected(false)
         setLoading(false)
-        console.error('Error conectando al backend:', error)
+        console.info('Backend no disponible, usando SQLite:', error)
       }
     }
 
@@ -23,29 +31,48 @@ function Home() {
   }, [])
 
   return (
-    <div className="home-container">
-      <header className="header">
-        <h1 className="logo">Physoft</h1>
-        <p className="tagline">Plataforma de Análisis Deportivo</p>
-      </header>
-
-      <main className="main-content">
-        <section className="hero">
-          <h2>Bienvenido al MVP de Physoft</h2>
-          <p>
-            Análisis musculoesquelético avanzado para atletas de alto rendimiento.
-          </p>
-        </section>
-
+    <PageTemplate
+      title="Estado del Sistema"
+      subtitle="Verificación de conectividad y funcionalidades"
+      className="home-page"
+    >
+      <div className="home-content">
+        {/* Estado de Conexión */}
         <section className="status-card">
-          <h3>Estado del Sistema</h3>
-          <p className={loading ? 'status-loading' : 'status-ready'}>
-            {status}
-          </p>
+          <div className="status-header">
+            <h3>Conexión Backend</h3>
+            {loading ? (
+              <div className="status-loading">⏳ Verificando...</div>
+            ) : (
+              <div className={`status-badge ${isConnected ? 'connected' : 'offline'}`}>
+                {isConnected ? (
+                  <><IoCheckmarkCircle /> Conectado</>
+                ) : (
+                  <><IoCloseCircle /> Modo Offline</>
+                )}
+              </div>
+            )}
+          </div>
+          <p className="status-message">{status}</p>
         </section>
 
-        <section className="features">
-          <h3>Funcionalidades del MVP</h3>
+        {/* Hero Section */}
+        <section className="hero-section">
+          <div className="hero-icon">
+            <IoRocket />
+          </div>
+          <h2>Bienvenido a Physoft</h2>
+          <p className="hero-description">
+            Sistema avanzado de análisis musculoesquelético para atletas de alto rendimiento
+          </p>
+          <button className="btn-primary btn-primary-large" onClick={() => navigate('/dashboard')}>
+            Ir al Dashboard
+          </button>
+        </section>
+
+        {/* Features Grid */}
+        <section className="features-section">
+          <h3 className="section-title">Funcionalidades Principales</h3>
           <div className="feature-grid">
             <div className="feature-card">
               <h4>📊 Análisis BTS</h4>
@@ -64,13 +91,22 @@ function Home() {
               <p>Gráficas de progreso por sesiones</p>
             </div>
           </div>
+          </div>
         </section>
-      </main>
 
-      <footer className="footer">
-        <p>Physoft v1.0.0 - MVP</p>
-      </footer>
-    </div>
+        {/* Info adicional */}
+        <section className="info-section">
+          <div className="info-card">
+            <h4>💾 Almacenamiento Local</h4>
+            <p>Los datos se guardan en SQLite local para acceso offline</p>
+          </div>
+          <div className="info-card">
+            <h4>☁️ Sincronización en la Nube</h4>
+            <p>Próximamente: sync automático con Supabase</p>
+          </div>
+        </section>
+      </div>
+    </PageTemplate>
   )
 }
 

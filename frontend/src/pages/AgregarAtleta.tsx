@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoArrowBack, IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar } from 'react-icons/io5'
+import { IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar } from 'react-icons/io5'
+import PageTemplate from '../components/templates/PageTemplate'
 import { db } from '../services/database'
 import type { CrearAtletaDTO } from '../electron'
 import '../styles/AgregarAtleta.css'
@@ -82,43 +83,19 @@ function AgregarAtleta() {
   }
 
   return (
-    <div className="agregar-atleta-page">
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-content">
-          <a href="#" className="navbar-brand" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-            <img src="/src/assets/physoft.png" alt="Physoft" className="navbar-logo" />
-            <span className="navbar-title">Physoft</span>
-          </a>
-          
-          <ul className="navbar-menu">
-            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="navbar-link">Inicio</a></li>
-            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('/analisis'); }} className="navbar-link">Análisis</a></li>
-            <li><a href="#" className="navbar-link active">Agregar Atleta</a></li>
-          </ul>
-          
-          <div className="navbar-actions">
-            <button className="navbar-icon-btn" onClick={() => navigate('/dashboard')}>
-              <IoArrowBack />
-            </button>
+    <PageTemplate
+      title="Agregar Nuevo Atleta"
+      subtitle="Completa la información del atleta para agregarlo a la base de datos local"
+      showBackButton={true}
+      backTo="/dashboard"
+      className="agregar-atleta-page"
+    >
+      <div className="agregar-atleta-container">
+        {mensaje && (
+          <div className={`mensaje ${mensaje.tipo}`}>
+            {mensaje.texto}
           </div>
-        </div>
-      </nav>
-
-      {/* Contenido Principal */}
-      <main className="agregar-atleta-content">
-        <div className="agregar-atleta-container">
-          <div className="agregar-atleta-header">
-            <IoPersonAdd className="header-icon" />
-            <h1>Agregar Nuevo Atleta</h1>
-            <p>Completa la información del atleta para agregarlo a la base de datos local</p>
-          </div>
-
-          {mensaje && (
-            <div className={`mensaje ${mensaje.tipo}`}>
-              {mensaje.texto}
-            </div>
-          )}
+        )}
 
           <form onSubmit={handleSubmit} className="atleta-form">
             {/* Información Personal */}
@@ -262,15 +239,6 @@ function AgregarAtleta() {
             {/* Botones */}
             <div className="form-actions">
               <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => navigate('/dashboard')}
-                disabled={guardando}
-              >
-                <IoArrowBack /> Cancelar
-              </button>
-              
-              <button
                 type="submit"
                 className="btn-primary"
                 disabled={guardando}
@@ -283,9 +251,8 @@ function AgregarAtleta() {
               </button>
             </div>
           </form>
-        </div>
-      </main>
-    </div>
+      </div>
+    </PageTemplate>
   )
 }
 

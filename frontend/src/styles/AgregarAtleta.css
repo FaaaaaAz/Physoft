@@ -4,7 +4,7 @@
 
 .agregar-atleta-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-bg-primary, #0a0a0a);
 }
 
 .agregar-atleta-content {
@@ -28,7 +28,7 @@
 
 .agregar-atleta-header .header-icon {
   font-size: 4rem;
-  color: #667eea;
+  color: var(--color-primary, #14b8a6);
   margin-bottom: 1rem;
 }
 
@@ -88,7 +88,7 @@
 }
 
 .form-section h3 svg {
-  color: #667eea;
+  color: var(--color-primary, #14b8a6);
 }
 
 .form-row {
@@ -118,7 +118,7 @@
 }
 
 .form-group label svg {
-  color: #667eea;
+  color: var(--color-primary, #14b8a6);
   font-size: 1.1rem;
 }
 
@@ -135,8 +135,8 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--color-primary, #14b8a6);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
 }
 
 .form-group input::placeholder {
@@ -176,13 +176,14 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary, #14b8a6);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-dark, #0d9488);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 20px rgba(20, 184, 166, 0.3);
 }
 
 .btn-primary:disabled {

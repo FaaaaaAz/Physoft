@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { IoAdd, IoSearch, IoFitness, IoTrendingUp, IoDocument } from 'react-icons/io5'
+import { IoSearch, IoFitness, IoTrendingUp, IoDocument } from 'react-icons/io5'
+import PageTemplate from '../components/templates/PageTemplate'
 import AtletaSelectionModal from '../components/AtletaSelectionModal'
 import FormularioAnalisis from '../components/FormularioAnalisis'
 import '../styles/Analisis.css'
@@ -42,7 +43,7 @@ function Analisis() {
     setShowAtletaModal(true)
   }
 
-  const handleAtletaSeleccionado = (atleta: any, esNuevo: boolean) => {
+  const handleAtletaSeleccionado = (atleta: any, _esNuevo: boolean) => {
     setAtletaSeleccionado(atleta)
     setShowAtletaModal(false)
     setShowFormulario(true)
@@ -63,26 +64,11 @@ function Analisis() {
   }
 
   return (
-    <div className="analisis-page">
-      {/* Header con acción principal */}
-      <div className="analisis-header">
-        <div className="header-content">
-          <div className="header-info">
-            <h1 className="page-title">
-              <IoFitness className="title-icon" />
-              Análisis Kinesiológico
-            </h1>
-            <p className="page-subtitle">
-              Gestiona y crea evaluaciones deportivas completas
-            </p>
-          </div>
-          <button className="btn-primary-large" onClick={handleCrearAnalisis}>
-            <IoAdd />
-            Crear Nuevo Análisis
-          </button>
-        </div>
-      </div>
-
+    <PageTemplate
+      title="Análisis Kinesiológico"
+      subtitle="Gestiona y crea evaluaciones deportivas completas"
+      className="analisis-page"
+    >
       {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
@@ -187,7 +173,7 @@ function Analisis() {
           onSelect={handleAtletaSeleccionado}
         />
       )}
-    </div>
+    </PageTemplate>
   )
 }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoFootball } from 'react-icons/io5'
+import { IoArrowForward } from 'react-icons/io5'
+import PageTemplate from '../components/templates/PageTemplate'
 import '../styles/Welcome.css'
 
 function Welcome() {
@@ -15,7 +16,8 @@ function Welcome() {
   }
 
   return (
-    <div className={`welcome-container ${isAnimating ? 'fade-out' : ''}`}>
+    <PageTemplate showNavbar={false} className="welcome-wrapper">
+      <div className={`welcome-container ${isAnimating ? 'fade-out' : ''}`}>
       <div className="welcome-content">
         <div className="logo-container">
           <img 
@@ -35,7 +37,7 @@ function Welcome() {
 
         <button className="welcome-button" onClick={handleEnter}>
           <span>Ingresar a la Plataforma</span>
-          <IoFootball className="button-icon" />
+          <IoArrowForward className="button-icon" />
         </button>
 
         <div className="welcome-footer">
@@ -48,7 +50,8 @@ function Welcome() {
         <div className="gradient-orb orb-2"></div>
         <div className="gradient-orb orb-3"></div>
       </div>
-    </div>
+      </div>
+    </PageTemplate>
   )
 }
 

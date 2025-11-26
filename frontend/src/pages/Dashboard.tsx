@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoSearch, IoSettings, IoPerson, IoFootball, IoAdd } from 'react-icons/io5'
+import { IoSearch, IoFootball } from 'react-icons/io5'
+import PageTemplate from '../components/templates/PageTemplate'
 import AtletaCard from '../components/AtletaCard'
 import AtletaModal from '../components/AtletaModal'
 import { db } from '../services/database'
@@ -90,35 +91,11 @@ function Dashboard() {
   const deportes = ['Todos', ...Array.from(new Set(todosLosAtletas.map(a => a.deporte)))]
 
   return (
-    <div className="dashboard">
-      <nav className="navbar">
-        <div className="navbar-content">
-          <a href="#" className="navbar-brand" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-            <img src="/src/assets/physoft.png" alt="Physoft" className="navbar-logo" />
-            <span className="navbar-title">Physoft</span>
-          </a>
-          
-          <ul className="navbar-menu">
-            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="navbar-link active">Inicio</a></li>
-            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('/analisis'); }} className="navbar-link">Análisis</a></li>
-            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('/agregar-atleta'); }} className="navbar-link">Agregar Atleta</a></li>
-          </ul>
-          
-          <div className="navbar-actions">
-            <button className="navbar-icon-btn" onClick={() => navigate('/agregar-atleta')}>
-              <IoAdd />
-            </button>
-            <button className="navbar-icon-btn">
-              <IoSettings />
-            </button>
-            <button className="navbar-icon-btn">
-              <IoPerson />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <main className="dashboard-content">
+    <PageTemplate
+      title="Dashboard"
+      subtitle="Gestiona tus atletas y análisis kinesiológicos"
+      className="dashboard"
+    >
         <div className="dashboard-filters">
           <div className="search-container">
             <IoSearch className="search-icon" />
@@ -140,6 +117,15 @@ function Dashboard() {
               <option key={deporte} value={deporte}>{deporte}</option>
             ))}
           </select>
+
+          <button 
+            className="btn-add-atleta"
+            onClick={() => navigate('/agregar-atleta')}
+            title="Agregar Atleta"
+          >
+            <IoFootball />
+            Agregar Atleta
+          </button>
         </div>
 
         {cargando ? (
@@ -160,17 +146,14 @@ function Dashboard() {
           <div className="empty-state">
             <IoFootball />
             <h3>No se encontraron atletas</h3>
-            <p>Intenta con otros criterios de búsqueda o <button onClick={() => navigate('/agregar-atleta')} style={{textDecoration: 'underline', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer'}}>agrega uno nuevo</button></p>
-          </div>
-        )}
-      </main>
+          <p>Intenta con otros criterios de búsqueda o <button onClick={() => navigate('/agregar-atleta')} style={{textDecoration: 'underline', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer'}}>agrega uno nuevo</button></p>
+        </div>
+      )}
 
       <AtletaModal
         atleta={atletaSeleccionado}
         onClose={() => setAtletaSeleccionado(null)}
       />
-    </div>
+    </PageTemplate>
   )
-}
-
-export default Dashboard
+}export default Dashboard
