@@ -2,8 +2,7 @@ import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
-import { db } from '../services/database'
-import type { CrearAtletaDTO } from '../electron'
+import { athleteAPI, type CreateAthleteDTO } from '../services/api'
 import '../styles/AgregarAtleta.css'
 
 function AgregarAtleta() {
@@ -11,38 +10,38 @@ function AgregarAtleta() {
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error', texto: string } | null>(null)
 
-  const [formData, setFormData] = useState<CrearAtletaDTO>({
-    nombre: '',
-    genero: 'Masculino',
-    disciplina: '',
-    posicion: '',
-    somatotipo: 'Mesomorfo',
-    altura: 0,
-    peso: 0,
-    edad: 0
+  const [formData, setFormData] = useState<CreateAthleteDTO>({
+    name: '',
+    gender: 'Male',
+    sport: '',
+    position: '',
+    bodyType: 'Mesomorph',
+    height: 0,
+    weight: 0,
+    age: 0
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: ['altura', 'peso', 'edad'].includes(name) ? Number(value) : value
+      [name]: ['height', 'weight', 'age'].includes(name) ? Number(value) : value
     }))
   }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     
-    // Validación
-    if (!formData.nombre.trim()) {
+    // Validation
+    if (!formData.name.trim()) {
       setMensaje({ tipo: 'error', texto: 'El nombre es obligatorio' })
       return
     }
-    if (!formData.disciplina.trim()) {
+    if (!formData.sport.trim()) {
       setMensaje({ tipo: 'error', texto: 'La disciplina es obligatoria' })
       return
     }
-    if (formData.edad <= 0 || formData.altura <= 0 || formData.peso <= 0) {
+    if (formData.age <= 0 || formData.height <= 0 || formData.weight <= 0) {
       setMensaje({ tipo: 'error', texto: 'Edad, altura y peso deben ser mayores a 0' })
       return
     }
@@ -51,32 +50,31 @@ function AgregarAtleta() {
     setMensaje(null)
 
     try {
-      const response = await db.crearAtleta(formData)
+      const response = await athleteAPI.create(formData)
       
       if (response.success) {
-        setMensaje({ tipo: 'success', texto: `✅ Atleta ${formData.nombre} creado exitosamente` })
+        setMensaje({ tipo: 'success', texto: `✅ Atleta ${formData.name} creado exitosamente` })
         
-        // Limpiar formulario
+        // Clear form
         setFormData({
-          nombre: '',
-          genero: 'Masculino',
-          disciplina: '',
-          posicion: '',
-          somatotipo: 'Mesomorfo',
-          altura: 0,
-          peso: 0,
-          edad: 0
+          name: '',
+          gender: 'Male',
+          sport: '',
+          position: '',
+          bodyType: 'Mesomorph',
+          height: 0,
+          weight: 0,
+          age: 0
         })
         
-        // Redirigir después de 2 segundos
+        // Redirect after 2 seconds
         setTimeout(() => {
           navigate('/dashboard')
         }, 2000)
-      } else {
-        setMensaje({ tipo: 'error', texto: `❌ Error: ${response.error}` })
       }
     } catch (error: any) {
-      setMensaje({ tipo: 'error', texto: `❌ Error inesperado: ${error.message}` })
+      const errorMsg = error.response?.data?.error || error.message || 'Error desconocido'
+      setMensaje({ tipo: 'error', texto: `❌ Error: ${errorMsg}` })
     } finally {
       setGuardando(false)
     }
@@ -104,12 +102,12 @@ function AgregarAtleta() {
               
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="nombre">Nombre Completo *</label>
+                  <label htmlFor="name">Nombre Completo *</label>
                   <input
                     type="text"
-                    id="nombre"
-                    name="nombre"
-                    value={formData.nombre}
+                    id="name"
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
                     placeholder="Ej: Lionel Messi"
                     required
@@ -117,29 +115,29 @@ function AgregarAtleta() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="genero">Género *</label>
+                  <label htmlFor="gender">Género *</label>
                   <select
-                    id="genero"
-                    name="genero"
-                    value={formData.genero}
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
                     onChange={handleChange}
                     required
                   >
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                    <option value="Otro">Otro</option>
+                    <option value="Male">Masculino</option>
+                    <option value="Female">Femenino</option>
+                    <option value="Other">Otro</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="edad"><IoCalendar /> Edad *</label>
+                  <label htmlFor="age"><IoCalendar /> Edad *</label>
                   <input
                     type="number"
-                    id="edad"
-                    name="edad"
-                    value={formData.edad || ''}
+                    id="age"
+                    name="age"
+                    value={formData.age || ''}
                     onChange={handleChange}
                     placeholder="Ej: 25"
                     min="1"
@@ -156,12 +154,12 @@ function AgregarAtleta() {
               
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="disciplina">Disciplina/Deporte *</label>
+                  <label htmlFor="sport">Disciplina/Deporte *</label>
                   <input
                     type="text"
-                    id="disciplina"
-                    name="disciplina"
-                    value={formData.disciplina}
+                    id="sport"
+                    name="sport"
+                    value={formData.sport}
                     onChange={handleChange}
                     placeholder="Ej: Fútbol, Baloncesto, Atletismo"
                     required
@@ -169,12 +167,12 @@ function AgregarAtleta() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="posicion">Posición/Especialidad</label>
+                  <label htmlFor="position">Posición/Especialidad</label>
                   <input
                     type="text"
-                    id="posicion"
-                    name="posicion"
-                    value={formData.posicion}
+                    id="position"
+                    name="position"
+                    value={formData.position}
                     onChange={handleChange}
                     placeholder="Ej: Delantero, Defensa"
                   />
@@ -188,29 +186,29 @@ function AgregarAtleta() {
               
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="somatotipo">Somatotipo *</label>
+                  <label htmlFor="bodyType">Somatotipo *</label>
                   <select
-                    id="somatotipo"
-                    name="somatotipo"
-                    value={formData.somatotipo}
+                    id="bodyType"
+                    name="bodyType"
+                    value={formData.bodyType}
                     onChange={handleChange}
                     required
                   >
-                    <option value="Ectomorfo">Ectomorfo (Delgado)</option>
-                    <option value="Mesomorfo">Mesomorfo (Atlético)</option>
-                    <option value="Endomorfo">Endomorfo (Robusto)</option>
+                    <option value="Ectomorph">Ectomorfo (Delgado)</option>
+                    <option value="Mesomorph">Mesomorfo (Atlético)</option>
+                    <option value="Endomorph">Endomorfo (Robusto)</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="altura"><IoResize /> Altura (cm) *</label>
+                  <label htmlFor="height"><IoResize /> Altura (cm) *</label>
                   <input
                     type="number"
-                    id="altura"
-                    name="altura"
-                    value={formData.altura || ''}
+                    id="height"
+                    name="height"
+                    value={formData.height || ''}
                     onChange={handleChange}
                     placeholder="Ej: 175"
                     min="1"
@@ -220,12 +218,12 @@ function AgregarAtleta() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="peso"><IoScale /> Peso (kg) *</label>
+                  <label htmlFor="weight"><IoScale /> Peso (kg) *</label>
                   <input
                     type="number"
-                    id="peso"
-                    name="peso"
-                    value={formData.peso || ''}
+                    id="weight"
+                    name="weight"
+                    value={formData.weight || ''}
                     onChange={handleChange}
                     placeholder="Ej: 75"
                     min="1"

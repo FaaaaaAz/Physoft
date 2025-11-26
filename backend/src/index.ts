@@ -5,14 +5,15 @@
 // Servidor API REST para análisis deportivo
 // ============================================
 
-import express, { Application, Request, Response } from 'express'
+import express, { Application, Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import dotenv from 'dotenv'
-import atletaRoutes from './presentation/routes/atletaRoutes'
+import athleteRoutes from './presentation/routes/athleteRoutes'
+import analysisRoutes from './presentation/routes/analysisRoutes'
 
-// Cargar variables de entorno
+// Load environment variables
 dotenv.config()
 
 const app: Application = express()
@@ -22,43 +23,46 @@ const PORT = process.env.PORT || 3000
 // MIDDLEWARES
 // ============================================
 
-// Seguridad HTTP headers
+// HTTP headers security
 app.use(helmet())
 
-// CORS - permitir peticiones desde el frontend
+// CORS - allow requests from frontend
 const corsOptions = {
   origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173'],
   credentials: true,
 }
 app.use(cors(corsOptions))
 
-// Parser de JSON
+// JSON parser
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Logger de peticiones HTTP
+// HTTP request logger
 app.use(morgan('dev'))
 
 // ============================================
-// RUTAS
+// ROUTES
 // ============================================
 
-// Ruta de prueba (health check)
+// Test route (health check)
 app.get('/api/ping', (req: Request, res: Response) => {
   res.json({
-    message: 'Pong! Backend funcionando correctamente',
+    message: 'Pong! Backend working correctly',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
   })
 })
 
-// Rutas de atletas
-app.use('/api/atletas', atletaRoutes)
+// Athlete routes
+app.use('/api/atletas', athleteRoutes)
 
-// Ruta 404
+// Analysis routes
+app.use('/api/analisis', analysisRoutes)
+
+// 404 route
 app.use((req: Request, res: Response) => {
   res.status(404).json({
-    error: 'Endpoint no encontrado',
+    error: 'Endpoint not found',
     path: req.path,
   })
 })
@@ -67,7 +71,7 @@ app.use((req: Request, res: Response) => {
 // MANEJO DE ERRORES GLOBAL
 // ============================================
 
-app.use((err: Error, req: Request, res: Response, next: any) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Error:', err)
   res.status(500).json({
     error: 'Error interno del servidor',

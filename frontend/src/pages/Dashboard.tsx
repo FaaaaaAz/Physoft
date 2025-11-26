@@ -1,15 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoSearch, IoFootball } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import AtletaCard from '../components/AtletaCard'
 import AtletaModal from '../components/AtletaModal'
-import { db } from '../services/database'
-import { atletasEjemplo } from '../data/atletasData'
-import type { Atleta } from '../electron'
+import { athleteAPI, type Athlete } from '../services/api'
 import '../styles/Dashboard.css'
 
-// Tipo para el atleta mostrado en el dashboard
+// Type for athlete displayed in dashboard
 interface AtletaMostrado {
   id: number
   nombre: string
@@ -28,7 +26,6 @@ interface AtletaMostrado {
     flexibilidad: number
     resistencia: number
   }
-  esHardcoded?: boolean // Para saber si viene de ejemplos
 }
 
 function Dashboard() {
@@ -36,59 +33,83 @@ function Dashboard() {
   const [busqueda, setBusqueda] = useState('')
   const [deporteFiltro, setDeporteFiltro] = useState('Todos')
   const [atletaSeleccionado, setAtletaSeleccionado] = useState<AtletaMostrado | null>(null)
-  const [atletasDB, setAtletasDB] = useState<Atleta[]>([])
+  const [atletasDB, setAtletasDB] = useState<Athlete[]>([])
   const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch athletes from backend
+  const cargarAtletas = useCallback(async () => {
+    setCargando(true)
+    setError(null)
+    try {
+      const response = await athleteAPI.getAll()
+      if (response.success && response.data) {
+        setAtletasDB(response.data)
+      }
+    } catch (err) {
+      console.error('Error loading athletes:', err)
+      setError('Could not load athletes from server')
+    } finally {
+      setCargando(false)
+    }
+  }, [])
 
   useEffect(() => {
     cargarAtletas()
-  }, [])
+  }, [cargarAtletas])
 
-  const cargarAtletas = async () => {
-    setCargando(true)
-    const response = await db.obtenerAtletas()
-    if (response.success && response.data) {
-      setAtletasDB(response.data)
-    } else {
-      console.error('Error al cargar atletas:', response.error)
-    }
-    setCargando(false)
-  }
-
-  // Combinar atletas hardcodeados + atletas de la DB
-  const todosLosAtletas: AtletaMostrado[] = [
-    // Atletas hardcodeados (ejemplos)
-    ...atletasEjemplo.map(a => ({ ...a, esHardcoded: true })),
-    
-    // Atletas de la base de datos
-    ...atletasDB.map(atleta => ({
-      id: 0,
-      nombre: atleta.nombre,
+  // Transform athletes for display - memoized to avoid recalculation
+  const atletasMostrados = useMemo((): AtletaMostrado[] => {
+    return atletasDB.map(atleta => ({
+      id: atleta.id,
+      nombre: atleta.name,
       foto: '/src/assets/players/default.png',
-      deporte: atleta.disciplina,
-      edad: atleta.edad,
+      deporte: atleta.sport,
+      edad: atleta.age,
       nacionalidad: 'No especificado',
-      altura: atleta.altura,
-      peso: atleta.peso,
-      club: atleta.posicion || 'Sin equipo',
-      somatotipo: atleta.somatotipo,
+      altura: atleta.height,
+      peso: atleta.weight,
+      club: atleta.position || 'Sin equipo',
+      somatotipo: atleta.bodyType,
       capacidades: {
         potencia: 75,
         fuerza: 75,
         velocidad: 75,
         flexibilidad: 75,
         resistencia: 75
-      },
-      esHardcoded: false
+      }
     }))
-  ]
+  }, [atletasDB])
 
-  const atletasFiltrados = todosLosAtletas.filter(atleta => {
-    const coincideNombre = atleta.nombre.toLowerCase().includes(busqueda.toLowerCase())
-    const coincideDeporte = deporteFiltro === 'Todos' || atleta.deporte === deporteFiltro
-    return coincideNombre && coincideDeporte
-  })
+  // Filter athletes - memoized to avoid recalculation
+  const atletasFiltrados = useMemo(() => {
+    return atletasMostrados.filter(atleta => {
+      const coincideNombre = atleta.nombre.toLowerCase().includes(busqueda.toLowerCase())
+      const coincideDeporte = deporteFiltro === 'Todos' || atleta.deporte === deporteFiltro
+      return coincideNombre && coincideDeporte
+    })
+  }, [atletasMostrados, busqueda, deporteFiltro])
 
-  const deportes = ['Todos', ...Array.from(new Set(todosLosAtletas.map(a => a.deporte)))]
+  // Get unique sports - memoized
+  const deportes = useMemo(() => {
+    return ['Todos', ...Array.from(new Set(atletasMostrados.map(a => a.deporte)))]
+  }, [atletasMostrados])
+
+  // Handle athlete selection - fetch full details from backend
+  const handleAtletaClick = useCallback(async (atleta: AtletaMostrado) => {
+    try {
+      // Fetch full athlete details including analyses
+      const response = await athleteAPI.getById(atleta.id)
+      if (response.success && response.data) {
+        // Transform to display format
+        setAtletaSeleccionado(atleta)
+      }
+    } catch (err) {
+      console.error('Error fetching athlete details:', err)
+      // Still show modal with cached data
+      setAtletaSeleccionado(atleta)
+    }
+  }, [])
 
   return (
     <PageTemplate
@@ -128,17 +149,23 @@ function Dashboard() {
           </button>
         </div>
 
+        {error && (
+          <div className="error-message" style={{padding: '1rem', background: '#fee', color: '#c00', borderRadius: '8px', marginBottom: '1rem'}}>
+            {error}
+          </div>
+        )}
+
         {cargando ? (
           <div className="empty-state">
             <p>Cargando atletas...</p>
           </div>
         ) : atletasFiltrados.length > 0 ? (
           <div className="atletas-grid">
-            {atletasFiltrados.map((atleta, index) => (
+            {atletasFiltrados.map((atleta) => (
               <AtletaCard
-                key={atleta.esHardcoded ? atleta.id : `db-${index}`}
+                key={atleta.id}
                 atleta={atleta}
-                onClick={() => setAtletaSeleccionado(atleta)}
+                onClick={() => handleAtletaClick(atleta)}
               />
             ))}
           </div>
