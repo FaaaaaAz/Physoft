@@ -2,8 +2,7 @@ import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar, IoMail, IoCall, IoImage } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
-import { db } from '../services/database'
-import type { CrearAtletaDTO } from '../electron'
+import { athleteAPI, type CreateAthleteDTO } from '../services/api'
 import '../styles/AgregarAtleta.css'
 
 function AgregarAtleta() {
@@ -12,7 +11,7 @@ function AgregarAtleta() {
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error', texto: string } | null>(null)
   const [fotoPreview, setFotoPreview] = useState<string | null>(null)
 
-  const [formData, setFormData] = useState<CrearAtletaDTO>({
+  const [formData, setFormData] = useState<CreateAthleteDTO>({
     codigoAcceso: '',
     foto: '',
     nombre: '',
@@ -88,8 +87,8 @@ function AgregarAtleta() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     
-    // Validación
-    if (!formData.nombre.trim()) {
+    // Validation
+    if (!formData.name.trim()) {
       setMensaje({ tipo: 'error', texto: 'El nombre es obligatorio' })
       return
     }
@@ -114,7 +113,7 @@ function AgregarAtleta() {
     setMensaje(null)
 
     try {
-      const response = await db.crearAtleta(formData)
+      const response = await athleteAPI.create(formData)
       
       if (response.success) {
         setMensaje({ tipo: 'success', texto: `✅ Atleta ${formData.nombre} creado exitosamente con código ${formData.codigoAcceso}` })
@@ -139,15 +138,14 @@ function AgregarAtleta() {
         setFotoPreview(null)
         generateAccessCode()
         
-        // Redirigir después de 2 segundos
+        // Redirect after 2 seconds
         setTimeout(() => {
           navigate('/dashboard')
         }, 2000)
-      } else {
-        setMensaje({ tipo: 'error', texto: `❌ Error: ${response.error}` })
       }
     } catch (error: any) {
-      setMensaje({ tipo: 'error', texto: `❌ Error inesperado: ${error.message}` })
+      const errorMsg = error.response?.data?.error || error.message || 'Error desconocido'
+      setMensaje({ tipo: 'error', texto: `❌ Error: ${errorMsg}` })
     } finally {
       setGuardando(false)
     }

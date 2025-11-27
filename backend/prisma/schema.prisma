@@ -1,9 +1,9 @@
 // ============================================
 // PRISMA SCHEMA - Physoft Database
 // ============================================
-// Base de datos para análisis deportivo musculoesquelético
-// Desarrollo: SQLite (dev.db)
-// Producción: PostgreSQL
+// Database for sports musculoskeletal analysis
+// Development: SQLite (dev.db)
+// Production: PostgreSQL
 // ============================================
 
 generator client {
@@ -11,72 +11,74 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"  // Cambiar a "postgresql" en producción
+  provider = "sqlite"  // Change to "postgresql" in production
   url      = env("DATABASE_URL")
 }
 
 // ============================================
-// MODELO: Atleta
+// MODEL: Athlete
 // ============================================
-// Representa a un atleta con sus características físicas y demográficas
+// Represents an athlete with their physical and demographic characteristics
 
-model Atleta {
+model Athlete {
   id          Int       @id @default(autoincrement())
-  nombre      String
-  genero      String    // "Masculino", "Femenino", "Otro"
-  disciplina  String    // Deporte que practica
-  posicion    String?   // Posición en el deporte (opcional)
-  somatotipo  String    // "Mesomorfo", "Ectomorfo", "Endomorfo"
-  altura      Float     // En centímetros
-  peso        Float     // En libras
-  edad        Int       // Edad del atleta
+  name        String
+  gender      String    // "Male", "Female", "Other"
+  sport       String    // Sport practiced
+  position    String?   // Position in sport (optional)
+  bodyType    String    // "Mesomorph", "Ectomorph", "Endomorph"
+  height      Float     // In centimeters
+  weight      Float     // In kilograms
+  age         Int       // Athlete's age
   
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
-  // Relación con análisis
-  analisis    Analisis[]
+  // Relationship with analyses
+  analyses    Analysis[]
   
-  @@index([genero, disciplina, somatotipo])
-  @@index([edad, altura, peso])
+  @@index([gender, sport, bodyType])
+  @@index([age, height, weight])
+  @@map("athletes")
 }
 
 // ============================================
-// MODELO: Análisis
+// MODEL: Analysis
 // ============================================
-// Representa un análisis musculoesquelético (BTS) de un atleta
+// Represents a musculoskeletal analysis (BTS) of an athlete
 
-model Analisis {
+model Analysis {
   id              Int       @id @default(autoincrement())
-  atletaId        Int
-  fechaAnalisis   DateTime  @default(now())
-  tipoAnalisis    String    // "BTS", "Biomecánico", etc.
+  athleteId       Int
+  analysisDate    DateTime  @default(now())
+  analysisType    String    // "BTS", "Biomechanical", etc.
   
-  // Datos del análisis (JSON flexible para MVP)
-  datosJson       String    // Almacena datos estructurados en JSON
+  // Analysis data (flexible JSON for MVP)
+  dataJson        String    // Stores structured data in JSON
   
-  // Resultados de comparación
-  estadoGeneral   String?   // "Bajo", "Promedio", "Alto"
-  puntoDebil1     String?
-  puntoDebil2     String?
-  puntoDebil3     String?
-  margenMejora    Float?    // Porcentaje de mejora posible
+  // Comparison results
+  overallStatus   String?   // "Low", "Average", "High"
+  weakPoint1      String?
+  weakPoint2      String?
+  weakPoint3      String?
+  improvementMargin Float?  // Improvement margin percentage
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   
-  // Relación con atleta
-  atleta          Atleta    @relation(fields: [atletaId], references: [id], onDelete: Cascade)
+  // Relationship with athlete
+  athlete         Athlete   @relation(fields: [athleteId], references: [id], onDelete: Cascade)
   
-  @@index([atletaId, fechaAnalisis])
+  @@index([athleteId, analysisDate])
+  @@map("analyses")
 }
 
 // ============================================
-// MODELO: Cohorte (Futura implementación)
+// MODEL: Cohort (Future implementation)
 // ============================================
-// Representa grupos de comparación para estadísticas
+// Represents comparison groups for statistics
 
-// model Cohorte {
+// model Cohort {
 //   id          Int       @id @default(autoincrement())
 //   nombre      String
 //   descripcion String?
