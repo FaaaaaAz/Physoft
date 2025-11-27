@@ -21,21 +21,23 @@ datasource db {
 // Represents an athlete with their physical and demographic characteristics
 
 model Athlete {
-  id          Int       @id @default(autoincrement())
-  name        String
-  gender      String    // "Male", "Female", "Other"
-  sport       String    // Sport practiced
-  position    String?   // Position in sport (optional)
-  bodyType    String    // "Mesomorph", "Ectomorph", "Endomorph"
-  height      Float     // In centimeters
-  weight      Float     // In kilograms
-  age         Int       // Athlete's age
+  id                  Int       @id @default(autoincrement())
+  name                String
+  gender              String    // "Male", "Female", "Other"
+  sport               String    // Sport practiced
+  position            String?   // Position in sport (optional)
+  bodyType            String    // "Mesomorph", "Ectomorph", "Endomorph"
+  height              Float     // In centimeters
+  weight              Float     // In kilograms
+  age                 Int       // Athlete's age
+  photo               String?   // Photo URL (local or Cloudinary)
+  cloudinaryPublicId  String?   // Cloudinary public ID for deletion
   
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   
   // Relationship with analyses
-  analyses    Analysis[]
+  analyses            Analysis[]
   
   @@index([gender, sport, bodyType])
   @@index([age, height, weight])

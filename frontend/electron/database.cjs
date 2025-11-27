@@ -2,18 +2,18 @@ const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 const { app } = require('electron');
 
-// Inicializar Prisma Client
+// Initialize Prisma Client
 let prisma;
 
 function initDatabase() {
   if (!prisma) {
-    // En producción, la DB estará en el directorio de usuario
+    // In production, the DB will be in the user directory
     const dbPath = app.isPackaged
       ? path.join(app.getPath('userData'), 'physoft.db')
       : path.join(__dirname, '..', 'prisma', 'physoft.db');
-    
+
     process.env.DATABASE_URL = `file:${dbPath}`;
-    
+
     prisma = new PrismaClient({
       datasources: {
         db: {
@@ -21,159 +21,159 @@ function initDatabase() {
         }
       }
     });
-    
-    console.log('✅ Base de datos SQLite inicializada:', dbPath);
+
+    console.log('✅ SQLite database initialized:', dbPath);
   }
   return prisma;
 }
 
 // ============================================
-// API de Atletas
+// Athletes API
 // ============================================
 
-async function crearAtleta(data) {
+async function createAthlete(data) {
   const db = initDatabase();
   try {
-    const atleta = await db.atleta.create({
+    const athlete = await db.atleta.create({
       data: {
         ...data,
-        deviceId: require('os').hostname() // ID del dispositivo
+        deviceId: require('os').hostname() // Device ID
       }
     });
-    console.log('✅ Atleta creado:', atleta.nombre);
-    return { success: true, data: atleta };
+    console.log('✅ Athlete created:', athlete.nombre);
+    return { success: true, data: athlete };
   } catch (error) {
-    console.error('❌ Error al crear atleta:', error);
+    console.error('❌ Error creating athlete:', error);
     return { success: false, error: error.message };
   }
 }
 
-async function obtenerAtletas() {
+async function getAthletes() {
   const db = initDatabase();
   try {
-    const atletas = await db.atleta.findMany({
+    const athletes = await db.atleta.findMany({
       where: {
-        deletedAt: null // Solo atletas no eliminados
+        deletedAt: null // Only non-deleted athletes
       },
       orderBy: {
         createdAt: 'desc'
       }
     });
-    return { success: true, data: atletas };
+    return { success: true, data: athletes };
   } catch (error) {
-    console.error('❌ Error al obtener atletas:', error);
+    console.error('❌ Error fetching athletes:', error);
     return { success: false, error: error.message };
   }
 }
 
-async function obtenerAtletaPorId(id) {
+async function getAthleteById(id) {
   const db = initDatabase();
   try {
-    const atleta = await db.atleta.findUnique({
+    const athlete = await db.atleta.findUnique({
       where: { id },
       include: {
         analisis: true
       }
     });
-    return { success: true, data: atleta };
+    return { success: true, data: athlete };
   } catch (error) {
-    console.error('❌ Error al obtener atleta:', error);
+    console.error('❌ Error fetching athlete:', error);
     return { success: false, error: error.message };
   }
 }
 
-async function actualizarAtleta(id, data) {
+async function updateAthlete(id, data) {
   const db = initDatabase();
   try {
-    const atleta = await db.atleta.update({
+    const athlete = await db.atleta.update({
       where: { id },
       data: {
         ...data,
         updatedAt: new Date()
       }
     });
-    console.log('✅ Atleta actualizado:', atleta.nombre);
-    return { success: true, data: atleta };
+    console.log('✅ Athlete updated:', athlete.nombre);
+    return { success: true, data: athlete };
   } catch (error) {
-    console.error('❌ Error al actualizar atleta:', error);
+    console.error('❌ Error updating athlete:', error);
     return { success: false, error: error.message };
   }
 }
 
-async function eliminarAtleta(id) {
+async function deleteAthlete(id) {
   const db = initDatabase();
   try {
     // Soft delete
-    const atleta = await db.atleta.update({
+    const athlete = await db.atleta.update({
       where: { id },
       data: {
         deletedAt: new Date()
       }
     });
-    console.log('✅ Atleta eliminado (soft):', atleta.nombre);
-    return { success: true, data: atleta };
+    console.log('✅ Athlete deleted (soft):', athlete.nombre);
+    return { success: true, data: athlete };
   } catch (error) {
-    console.error('❌ Error al eliminar atleta:', error);
+    console.error('❌ Error deleting athlete:', error);
     return { success: false, error: error.message };
   }
 }
 
 // ============================================
-// API de Análisis
+// Analysis API
 // ============================================
 
-async function crearAnalisis(data) {
+async function createAnalysis(data) {
   const db = initDatabase();
   try {
-    const analisis = await db.analisis.create({
+    const analysis = await db.analisis.create({
       data: {
         ...data,
         deviceId: require('os').hostname()
       }
     });
-    console.log('✅ Análisis creado para atleta:', data.atletaId);
-    return { success: true, data: analisis };
+    console.log('✅ Analysis created for athlete:', data.atletaId);
+    return { success: true, data: analysis };
   } catch (error) {
-    console.error('❌ Error al crear análisis:', error);
+    console.error('❌ Error creating analysis:', error);
     return { success: false, error: error.message };
   }
 }
 
-async function obtenerAnalisisPorAtleta(atletaId) {
+async function getAnalysisByAthlete(athleteId) {
   const db = initDatabase();
   try {
-    const analisis = await db.analisis.findMany({
+    const analyses = await db.analisis.findMany({
       where: {
-        atletaId,
+        atletaId: athleteId,
         deletedAt: null
       },
       orderBy: {
         fechaAnalisis: 'desc'
       }
     });
-    return { success: true, data: analisis };
+    return { success: true, data: analyses };
   } catch (error) {
-    console.error('❌ Error al obtener análisis:', error);
+    console.error('❌ Error fetching analyses:', error);
     return { success: false, error: error.message };
   }
 }
 
-// Cerrar conexión al cerrar la app
+// Close connection when closing the app
 function closeDatabase() {
   if (prisma) {
     prisma.$disconnect();
-    console.log('✅ Base de datos cerrada');
+    console.log('✅ Database closed');
   }
 }
 
 module.exports = {
   initDatabase,
-  crearAtleta,
-  obtenerAtletas,
-  obtenerAtletaPorId,
-  actualizarAtleta,
-  eliminarAtleta,
-  crearAnalisis,
-  obtenerAnalisisPorAtleta,
+  createAthlete,
+  getAthletes,
+  getAthleteById,
+  updateAthlete,
+  deleteAthlete,
+  createAnalysis,
+  getAnalysisByAthlete,
   closeDatabase
 };

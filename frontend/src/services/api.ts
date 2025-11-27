@@ -62,6 +62,8 @@ export interface Athlete {
   height: number
   weight: number
   age: number
+  photo?: string | null
+  cloudinaryPublicId?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -98,7 +100,7 @@ export const athleteAPI = {
     if (filters?.ageMax) params.append('ageMax', filters.ageMax.toString())
 
     const response = await apiClient.get<{ success: boolean; data: Athlete[]; total: number }>(
-      `/atletas?${params.toString()}`
+      `/athletes?${params.toString()}`
     )
     return response.data
   },
@@ -106,7 +108,7 @@ export const athleteAPI = {
   // Get athlete by ID
   getById: async (id: number) => {
     const response = await apiClient.get<{ success: boolean; data: Athlete }>(
-      `/atletas/${id}`
+      `/athletes/${id}`
     )
     return response.data
   },
@@ -114,7 +116,7 @@ export const athleteAPI = {
   // Create new athlete
   create: async (athlete: CreateAthleteDTO) => {
     const response = await apiClient.post<{ success: boolean; data: Athlete; message: string }>(
-      '/atletas',
+      '/athletes',
       athlete
     )
     return response.data
@@ -123,7 +125,7 @@ export const athleteAPI = {
   // Update athlete
   update: async (id: number, athlete: Partial<CreateAthleteDTO>) => {
     const response = await apiClient.put<{ success: boolean; data: Athlete; message: string }>(
-      `/atletas/${id}`,
+      `/athletes/${id}`,
       athlete
     )
     return response.data
@@ -132,20 +134,42 @@ export const athleteAPI = {
   // Delete athlete
   delete: async (id: number) => {
     const response = await apiClient.delete<{ success: boolean; message: string }>(
-      `/atletas/${id}`
+      `/athletes/${id}`
+    )
+    return response.data
+  },
+
+  // Upload athlete photo
+  uploadPhoto: async (id: number, file: File) => {
+    const formData = new FormData()
+    formData.append('photo', file)
+
+    const response = await apiClient.post<{
+      success: boolean
+      data: Athlete
+      message: string
+      cloudinaryStatus: 'uploaded' | 'offline_mode'
+    }>(
+      `/athletes/${id}/photo`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
     )
     return response.data
   },
 
   // Get statistics
   getStatistics: async () => {
-    const response = await apiClient.get('/atletas/estadisticas/resumen')
+    const response = await apiClient.get('/athletes/statistics/summary')
     return response.data
   },
 
   // Compare athlete with cohort
   compare: async (id: number) => {
-    const response = await apiClient.get(`/atletas/${id}/comparar`)
+    const response = await apiClient.get(`/athletes/${id}/compare`)
     return response.data
   }
 }
@@ -209,8 +233,8 @@ export const analysisAPI = {
   create: async (analysis: CreateAnalysisDTO) => {
     const dataToSend = {
       ...analysis,
-      datosJson: typeof analysis.datosJson === 'string' 
-        ? analysis.datosJson 
+      datosJson: typeof analysis.datosJson === 'string'
+        ? analysis.datosJson
         : JSON.stringify(analysis.datosJson)
     }
     const response = await apiClient.post('/analisis', dataToSend)
@@ -219,13 +243,13 @@ export const analysisAPI = {
 
   // Update analysis
   update: async (id: number, analysis: Partial<CreateAnalysisDTO>) => {
-    const dataToSend = analysis.datosJson 
+    const dataToSend = analysis.datosJson
       ? {
-          ...analysis,
-          datosJson: typeof analysis.datosJson === 'string'
-            ? analysis.datosJson
-            : JSON.stringify(analysis.datosJson)
-        }
+        ...analysis,
+        datosJson: typeof analysis.datosJson === 'string'
+          ? analysis.datosJson
+          : JSON.stringify(analysis.datosJson)
+      }
       : analysis
     const response = await apiClient.put(`/analisis/${id}`, dataToSend)
     return response.data
