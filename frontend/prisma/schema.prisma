@@ -1,7 +1,7 @@
 // ============================================
 // PRISMA SCHEMA - Physoft Frontend (SQLite)
 // ============================================
-// Base de datos local para modo offline
+// Local database for offline mode
 // ============================================
 
 generator client {
@@ -14,7 +14,7 @@ datasource db {
 }
 
 // ============================================
-// MODELO: Atleta
+// MODEL: Atleta
 // ============================================
 model Atleta {
   id               String    @id @default(uuid())
@@ -45,7 +45,7 @@ model Atleta {
 }
 
 // ============================================
-// MODELO: Análisis
+// MODEL: Análisis
 // ============================================
 model Analisis {
   id              String    @id @default(uuid())

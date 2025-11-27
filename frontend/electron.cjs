@@ -13,15 +13,15 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs')
     },
-    icon: path.join(__dirname, 'assets', 'icon.png') // Opcional
+    icon: path.join(__dirname, 'assets', 'icon.png') // Optional
   });
 
-  // En desarrollo, cargar desde Vite
+  // In development, load from Vite
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools(); // Abrir DevTools en desarrollo
+    mainWindow.webContents.openDevTools(); // Open DevTools in development
   } else {
-    // En producción, cargar el build
+    // In production, load the build
     mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
 
@@ -31,37 +31,37 @@ function createWindow() {
 }
 
 // ============================================
-// IPC Handlers para Base de Datos
+// IPC Handlers for Database
 // ============================================
 
-// Atletas
-ipcMain.handle('db:crear-atleta', async (event, data) => {
-  return await db.crearAtleta(data);
+// Athletes
+ipcMain.handle('db:create-athlete', async (event, data) => {
+  return await db.createAthlete(data);
 });
 
-ipcMain.handle('db:obtener-atletas', async () => {
-  return await db.obtenerAtletas();
+ipcMain.handle('db:get-athletes', async () => {
+  return await db.getAthletes();
 });
 
-ipcMain.handle('db:obtener-atleta', async (event, id) => {
-  return await db.obtenerAtletaPorId(id);
+ipcMain.handle('db:get-athlete', async (event, id) => {
+  return await db.getAthleteById(id);
 });
 
-ipcMain.handle('db:actualizar-atleta', async (event, id, data) => {
-  return await db.actualizarAtleta(id, data);
+ipcMain.handle('db:update-athlete', async (event, id, data) => {
+  return await db.updateAthlete(id, data);
 });
 
-ipcMain.handle('db:eliminar-atleta', async (event, id) => {
-  return await db.eliminarAtleta(id);
+ipcMain.handle('db:delete-athlete', async (event, id) => {
+  return await db.deleteAthlete(id);
 });
 
-// Análisis
-ipcMain.handle('db:crear-analisis', async (event, data) => {
-  return await db.crearAnalisis(data);
+// Analysis
+ipcMain.handle('db:create-analysis', async (event, data) => {
+  return await db.createAnalysis(data);
 });
 
-ipcMain.handle('db:obtener-analisis', async (event, atletaId) => {
-  return await db.obtenerAnalisisPorAtleta(atletaId);
+ipcMain.handle('db:get-analysis', async (event, athleteId) => {
+  return await db.getAnalysisByAthlete(athleteId);
 });
 
 app.on('ready', () => {

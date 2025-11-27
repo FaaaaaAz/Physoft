@@ -104,7 +104,7 @@ export const athleteAPI = {
     if (filters?.nationality) params.append('nationality', filters.nationality)
 
     const response = await apiClient.get<{ success: boolean; data: Athlete[]; total: number }>(
-      `/atletas?${params.toString()}`
+      `/athletes?${params.toString()}`
     )
     return response.data
   },
@@ -112,7 +112,7 @@ export const athleteAPI = {
   // Get athlete by ID
   getById: async (id: string) => {
     const response = await apiClient.get<{ success: boolean; data: Athlete }>(
-      `/atletas/${id}`
+      `/athletes/${id}`
     )
     return response.data
   },
@@ -158,7 +158,7 @@ export const athleteAPI = {
   // Update athlete
   update: async (id: string, athlete: Partial<CreateAthleteDTO>) => {
     const response = await apiClient.put<{ success: boolean; data: Athlete; message: string }>(
-      `/atletas/${id}`,
+      `/athletes/${id}`,
       athlete
     )
     return response.data
@@ -184,14 +184,36 @@ export const athleteAPI = {
   // Delete athlete
   delete: async (id: string) => {
     const response = await apiClient.delete<{ success: boolean; message: string }>(
-      `/atletas/${id}`
+      `/athletes/${id}`
+    )
+    return response.data
+  },
+
+  // Upload athlete photo
+  uploadPhoto: async (id: number, file: File) => {
+    const formData = new FormData()
+    formData.append('photo', file)
+
+    const response = await apiClient.post<{
+      success: boolean
+      data: Athlete
+      message: string
+      cloudinaryStatus: 'uploaded' | 'offline_mode'
+    }>(
+      `/athletes/${id}/photo`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
     )
     return response.data
   },
 
   // Get statistics
   getStatistics: async () => {
-    const response = await apiClient.get('/atletas/estadisticas/resumen')
+    const response = await apiClient.get('/athletes/statistics/summary')
     return response.data
   },
 

@@ -28,7 +28,7 @@ async function generateAccessCode(): Promise<string> {
 
 export class AthleteController {
   /**
-   * GET /api/atletas
+   * GET /api/athletes
    * Get all athletes with optional filters
    */
   static async getAll(req: Request, res: Response) {
@@ -72,7 +72,7 @@ export class AthleteController {
   }
 
   /**
-   * GET /api/atletas/:id
+   * GET /api/athletes/:id
    * Get an athlete by ID
    */
   static async getById(req: Request, res: Response) {
@@ -177,7 +177,7 @@ export class AthleteController {
   }
 
   /**
-   * PUT /api/atletas/:id
+   * PUT /api/athletes/:id
    * Update an athlete
    */
   static async update(req: Request, res: Response) {
@@ -332,7 +332,7 @@ export class AthleteController {
   }
 
   /**
-   * GET /api/atletas/:id/comparar
+   * GET /api/athletes/:id/compare
    * Compare an athlete with their cohort
    */
   static async comparar(req: Request, res: Response) {
@@ -354,7 +354,7 @@ export class AthleteController {
   }
 
   /**
-   * GET /api/atletas/estadisticas/resumen
+   * GET /api/athletes/statistics/summary
    * Get general athlete statistics
    */
   static async estadisticas(_req: Request, res: Response) {
@@ -408,6 +408,74 @@ export class AthleteController {
       res.status(500).json({
         success: false,
         error: 'Error fetching statistics'
+      })
+    }
+  }
+
+  /**
+   * POST /api/athletes/:id/photo
+   * Upload or update athlete photo (hybrid storage: local + Cloudinary)
+   */
+  static async uploadPhoto(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          error: 'No image file provided'
+        })
+      }
+
+      const athlete = await prisma.athlete.findUnique({
+        where: { id: parseInt(id) }
+      })
+
+      if (!athlete) {
+        return res.status(404).json({
+          success: false,
+          error: 'Athlete not found'
+        })
+      }
+
+      // Delete previous images if they exist
+      if (athlete.photo) {
+        ImageStorageService.deleteLocalImage(athlete.photo)
+      }
+      if (athlete.cloudinaryPublicId) {
+        await ImageStorageService.deleteFromCloudinary(athlete.cloudinaryPublicId)
+      }
+
+      // Local photo URL
+      const localPhotoUrl = `/uploads/athletes/${req.file.filename}`
+      const localPhotoPath = path.join(__dirname, '../../../public', localPhotoUrl)
+
+      // Try to upload to Cloudinary
+      const cloudinaryResult = await ImageStorageService.uploadToCloudinary(
+        localPhotoPath,
+        parseInt(id)
+      )
+
+      // Update database
+      const updatedAthlete = await prisma.athlete.update({
+        where: { id: parseInt(id) },
+        data: {
+          photo: cloudinaryResult?.url || localPhotoUrl,
+          cloudinaryPublicId: cloudinaryResult?.publicId || null
+        }
+      })
+
+      res.json({
+        success: true,
+        data: updatedAthlete,
+        message: 'Photo uploaded successfully',
+        cloudinaryStatus: cloudinaryResult ? 'uploaded' : 'offline_mode'
+      })
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Error uploading photo'
       })
     }
   }

@@ -10,6 +10,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import dotenv from 'dotenv'
+import path from 'path'
 import athleteRoutes from './presentation/routes/athleteRoutes'
 import analysisRoutes from './presentation/routes/analysisRoutes'
 
@@ -58,10 +59,10 @@ app.get('/api/ping', (_req: Request, res: Response) => {
 })
 
 // Athlete routes
-app.use('/api/atletas', athleteRoutes)
+app.use('/api/athletes', athleteRoutes)
 
 // Analysis routes
-app.use('/api/analisis', analysisRoutes)
+app.use('/api/analyses', analysisRoutes)
 
 // 404 route
 app.use((_req: Request, res: Response) => {
