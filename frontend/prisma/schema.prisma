@@ -1,7 +1,7 @@
 // ============================================
 // PRISMA SCHEMA - Physoft Frontend (SQLite)
 // ============================================
-// Base de datos local para modo offline
+// Local database for offline mode
 // ============================================
 
 generator client {
@@ -14,32 +14,34 @@ datasource db {
 }
 
 // ============================================
-// MODELO: Atleta
+// MODEL: Atleta
 // ============================================
 model Atleta {
-  id          String    @id @default(uuid())
-  nombre      String
-  genero      String    // "Masculino", "Femenino", "Otro"
-  disciplina  String    // Deporte que practica
-  posicion    String?   // Posición en el deporte (opcional)
-  somatotipo  String    // "Mesomorfo", "Ectomorfo", "Endomorfo"
-  altura      Float     // En centímetros
-  peso        Float     // En libras
-  edad        Int       // Edad del atleta
+  id                  String    @id @default(uuid())
+  nombre              String
+  genero              String    // "Masculino", "Femenino", "Otro"
+  disciplina          String    // Deporte que practica
+  posicion            String?   // Posición en el deporte (opcional)
+  somatotipo          String    // "Mesomorfo", "Ectomorfo", "Endomorfo"
+  altura              Float     // En centímetros
+  peso                Float     // En libras
+  edad                Int       // Edad del atleta
+  photo               String?   // Photo URL (local or Cloudinary)
+  cloudinaryPublicId  String?   // Cloudinary public ID for deletion
   
   // Campos de sincronización
-  syncedAt    DateTime  @default(now())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  deviceId    String?   // ID del dispositivo que creó el registro
+  syncedAt            DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+  deviceId            String?   // ID del dispositivo que creó el registro
   
   // Relación con análisis
-  analisis    Analisis[]
+  analisis            Analisis[]
 }
 
 // ============================================
-// MODELO: Análisis
+// MODEL: Análisis
 // ============================================
 model Analisis {
   id              String    @id @default(uuid())
