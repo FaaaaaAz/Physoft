@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { IoClose, IoFootball } from 'react-icons/io5'
+import { translateBodyType } from '../utils/translations'
 import '../styles/AtletaModal.css'
 
 interface AtletaModalProps {
@@ -122,11 +123,11 @@ function AtletaModal({ atleta, onClose }: AtletaModalProps) {
       const labelRadius = radius + 30
       const x = centerX + labelRadius * Math.cos(angle)
       const y = centerY + labelRadius * Math.sin(angle)
-      
+
       // Etiqueta
       ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
       ctx.fillText(stat.label, x, y - 10)
-      
+
       // Valor
       ctx.fillStyle = '#14b8a6'
       ctx.font = 'bold 14px sans-serif'
@@ -198,7 +199,7 @@ function AtletaModal({ atleta, onClose }: AtletaModalProps) {
               </div>
               <div className="info-item">
                 <span className="info-label">Somatotipo</span>
-                <span className="info-value">{atleta.somatotipo || 'No especificado'}</span>
+                <span className="info-value">{atleta.somatotipo ? translateBodyType(atleta.somatotipo) : 'No especificado'}</span>
               </div>
             </div>
           </div>
@@ -206,9 +207,9 @@ function AtletaModal({ atleta, onClose }: AtletaModalProps) {
           <div className="modal-section">
             <h3 className="section-title">Capacidades Físicas</h3>
             <div className="chart-container">
-              <canvas 
-                ref={canvasRef} 
-                width="340" 
+              <canvas
+                ref={canvasRef}
+                width="340"
                 height="340"
                 className="radar-chart"
               />

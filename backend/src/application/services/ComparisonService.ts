@@ -6,12 +6,12 @@
 // ============================================
 
 import { prisma } from '../../infrastructure/prismaClient'
-import { ComparisonCriteria, ComparisonResult, getComparisonRules } from '../../domain/types'
+import { ComparisonResult } from '../../domain/types'
 
 export class ComparisonService {
   /**
    * Generate comparison criteria for an athlete
-   * based on their physical characteristics and age rules
+   * based on their physical characteristics
    */
   static generateCriteria(athlete: {
     gender: string
@@ -20,21 +20,20 @@ export class ComparisonService {
     bodyType: string
     height: number
     weight: number
-    age: number
-  }): ComparisonCriteria {
-    const rules = getComparisonRules(athlete.age)
+  }) {
+    // Use default tolerance values for now
+    const heightTolerance = 10 // cm
+    const weightTolerance = 10 // kg
 
     return {
       gender: athlete.gender,
       sport: athlete.sport,
       position: athlete.position || undefined,
       bodyType: athlete.bodyType,
-      heightMin: athlete.height - rules.heightTolerance,
-      heightMax: athlete.height + rules.heightTolerance,
-      weightMin: athlete.weight - rules.weightTolerance,
-      weightMax: athlete.weight + rules.weightTolerance,
-      ageMin: athlete.age - rules.ageTolerance,
-      ageMax: athlete.age + rules.ageTolerance,
+      heightMin: athlete.height - heightTolerance,
+      heightMax: athlete.height + heightTolerance,
+      weightMin: athlete.weight - weightTolerance,
+      weightMax: athlete.weight + weightTolerance,
     }
   }
 
@@ -42,7 +41,7 @@ export class ComparisonService {
    * Search for comparable athletes in the database
    * according to defined criteria
    */
-  static async findCohort(criteria: ComparisonCriteria) {
+  static async findCohort(criteria: ReturnType<typeof ComparisonService.generateCriteria>) {
     return await prisma.athlete.findMany({
       where: {
         gender: criteria.gender,
@@ -56,10 +55,7 @@ export class ComparisonService {
           gte: criteria.weightMin,
           lte: criteria.weightMax,
         },
-        age: {
-          gte: criteria.ageMin,
-          lte: criteria.ageMax,
-        },
+        deletedAt: null, // Only active athletes
       },
     })
   }
@@ -68,7 +64,7 @@ export class ComparisonService {
    * Compare an athlete with their cohort
    * Placeholder: statistical comparison logic pending
    */
-  static async compareWithCohort(athleteId: number): Promise<ComparisonResult> {
+  static async compareWithCohort(athleteId: string): Promise<ComparisonResult> {
     // Get the athlete
     const athlete = await prisma.athlete.findUnique({
       where: { id: athleteId },
@@ -97,5 +93,3 @@ export class ComparisonService {
     }
   }
 }
-
-

@@ -23,15 +23,20 @@ const PORT = process.env.PORT || 3000
 // MIDDLEWARES
 // ============================================
 
-// HTTP headers security
-app.use(helmet())
-
-// CORS - allow requests from frontend
+// CORS - MUST be before other middleware
 const corsOptions = {
   origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173'],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length', 'Content-Type'],
 }
 app.use(cors(corsOptions))
+
+// HTTP headers security (after CORS)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}))
 
 // JSON parser
 app.use(express.json())
@@ -40,17 +45,16 @@ app.use(express.urlencoded({ extended: true }))
 // HTTP request logger
 app.use(morgan('dev'))
 
+// Serve static files (for uploaded images) - AFTER CORS
+app.use('/uploads', express.static('public/uploads'))
+
 // ============================================
 // ROUTES
 // ============================================
 
-// Test route (health check)
-app.get('/api/ping', (req: Request, res: Response) => {
-  res.json({
-    message: 'Pong! Backend working correctly',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-  })
+// Health check endpoint
+app.get('/api/ping', (_req: Request, res: Response) => {
+  res.json({ message: 'pong', timestamp: new Date().toISOString() })
 })
 
 // Athlete routes
@@ -60,10 +64,10 @@ app.use('/api/atletas', athleteRoutes)
 app.use('/api/analisis', analysisRoutes)
 
 // 404 route
-app.use((req: Request, res: Response) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({
     error: 'Endpoint not found',
-    path: req.path,
+    path: _req.path,
   })
 })
 
@@ -71,7 +75,7 @@ app.use((req: Request, res: Response) => {
 // MANEJO DE ERRORES GLOBAL
 // ============================================
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err)
   res.status(500).json({
     error: 'Error interno del servidor',

@@ -1,91 +1,56 @@
-// ============================================
-// PRISMA SCHEMA - Physoft Database
-// ============================================
-// Database for sports musculoskeletal analysis
-// Development: SQLite (dev.db)
-// Production: PostgreSQL
-// ============================================
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"  // Change to "postgresql" in production
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// MODEL: Athlete
-// ============================================
-// Represents an athlete with their physical and demographic characteristics
-
 model Athlete {
-  id          Int       @id @default(autoincrement())
-  name        String
-  gender      String    // "Male", "Female", "Other"
-  sport       String    // Sport practiced
-  position    String?   // Position in sport (optional)
-  bodyType    String    // "Mesomorph", "Ectomorph", "Endomorph"
-  height      Float     // In centimeters
-  weight      Float     // In kilograms
-  age         Int       // Athlete's age
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // Relationship with analyses
-  analyses    Analysis[]
-  
+  id                 String     @id
+  accessCode         String     @unique
+  photo              String?
+  cloudinaryPublicId String?
+  name               String
+  gender             String
+  birthDate          String?
+  nationality        String?
+  sport              String
+  club               String?
+  position           String?
+  bodyType           String
+  height             Float
+  weight             Float
+  email              String?
+  phone              String?
+  syncedAt           DateTime   @default(now())
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  deletedAt          DateTime?
+  deviceId           String?
+  analyses           Analysis[]
+
   @@index([gender, sport, bodyType])
-  @@index([age, height, weight])
+  @@index([height, weight])
   @@map("athletes")
 }
 
-// ============================================
-// MODEL: Analysis
-// ============================================
-// Represents a musculoskeletal analysis (BTS) of an athlete
-
 model Analysis {
-  id              Int       @id @default(autoincrement())
-  athleteId       Int
-  analysisDate    DateTime  @default(now())
-  analysisType    String    // "BTS", "Biomechanical", etc.
-  
-  // Analysis data (flexible JSON for MVP)
-  dataJson        String    // Stores structured data in JSON
-  
-  // Comparison results
-  overallStatus   String?   // "Low", "Average", "High"
-  weakPoint1      String?
-  weakPoint2      String?
-  weakPoint3      String?
-  improvementMargin Float?  // Improvement margin percentage
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  // Relationship with athlete
-  athlete         Athlete   @relation(fields: [athleteId], references: [id], onDelete: Cascade)
-  
+  id                Int      @id @default(autoincrement())
+  athleteId         String
+  analysisDate      DateTime @default(now())
+  analysisType      String
+  dataJson          String
+  overallStatus     String?
+  weakPoint1        String?
+  weakPoint2        String?
+  weakPoint3        String?
+  improvementMargin Float?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  athlete           Athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+
   @@index([athleteId, analysisDate])
   @@map("analyses")
 }
-
-// ============================================
-// MODEL: Cohort (Future implementation)
-// ============================================
-// Represents comparison groups for statistics
-
-// model Cohort {
-//   id          Int       @id @default(autoincrement())
-//   nombre      String
-//   descripcion String?
-//   genero      String
-//   disciplina  String
-//   somatotipo  String
-//   
-//   createdAt   DateTime  @default(now())
-//   updatedAt   DateTime  @updatedAt
-// }

@@ -34,21 +34,37 @@ function AtletaCard({ atleta, onClick }: AtletaCardProps) {
   return (
     <div className="atleta-card" onClick={onClick}>
       <div className="card-image-container">
-        <img src={atleta.foto} alt={atleta.nombre} className="card-image" />
+        {atleta.foto ? (
+          <img src={atleta.foto} alt={atleta.nombre} className="card-image" />
+        ) : (
+          <div className="card-image-placeholder" style={{
+            width: '100%',
+            height: '200px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '3rem',
+            fontWeight: 'bold'
+          }}>
+            {atleta.nombre.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div className="card-overlay">
           <span className="card-deporte">
             <IoFootball /> {atleta.deporte}
           </span>
         </div>
       </div>
-      
+
       <div className="card-content">
         <h3 className="card-nombre">{atleta.nombre}</h3>
         <p className="card-club">{atleta.club}</p>
         {atleta.codigoAcceso && (
           <p className="card-codigo">Código: {atleta.codigoAcceso}</p>
         )}
-        
+
         <div className="card-stats">
           <div className="stat-item">
             <span className="stat-label">Edad</span>
@@ -61,7 +77,7 @@ function AtletaCard({ atleta, onClick }: AtletaCardProps) {
           </div>
         </div>
       </div>
-      
+
       <div className="card-hover-effect"></div>
     </div>
   )

@@ -1,110 +1,65 @@
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar, IoMail, IoCall, IoImage } from 'react-icons/io5'
+import { IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar, IoMail, IoCall, IoGlobe } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
-import { athleteAPI, type CreateAthleteDTO } from '../services/api'
+import ImageUpload from '../components/ImageUpload'
+import { athleteAPI } from '../services/api'
 import '../styles/AgregarAtleta.css'
 
 function AgregarAtleta() {
   const navigate = useNavigate()
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error', texto: string } | null>(null)
-  const [fotoPreview, setFotoPreview] = useState<string | null>(null)
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
 
-  const [formData, setFormData] = useState<CreateAthleteDTO>({
-    codigoAcceso: '',
-    foto: '',
-    nombre: '',
-    genero: '',
-    fechaNacimiento: '',
-    nacionalidad: '',
-    disciplina: '',
+  const [formData, setFormData] = useState({
+    name: '',
+    gender: 'Male',
+    birthDate: '',
+    nationality: '',
+    sport: '',
     club: '',
-    posicion: '',
-    somatotipo: '',
-    altura: 0,
-    peso: 0,
+    position: '',
+    bodyType: 'Mesomorph',
+    height: 0,
+    weight: 0,
     email: '',
-    telefono: ''
+    phone: ''
   })
-
-  // Generate access code on mount
-  useEffect(() => {
-    generateAccessCode()
-  }, [])
-
-  // Generate access code on mount
-  useEffect(() => {
-    generateAccessCode()
-  }, [])
-
-  const generateAccessCode = async () => {
-    try {
-      // Get all athletes to calculate next code
-      const response = await db.obtenerAtletas()
-      let nextCode = '00000'
-      
-      if (response.success && response.data && response.data.length > 0) {
-        // Find the highest code number
-        const codes = response.data
-          .map(a => parseInt(a.codigoAcceso))
-          .filter(code => !isNaN(code))
-        
-        if (codes.length > 0) {
-          const maxCode = Math.max(...codes)
-          nextCode = String(maxCode + 1).padStart(5, '0')
-        }
-      }
-      
-      setFormData(prev => ({ ...prev, codigoAcceso: nextCode }))
-    } catch (error) {
-      console.error('Error generating access code:', error)
-      setFormData(prev => ({ ...prev, codigoAcceso: '00000' }))
-    }
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
-        setFotoPreview(result)
-        setFormData(prev => ({ ...prev, foto: result }))
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: ['altura', 'peso'].includes(name) ? Number(value) : value
+      [name]: ['height', 'weight'].includes(name) ? Number(value) : value
     }))
+  }
+
+  const handleImageSelect = (file: File | null) => {
+    setPhotoFile(file)
   }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    
+
     // Validation
     if (!formData.name.trim()) {
       setMensaje({ tipo: 'error', texto: 'El nombre es obligatorio' })
       return
     }
-    if (!formData.genero) {
+    if (!formData.gender) {
       setMensaje({ tipo: 'error', texto: 'El género es obligatorio' })
       return
     }
-    if (!formData.disciplina.trim()) {
-      setMensaje({ tipo: 'error', texto: 'La disciplina es obligatoria' })
+    if (!formData.sport.trim()) {
+      setMensaje({ tipo: 'error', texto: 'El deporte es obligatorio' })
       return
     }
-    if (!formData.somatotipo) {
+    if (!formData.bodyType) {
       setMensaje({ tipo: 'error', texto: 'El somatotipo es obligatorio' })
       return
     }
-    if (formData.altura <= 0 || formData.peso <= 0) {
+    if (formData.height <= 0 || formData.weight <= 0) {
       setMensaje({ tipo: 'error', texto: 'Altura y peso deben ser mayores a 0' })
       return
     }
@@ -113,31 +68,36 @@ function AgregarAtleta() {
     setMensaje(null)
 
     try {
-      const response = await athleteAPI.create(formData)
-      
+      const athleteData = {
+        ...formData,
+        photo: photoFile
+      }
+
+      const response = await athleteAPI.create(athleteData)
+
       if (response.success) {
-        setMensaje({ tipo: 'success', texto: `✅ Atleta ${formData.nombre} creado exitosamente con código ${formData.codigoAcceso}` })
-        
-        // Limpiar formulario y generar nuevo código
-        setFormData({
-          codigoAcceso: '',
-          foto: '',
-          nombre: '',
-          genero: '',
-          fechaNacimiento: '',
-          nacionalidad: '',
-          disciplina: '',
-          club: '',
-          posicion: '',
-          somatotipo: '',
-          altura: 0,
-          peso: 0,
-          email: '',
-          telefono: ''
+        setMensaje({
+          tipo: 'success',
+          texto: `✅ Atleta ${formData.name} creado exitosamente con código ${response.data.accessCode}`
         })
-        setFotoPreview(null)
-        generateAccessCode()
-        
+
+        // Clear form
+        setFormData({
+          name: '',
+          gender: 'Male',
+          birthDate: '',
+          nationality: '',
+          sport: '',
+          club: '',
+          position: '',
+          bodyType: 'Mesomorph',
+          height: 0,
+          weight: 0,
+          email: '',
+          phone: ''
+        })
+        setPhotoFile(null)
+
         // Redirect after 2 seconds
         setTimeout(() => {
           navigate('/dashboard')
@@ -168,214 +128,180 @@ function AgregarAtleta() {
         )}
 
         <form onSubmit={handleSubmit} className="atleta-form">
+          {/* Photo Upload */}
+          <ImageUpload
+            currentImage={null}
+            onImageSelect={handleImageSelect}
+            disabled={guardando}
+          />
+
           {/* Información Personal */}
           <div className="form-section">
             <h3><IoPerson /> Información Personal</h3>
-            
-            {/* Código de Acceso Generado */}
-            <div className="form-group access-code-group">
-              <label>Código de acceso generado</label>
-              <input
-                type="text"
-                value={formData.codigoAcceso}
-                readOnly
-                className="access-code-input"
-              />
-              <p className="field-hint">Este código permitirá ver los análisis del deportista.</p>
-            </div>
-
-            {/* Foto del Atleta */}
-            <div className="form-group photo-group">
-              <label>Foto del atleta</label>
-              <div className="photo-upload-wrapper">
-                {fotoPreview ? (
-                  <div className="photo-preview">
-                    <img src={fotoPreview} alt="Preview" />
-                    <button
-                      type="button"
-                      className="btn-remove-photo"
-                      onClick={() => {
-                        setFotoPreview(null)
-                        setFormData(prev => ({ ...prev, foto: '' }))
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <label htmlFor="foto-input" className="photo-upload-label">
-                    <IoImage />
-                    <span>Subir foto</span>
-                  </label>
-                )}
-                <input
-                  type="file"
-                  id="foto-input"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                />
-              </div>
-            </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="nombre">Nombre completo *</label>
+                <label htmlFor="name">Nombre Completo *</label>
                 <input
                   type="text"
-                  id="nombre"
-                  name="nombre"
-                  value={formData.nombre}
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
-                  placeholder="Ej.: John Doe"
+                  placeholder="Ej: Lionel Messi"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="genero">Género *</label>
+                <label htmlFor="gender">Género *</label>
                 <select
-                  id="genero"
-                  name="genero"
-                  value={formData.genero}
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Seleccionar género</option>
-                  <option value="Masculino">Masculino</option>
-                  <option value="Femenino">Femenino</option>
-                  <option value="Otro">Otro</option>
+                  <option value="Male">Masculino</option>
+                  <option value="Female">Femenino</option>
+                  <option value="Other">Otro</option>
                 </select>
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="fechaNacimiento"><IoCalendar /> Fecha de nacimiento</label>
+                <label htmlFor="birthDate"><IoCalendar /> Fecha de Nacimiento</label>
                 <input
                   type="date"
-                  id="fechaNacimiento"
-                  name="fechaNacimiento"
-                  value={formData.fechaNacimiento}
+                  id="birthDate"
+                  name="birthDate"
+                  value={formData.birthDate}
                   onChange={handleChange}
-                  placeholder="dd/mm/aaaa"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="nacionalidad">Nacionalidad</label>
+                <label htmlFor="nationality"><IoGlobe /> Nacionalidad</label>
                 <input
                   type="text"
-                  id="nacionalidad"
-                  name="nacionalidad"
-                  value={formData.nacionalidad}
+                  id="nationality"
+                  name="nationality"
+                  value={formData.nationality}
                   onChange={handleChange}
-                  placeholder="Ej.: Argentina"
+                  placeholder="Ej: Argentina"
                 />
               </div>
             </div>
+          </div>
+
+          {/* Información Deportiva */}
+          <div className="form-section">
+            <h3><IoFootball /> Información Deportiva</h3>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="disciplina">Disciplina *</label>
-                <select
-                  id="disciplina"
-                  name="disciplina"
-                  value={formData.disciplina}
+                <label htmlFor="sport">Deporte *</label>
+                <input
+                  type="text"
+                  id="sport"
+                  name="sport"
+                  value={formData.sport}
                   onChange={handleChange}
+                  placeholder="Ej: Fútbol, Baloncesto, Atletismo"
                   required
-                >
-                  <option value="">Seleccionar disciplina</option>
-                  <option value="Fútbol">Fútbol</option>
-                  <option value="Baloncesto">Baloncesto</option>
-                  <option value="Voleibol">Voleibol</option>
-                  <option value="Atletismo">Atletismo</option>
-                  <option value="Natación">Natación</option>
-                  <option value="Ciclismo">Ciclismo</option>
-                  <option value="Tenis">Tenis</option>
-                  <option value="Rugby">Rugby</option>
-                  <option value="Otro">Otro</option>
-                </select>
+                />
               </div>
-            </div>
 
-            <div className="form-row">
               <div className="form-group">
-                <label htmlFor="club"><IoFootball /> Club/Equipo</label>
+                <label htmlFor="club">Club/Equipo</label>
                 <input
                   type="text"
                   id="club"
                   name="club"
                   value={formData.club}
                   onChange={handleChange}
-                  placeholder="Ej.: Club Deportivo XYZ"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="posicion">Posición</label>
-                <input
-                  type="text"
-                  id="posicion"
-                  name="posicion"
-                  value={formData.posicion}
-                  onChange={handleChange}
-                  placeholder="Ej.: Mediocampista"
+                  placeholder="Ej: FC Barcelona"
                 />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="somatotipo"><IoBody /> Somatotipo</label>
+                <label htmlFor="position">Posición/Especialidad</label>
+                <input
+                  type="text"
+                  id="position"
+                  name="position"
+                  value={formData.position}
+                  onChange={handleChange}
+                  placeholder="Ej: Delantero, Defensa"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Información Física */}
+          <div className="form-section">
+            <h3><IoBody /> Información Física</h3>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="bodyType">Somatotipo *</label>
                 <select
-                  id="somatotipo"
-                  name="somatotipo"
-                  value={formData.somatotipo}
+                  id="bodyType"
+                  name="bodyType"
+                  value={formData.bodyType}
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Seleccionar somatotipo</option>
-                  <option value="Ectomorfo">Ectomorfo</option>
-                  <option value="Mesomorfo">Mesomorfo</option>
-                  <option value="Endomorfo">Endomorfo</option>
+                  <option value="Ectomorph">Ectomorfo (Delgado)</option>
+                  <option value="Mesomorph">Mesomorfo (Atlético)</option>
+                  <option value="Endomorph">Endomorfo (Robusto)</option>
                 </select>
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="altura"><IoResize /> Altura (cm)</label>
+                <label htmlFor="height"><IoResize /> Altura (cm) *</label>
                 <input
                   type="number"
-                  id="altura"
-                  name="altura"
-                  value={formData.altura || ''}
+                  id="height"
+                  name="height"
+                  value={formData.height || ''}
                   onChange={handleChange}
-                  placeholder="175"
+                  placeholder="Ej: 175"
                   min="1"
                   step="0.1"
+                  required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="peso"><IoScale /> Peso (kg)</label>
+                <label htmlFor="weight"><IoScale /> Peso (kg) *</label>
                 <input
                   type="number"
-                  id="peso"
-                  name="peso"
-                  value={formData.peso || ''}
+                  id="weight"
+                  name="weight"
+                  value={formData.weight || ''}
                   onChange={handleChange}
-                  placeholder="70"
+                  placeholder="Ej: 75"
                   min="1"
                   step="0.1"
+                  required
                 />
               </div>
             </div>
+          </div>
+
+          {/* Información de Contacto */}
+          <div className="form-section">
+            <h3><IoMail /> Información de Contacto</h3>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="email"><IoMail /> Correo electrónico</label>
+                <label htmlFor="email"><IoMail /> Correo Electrónico</label>
                 <input
                   type="email"
                   id="email"
@@ -387,12 +313,12 @@ function AgregarAtleta() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="telefono"><IoCall /> Teléfono de contacto</label>
+                <label htmlFor="phone"><IoCall /> Teléfono</label>
                 <input
                   type="tel"
-                  id="telefono"
-                  name="telefono"
-                  value={formData.telefono}
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
                   onChange={handleChange}
                   placeholder="+1 123 456 7890"
                 />

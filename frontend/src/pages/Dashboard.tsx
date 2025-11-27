@@ -4,12 +4,12 @@ import { IoSearch, IoFootball } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import AtletaCard from '../components/AtletaCard'
 import AtletaModal from '../components/AtletaModal'
-import { athleteAPI, type Athlete } from '../services/api'
+import { athleteAPI, type Athlete, getPhotoUrl } from '../services/api'
 import '../styles/Dashboard.css'
 
 // Type for athlete displayed in dashboard
 interface AtletaMostrado {
-  id: number
+  id: string
   nombre: string
   foto: string
   deporte: string
@@ -49,7 +49,7 @@ function Dashboard() {
       }
     } catch (err) {
       console.error('Error loading athletes:', err)
-      setError('Could not load athletes from server')
+      setError('No se pudieron cargar los atletas del servidor')
     } finally {
       setCargando(false)
     }
@@ -59,28 +59,13 @@ function Dashboard() {
     cargarAtletas()
   }, [cargarAtletas])
 
-  const cargarAtletas = async () => {
-    setCargando(true)
-    const response = await db.obtenerAtletas()
-    if (response.success && response.data) {
-      setAtletasDB(response.data)
-    } else {
-      console.error('Error al cargar atletas:', response.error)
-    }
-    setCargando(false)
-  }
-
-  // Combinar atletas hardcodeados + atletas de la DB
-  const todosLosAtletas: AtletaMostrado[] = [
-    // Atletas hardcodeados (ejemplos)
-    ...atletasEjemplo.map(a => ({ ...a, esHardcoded: true })),
-    
-    // Atletas de la base de datos
-    ...atletasDB.map(atleta => {
-      // Calcular edad desde fecha de nacimiento
+  // Transform athletes for display - memoized to avoid recalculation
+  const atletasMostrados = useMemo((): AtletaMostrado[] => {
+    return atletasDB.map(atleta => {
+      // Calculate age from birthDate if available
       let edad = 0
-      if (atleta.fechaNacimiento) {
-        const birthDate = new Date(atleta.fechaNacimiento)
+      if (atleta.birthDate) {
+        const birthDate = new Date(atleta.birthDate)
         const today = new Date()
         edad = today.getFullYear() - birthDate.getFullYear()
         const monthDiff = today.getMonth() - birthDate.getMonth()
@@ -90,28 +75,28 @@ function Dashboard() {
       }
 
       return {
-        id: 0,
-        nombre: atleta.nombre,
-        foto: atleta.foto || '/src/assets/players/default.png',
-        deporte: atleta.disciplina,
+        id: atleta.id,
+        nombre: atleta.name,
+        foto: getPhotoUrl(atleta.photo),
+        deporte: atleta.sport,
         edad: edad,
-        nacionalidad: atleta.nacionalidad || 'No especificado',
-        altura: atleta.altura,
-        peso: atleta.peso,
-        club: atleta.club || 'Sin equipo',
-        somatotipo: atleta.somatotipo,
-        codigoAcceso: atleta.codigoAcceso,
+        nacionalidad: atleta.nationality || 'No especificado',
+        altura: atleta.height,
+        peso: atleta.weight,
+        club: atleta.club || atleta.position || 'Sin equipo',
+        somatotipo: atleta.bodyType,
+        codigoAcceso: atleta.accessCode,
         capacidades: {
-          potencia: 0,
-          fuerza: 0,
-          velocidad: 0,
-          flexibilidad: 0,
-          resistencia: 0
-        },
-        esHardcoded: false
+          // Default values - will be populated from analyses in the future
+          potencia: 75,
+          fuerza: 75,
+          velocidad: 75,
+          flexibilidad: 75,
+          resistencia: 75
+        }
       }
     })
-  ]
+  }, [atletasDB])
 
   // Filter athletes - memoized to avoid recalculation
   const atletasFiltrados = useMemo(() => {
@@ -127,7 +112,7 @@ function Dashboard() {
     return ['Todos', ...Array.from(new Set(atletasMostrados.map(a => a.deporte)))]
   }, [atletasMostrados])
 
-  // Handle athlete selection - fetch full details from backend
+  // Handle athlete selection
   const handleAtletaClick = useCallback(async (atleta: AtletaMostrado) => {
     try {
       // Fetch full athlete details including analyses
@@ -143,76 +128,96 @@ function Dashboard() {
     }
   }, [])
 
+  // Handle athlete deletion
+  const handleDeleteAtleta = useCallback(async (id: string) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este atleta?')) {
+      return
+    }
+
+    try {
+      await athleteAPI.delete(id)
+      // Reload athletes
+      await cargarAtletas()
+      setAtletaSeleccionado(null)
+    } catch (err) {
+      console.error('Error deleting athlete:', err)
+      alert('Error al eliminar el atleta')
+    }
+  }, [cargarAtletas])
+
   return (
     <PageTemplate
       title="Dashboard"
       subtitle="Gestiona tus atletas y análisis kinesiológicos"
       className="dashboard"
     >
-        <div className="dashboard-filters">
-          <div className="search-container">
-            <IoSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Buscar atleta por nombre..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          
-          <select
-            value={deporteFiltro}
-            onChange={(e) => setDeporteFiltro(e.target.value)}
-            className="filter-select"
-          >
-            {deportes.map(deporte => (
-              <option key={deporte} value={deporte}>{deporte}</option>
-            ))}
-          </select>
-
-          <button 
-            className="btn-add-atleta"
-            onClick={() => navigate('/agregar-atleta')}
-            title="Agregar Atleta"
-          >
-            <IoFootball />
-            Agregar Atleta
-          </button>
+      <div className="dashboard-filters">
+        <div className="search-container">
+          <IoSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Buscar atleta por nombre..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="search-input"
+          />
         </div>
 
-        {error && (
-          <div className="error-message" style={{padding: '1rem', background: '#fee', color: '#c00', borderRadius: '8px', marginBottom: '1rem'}}>
-            {error}
-          </div>
-        )}
+        <select
+          value={deporteFiltro}
+          onChange={(e) => setDeporteFiltro(e.target.value)}
+          className="filter-select"
+        >
+          {deportes.map(deporte => (
+            <option key={deporte} value={deporte}>{deporte}</option>
+          ))}
+        </select>
 
-        {cargando ? (
-          <div className="empty-state">
-            <p>Cargando atletas...</p>
-          </div>
-        ) : atletasFiltrados.length > 0 ? (
-          <div className="atletas-grid">
-            {atletasFiltrados.map((atleta) => (
-              <AtletaCard
-                key={atleta.id}
-                atleta={atleta}
-                onClick={() => handleAtletaClick(atleta)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <IoFootball />
-            <h3>No se encontraron atletas</h3>
-          <p>Intenta con otros criterios de búsqueda o <button onClick={() => navigate('/agregar-atleta')} style={{textDecoration: 'underline', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer'}}>agrega uno nuevo</button></p>
+        <button
+          className="btn-add-atleta"
+          onClick={() => navigate('/agregar-atleta')}
+          title="Agregar Atleta"
+        >
+          <IoFootball />
+          Agregar Atleta
+        </button>
+      </div>
+
+      {error && (
+        <div className="error-message" style={{ padding: '1rem', background: '#fee', color: '#c00', borderRadius: '8px', marginBottom: '1rem' }}>
+          {error}
+        </div>
+      )}
+
+      {cargando ? (
+        <div className="empty-state">
+          <p>Cargando atletas...</p>
+        </div>
+      ) : atletasFiltrados.length > 0 ? (
+        <div className="atletas-grid">
+          {atletasFiltrados.map((atleta) => (
+            <AtletaCard
+              key={atleta.id}
+              atleta={atleta}
+              onClick={() => handleAtletaClick(atleta)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <IoFootball />
+          <h3>No se encontraron atletas</h3>
+          <p>Intenta con otros criterios de búsqueda o <button onClick={() => navigate('/agregar-atleta')} style={{ textDecoration: 'underline', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer' }}>agrega uno nuevo</button></p>
         </div>
       )}
 
       <AtletaModal
         atleta={atletaSeleccionado}
         onClose={() => setAtletaSeleccionado(null)}
+        onDelete={handleDeleteAtleta}
       />
     </PageTemplate>
   )
-}export default Dashboard
+}
+
+export default Dashboard

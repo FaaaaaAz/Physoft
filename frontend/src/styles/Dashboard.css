@@ -186,7 +186,7 @@
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--primary-color);
   box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15),
-              0 8px 24px rgba(20, 184, 166, 0.2);
+    0 8px 24px rgba(20, 184, 166, 0.2);
 }
 
 .filter-select {
@@ -222,6 +222,8 @@
   transition: all 0.3s ease;
   white-space: nowrap;
   box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+  margin-left: auto;
+  /* Push button to the right */
 }
 
 .btn-add-atleta:hover {
@@ -295,7 +297,7 @@
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 24px;
   }
-  
+
   .search-container {
     min-width: 300px;
   }
@@ -312,7 +314,7 @@
     padding: 20px 0;
     gap: 20px;
   }
-  
+
   .navbar-brand {
     width: 100%;
     justify-content: center;
@@ -328,7 +330,7 @@
     padding: 10px 18px;
     font-size: 0.9rem;
   }
-  
+
   .navbar-actions {
     width: 100%;
     justify-content: center;
