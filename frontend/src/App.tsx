@@ -3,6 +3,7 @@ import Welcome from './pages/Welcome'
 import Dashboard from './pages/Dashboard'
 import Analisis from './pages/Analisis'
 import AgregarAtleta from './pages/AgregarAtleta'
+import NuevoAnalisis from './pages/NuevoAnalisis'
 import './styles/index.css'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/analisis" element={<Analisis />} />
         <Route path="/agregar-atleta" element={<AgregarAtleta />} />
+        <Route path="/nuevo-analisis" element={<NuevoAnalisis />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

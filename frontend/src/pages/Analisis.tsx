@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { IoSearch, IoFitness, IoTrendingUp, IoDocument } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import AtletaSelectionModal from '../components/AtletaSelectionModal'
@@ -6,6 +7,7 @@ import FormularioAnalisis from '../components/FormularioAnalisis'
 import '../styles/Analisis.css'
 
 function Analisis() {
+  const navigate = useNavigate()
   const [showAtletaModal, setShowAtletaModal] = useState(false)
   const [showFormulario, setShowFormulario] = useState(false)
   const [atletaSeleccionado, setAtletaSeleccionado] = useState<any>(null)
@@ -40,7 +42,7 @@ function Analisis() {
   ]
 
   const handleCrearAnalisis = () => {
-    setShowAtletaModal(true)
+    navigate('/nuevo-analisis')
   }
 
   const handleAtletaSeleccionado = (atleta: any, _esNuevo: boolean) => {
@@ -68,6 +70,9 @@ function Analisis() {
       title="Análisis Kinesiológico"
       subtitle="Gestiona y crea evaluaciones deportivas completas"
       className="analisis-page"
+      showAddButton={true}
+      onAddClick={handleCrearAnalisis}
+      addButtonText="Crear Nuevo Análisis"
     >
       {/* Stats Cards */}
       <div className="stats-grid">

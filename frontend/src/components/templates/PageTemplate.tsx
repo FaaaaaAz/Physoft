@@ -47,7 +47,7 @@ function PageTemplate({
           showBackButton={false}
           backTo={backTo}
           onBack={handleBack}
-          showAddButton={showAddButton}
+          showAddButton={false}
           onAddClick={onAddClick}
           addButtonTitle={addButtonText}
         />
