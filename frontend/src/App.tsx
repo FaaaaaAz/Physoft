@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Welcome from './pages/Welcome'
 import Dashboard from './pages/Dashboard'
 import Analisis from './pages/Analisis'
+import TodosAnalisis from './pages/TodosAnalisis'
 import AgregarAtleta from './pages/AgregarAtleta'
 import NuevoAnalisis from './pages/NuevoAnalisis'
 import './styles/index.css'
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Welcome />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/analisis" element={<Analisis />} />
+        <Route path="/todos-analisis" element={<TodosAnalisis />} />
         <Route path="/agregar-atleta" element={<AgregarAtleta />} />
         <Route path="/nuevo-analisis" element={<NuevoAnalisis />} />
         <Route path="*" element={<Navigate to="/" replace />} />

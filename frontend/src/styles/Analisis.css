@@ -74,7 +74,7 @@
 /* Stats Grid */
 .stats-grid {
   max-width: 1600px;
-  margin: -30px auto 0;
+  margin: 40px auto 0;
   padding: 0 60px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -275,6 +275,24 @@
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
+.badge-encima {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.badge-promedio {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.badge-debajo {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .table-actions {
   display: flex;
   gap: 8px;
@@ -295,6 +313,32 @@
   background: var(--primary-color);
   border-color: var(--primary-color);
   transform: scale(1.1);
+}
+
+/* Ver Todos Button */
+.ver-todos-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.btn-ver-todos {
+  padding: 14px 32px;
+  background: rgba(20, 184, 166, 0.1);
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-ver-todos:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.3);
 }
 
 /* Responsive */
