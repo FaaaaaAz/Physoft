@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { IoSearch, IoFitness, IoTrendingUp, IoDocument } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import AtletaSelectionModal from '../components/AtletaSelectionModal'
-import AtletaAnalisisModal from '../components/AtletaAnalisisModal'
 import FormularioAnalisis from '../components/FormularioAnalisis'
 import '../styles/Analisis.css'
 
@@ -11,11 +10,10 @@ function Analisis() {
   const navigate = useNavigate()
   const [showAtletaModal, setShowAtletaModal] = useState(false)
   const [showFormulario, setShowFormulario] = useState(false)
-  const [showDetallesModal, setShowDetallesModal] = useState(false)
   const [atletaSeleccionado, setAtletaSeleccionado] = useState<any>(null)
   const [busqueda, setBusqueda] = useState('')
 
-  // Datos de ejemplo - Solo los 3 más recientes
+  // Datos de ejemplo de atletas con sus análisis
   const atletasRecientes = [
     {
       nombre: 'Lionel Messi',
@@ -214,32 +212,6 @@ function Analisis() {
     setAtletaSeleccionado(null)
   }
 
-  const handleVerDetalles = (atleta: any) => {
-    setAtletaSeleccionado(atleta)
-    setShowDetallesModal(true)
-  }
-
-  const handleVerAnalisis = (analisisId: number) => {
-    console.log('Ver análisis:', analisisId)
-    // Aquí irá la lógica para ver el análisis completo
-  }
-
-  const handleDescargarAnalisis = (analisisId: number) => {
-    console.log('Descargar análisis:', analisisId)
-    // Aquí irá la lógica para descargar el análisis
-  }
-
-  const getBadgeClass = (clasificacion: string) => {
-    if (clasificacion === 'Encima del Promedio') return 'badge-encima'
-    if (clasificacion === 'Promedio') return 'badge-promedio'
-    return 'badge-debajo'
-  }
-
-  const atletasFiltrados = atletasRecientes.filter(atleta =>
-    atleta.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    atleta.analisis.some(a => a.evaluador.toLowerCase().includes(busqueda.toLowerCase()))
-  )
-
   if (showFormulario) {
     return (
       <FormularioAnalisis
@@ -265,7 +237,7 @@ function Analisis() {
             <IoDocument style={{ color: 'var(--primary-color)' }} />
           </div>
           <div className="stat-info">
-            <h3>10</h3>
+            <h3>156</h3>
             <p>Análisis Totales</p>
           </div>
         </div>
@@ -275,7 +247,7 @@ function Analisis() {
             <IoTrendingUp style={{ color: '#34d399' }} />
           </div>
           <div className="stat-info">
-            <h3>0</h3>
+            <h3>23</h3>
             <p>Esta Semana</p>
           </div>
         </div>
@@ -285,7 +257,7 @@ function Analisis() {
             <IoFitness style={{ color: '#60a5fa' }} />
           </div>
           <div className="stat-info">
-            <h3>0</h3>
+            <h3>89</h3>
             <p>Atletas Evaluados</p>
           </div>
         </div>
@@ -295,15 +267,23 @@ function Analisis() {
       <div className="analisis-section">
         <div className="section-header">
           <h2 className="section-title">Análisis Recientes</h2>
-          <div className="search-small">
+          <div className="section-header-actions">
+            <button 
+              className="btn-ver-todos"
+              onClick={() => navigate('/todos-analisis')}
+            >
+              Ver Todos
+            </button>
+            <div className="search-small">
             <IoSearch className="search-icon-small" />
             <input
               type="text"
-              placeholder="Buscar atleta..."
+              placeholder="Buscar análisis..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="search-input-small"
             />
+            </div>
           </div>
         </div>
 
@@ -314,53 +294,29 @@ function Analisis() {
                 <th>Atleta</th>
                 <th>Evaluador</th>
                 <th>Clasificación</th>
-                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {atletasFiltrados.map(atleta => {
-                const ultimoAnalisis = atleta.analisis[0]
-                return (
-                  <tr key={atleta.codigoAcceso}>
-                    <td>
-                      <div className="atleta-cell">
-                        <div className="atleta-avatar">
-                          {atleta.nombre.charAt(0)}
-                        </div>
-                        <span className="atleta-nombre">{atleta.nombre}</span>
+              {atletasRecientes.map(atleta => (
+                <tr key={atleta.codigoAcceso}>
+                  <td>
+                    <div className="atleta-cell">
+                      <div className="atleta-avatar">
+                        {atleta.nombre.charAt(0)}
                       </div>
-                    </td>
-                    <td>{ultimoAnalisis.evaluador}</td>
-                    <td>
-                      <span className={`badge ${getBadgeClass(ultimoAnalisis.clasificacion)}`}>
-                        {ultimoAnalisis.clasificacion}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="table-actions">
-                        <button 
-                          className="btn-icon-small" 
-                          title="Ver detalles"
-                          onClick={() => handleVerDetalles(atleta)}
-                        >
-                          👁️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
+                      <span className="atleta-nombre">{atleta.nombre}</span>
+                    </div>
+                  </td>
+                  <td>{atleta.analisis[0].evaluador}</td>
+                  <td>
+                    <span className={`badge badge-${atleta.analisis[0].clasificacion === 'Encima del Promedio' ? 'encima' : atleta.analisis[0].clasificacion === 'Promedio' ? 'promedio' : 'debajo'}`}>
+                      {atleta.analisis[0].clasificacion}
+                    </span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
-        </div>
-        
-        <div className="ver-todos-container">
-          <button 
-            className="btn-ver-todos" 
-            onClick={() => navigate('/todos-analisis')}
-          >
-            Ver Todos
-          </button>
         </div>
       </div>
 
@@ -369,16 +325,6 @@ function Analisis() {
         <AtletaSelectionModal
           onClose={() => setShowAtletaModal(false)}
           onSelect={handleAtletaSeleccionado}
-        />
-      )}
-
-      {/* Modal de detalles del atleta */}
-      {showDetallesModal && atletaSeleccionado && (
-        <AtletaAnalisisModal
-          atleta={atletaSeleccionado}
-          onClose={() => setShowDetallesModal(false)}
-          onVerAnalisis={handleVerAnalisis}
-          onDescargarAnalisis={handleDescargarAnalisis}
         />
       )}
     </PageTemplate>

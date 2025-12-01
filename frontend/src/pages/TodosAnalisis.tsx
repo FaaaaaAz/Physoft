@@ -1,13 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { IoSearch } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
-import AtletaAnalisisModal from '../components/AtletaAnalisisModal'
 import '../styles/TodosAnalisis.css'
 
 function TodosAnalisis() {
+  const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
-  const [atletaSeleccionado, setAtletaSeleccionado] = useState<any>(null)
-  const [showModal, setShowModal] = useState(false)
 
   // Datos de ejemplo - Agrupados por atleta con sus análisis
   const atletasConAnalisis = [
@@ -625,8 +624,7 @@ function TodosAnalisis() {
   )
 
   const handleVerDetalles = (atleta: any) => {
-    setAtletaSeleccionado(atleta)
-    setShowModal(true)
+    navigate('/detalle-atleta', { state: { atleta } })
   }
 
   const handleVerAnalisis = (analisisId: number) => {
@@ -724,16 +722,6 @@ function TodosAnalisis() {
           </table>
         </div>
       </div>
-
-      {/* Modal de Detalles del Atleta */}
-      {showModal && atletaSeleccionado && (
-        <AtletaAnalisisModal
-          atleta={atletaSeleccionado}
-          onClose={() => setShowModal(false)}
-          onVerAnalisis={handleVerAnalisis}
-          onDescargarAnalisis={handleDescargarAnalisis}
-        />
-      )}
     </PageTemplate>
   )
 }
