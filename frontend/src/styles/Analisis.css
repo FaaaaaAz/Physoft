@@ -208,18 +208,30 @@
 }
 
 .analisis-table tbody tr {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.25s ease;
 }
 
-.analisis-table tbody tr:hover {
-  background: rgba(20, 184, 166, 0.05);
+/* Efecto zebra muy sutil */
+.analisis-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+/* Fila clicable */
+.analisis-table tbody tr.clickable-row {
+  cursor: pointer;
+}
+
+.analisis-table tbody tr.clickable-row:hover {
+  background: rgba(20, 184, 166, 0.08);
+  border-color: rgba(20, 184, 166, 0.2);
 }
 
 .analisis-table td {
-  padding: 18px 20px;
+  padding: 20px 24px;
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.95rem;
+  transition: all 0.25s ease;
 }
 
 .atleta-cell {
@@ -323,22 +335,25 @@
 }
 
 .btn-ver-todos {
-  padding: 14px 32px;
-  background: rgba(20, 184, 166, 0.1);
+  padding: 16px 48px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(20, 184, 166, 0.1));
   border: 2px solid var(--primary-color);
   color: var(--primary-color);
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.15);
 }
 
 .btn-ver-todos:hover {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), #0d9488);
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.4);
+  border-color: var(--primary-color);
 }
 
 /* Responsive */

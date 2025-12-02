@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan } from 'react-icons/io5'
+import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoChevronForward, IoEye, IoDownload, IoTrash } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import '../styles/DetalleAtleta.css'
 
@@ -42,6 +42,7 @@ function DetalleAtleta() {
   const navigate = useNavigate()
   const location = useLocation()
   const atleta = location.state?.atleta as AtletaData
+  const from = location.state?.from || 'todos-analisis'
 
   if (!atleta) {
     navigate(-1)
@@ -97,10 +98,42 @@ function DetalleAtleta() {
     return 'badge-debajo'
   }
 
+  const handleVerAnalisis = (analisisId: number) => {
+    console.log('Ver análisis:', analisisId)
+    // Aquí irá la lógica para ver el análisis
+  }
+
+  const handleDescargarAnalisis = (analisisId: number) => {
+    console.log('Descargar análisis:', analisisId)
+    // Aquí irá la lógica para descargar el análisis
+  }
+
+  const handleEliminarAnalisis = (analisisId: number) => {
+    console.log('Eliminar análisis:', analisisId)
+    // Aquí irá la lógica para eliminar el análisis
+  }
+
   const ultimaClasificacion = atleta.analisis[0]?.clasificacion || 'N/A'
 
   return (
-    <PageTemplate title={`Detalle de ${atleta.nombre}`}>
+    <PageTemplate 
+      title={`Detalle de ${atleta.nombre}`}
+      showBackButton={true}
+      backTo={from === 'analisis' ? '/analisis' : '/todos-analisis'}
+    >
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <span className="breadcrumb-item" onClick={() => navigate('/analisis')}>Análisis</span>
+        <IoChevronForward className="breadcrumb-separator" />
+        {from === 'todos-analisis' && (
+          <>
+            <span className="breadcrumb-item" onClick={() => navigate('/todos-analisis')}>Todos los Análisis</span>
+            <IoChevronForward className="breadcrumb-separator" />
+          </>
+        )}
+        <span className="breadcrumb-item active">{atleta.nombre}</span>
+      </div>
+
       <div className="detalle-atleta-container">
         {/* Header con información básica */}
         <div className="detalle-header">
@@ -483,6 +516,7 @@ function DetalleAtleta() {
                   <th>Evaluador</th>
                   <th>Clasificación</th>
                   <th>Punto Débil</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -496,6 +530,31 @@ function DetalleAtleta() {
                       </span>
                     </td>
                     <td>{analisis.puntoDebil}</td>
+                    <td>
+                      <div className="historial-actions">
+                        <button 
+                          className="action-btn action-btn-view"
+                          onClick={() => handleVerAnalisis(analisis.id)}
+                          title="Ver detalles"
+                        >
+                          <IoEye />
+                        </button>
+                        <button 
+                          className="action-btn action-btn-download"
+                          onClick={() => handleDescargarAnalisis(analisis.id)}
+                          title="Descargar"
+                        >
+                          <IoDownload />
+                        </button>
+                        <button 
+                          className="action-btn action-btn-delete"
+                          onClick={() => handleEliminarAnalisis(analisis.id)}
+                          title="Eliminar"
+                        >
+                          <IoTrash />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
