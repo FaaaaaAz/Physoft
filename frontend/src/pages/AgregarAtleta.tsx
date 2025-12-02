@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar, IoMail, IoCall, IoGlobe } from 'react-icons/io5'
+import { IoPersonAdd, IoPerson, IoFootball, IoBody, IoResize, IoScale, IoCalendar, IoMail, IoCall, IoGlobe, IoChevronForward } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import ImageUpload from '../components/ImageUpload'
 import { athleteAPI } from '../services/api'
@@ -120,6 +120,13 @@ function AgregarAtleta() {
       className="agregar-atleta-page"
       showNavbar={true}
     >
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <span className="breadcrumb-item" onClick={() => navigate('/dashboard')}>Inicio</span>
+        <IoChevronForward className="breadcrumb-separator" />
+        <span className="breadcrumb-item active">Agregar Atleta</span>
+      </div>
+
       <div className="agregar-atleta-container">
         {mensaje && (
           <div className={`mensaje ${mensaje.tipo}`}>

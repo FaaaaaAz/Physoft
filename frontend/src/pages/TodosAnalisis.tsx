@@ -19,6 +19,11 @@ function TodosAnalisis() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
+  // Scroll to top cuando el componente se monta
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   // Debounce para el buscador
   useEffect(() => {
     const timer = setTimeout(() => {

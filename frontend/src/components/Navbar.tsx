@@ -98,10 +98,18 @@ function Navbar({
               <IoAdd />
             </button>
           )}
-          <button className="navbar-icon-btn" title="Configuración">
+          <button 
+            className="navbar-icon-btn" 
+            title="Configuración"
+            onClick={() => navigate('/configuracion')}
+          >
             <IoSettings />
           </button>
-          <button className="navbar-icon-btn" title="Perfil">
+          <button 
+            className="navbar-icon-btn" 
+            title="Perfil"
+            onClick={() => navigate('/perfil')}
+          >
             <IoPerson />
           </button>
         </div>
