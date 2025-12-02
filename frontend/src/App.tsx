@@ -6,6 +6,8 @@ import TodosAnalisis from './pages/TodosAnalisis'
 import DetalleAtleta from './pages/DetalleAtleta'
 import AgregarAtleta from './pages/AgregarAtleta'
 import NuevoAnalisis from './pages/NuevoAnalisis'
+import Configuracion from './pages/Configuracion'
+import Perfil from './pages/Perfil'
 import './styles/index.css'
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
         <Route path="/detalle-atleta" element={<DetalleAtleta />} />
         <Route path="/agregar-atleta" element={<AgregarAtleta />} />
         <Route path="/nuevo-analisis" element={<NuevoAnalisis />} />
+        <Route path="/configuracion" element={<Configuracion />} />
+        <Route path="/perfil" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

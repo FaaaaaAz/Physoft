@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoChevronForward, IoEye, IoDownload, IoTrash } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import '../styles/DetalleAtleta.css'
@@ -43,6 +44,11 @@ function DetalleAtleta() {
   const location = useLocation()
   const atleta = location.state?.atleta as AtletaData
   const from = location.state?.from || 'todos-analisis'
+
+  // Scroll to top cuando el componente se monta
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   if (!atleta) {
     navigate(-1)
