@@ -1,12 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoSearch } from 'react-icons/io5'
+import { IoSearch, IoChevronDown, IoChevronUp, IoClose, IoChevronBack, IoChevronForward } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import '../styles/TodosAnalisis.css'
+
+type SortField = 'atleta' | 'evaluador' | 'clasificacion' | 'fecha'
+type SortDirection = 'asc' | 'desc'
 
 function TodosAnalisis() {
   const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
+  const [debouncedBusqueda, setDebouncedBusqueda] = useState('')
+  const [filtroEvaluador, setFiltroEvaluador] = useState('')
+  const [filtroClasificacion, setFiltroClasificacion] = useState('')
+  const [filtroFecha, setFiltroFecha] = useState('')
+  const [sortField, setSortField] = useState<SortField>('atleta')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
+  // Debounce para el buscador
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedBusqueda(busqueda)
+      setCurrentPage(1) // Reset a primera página al buscar
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [busqueda])
 
   // Datos de ejemplo - Agrupados por atleta con sus análisis
   const atletasConAnalisis = [
@@ -612,19 +632,106 @@ function TodosAnalisis() {
     }
   ]
 
-  // Ordenar alfabéticamente
-  const atletasOrdenados = [...atletasConAnalisis].sort((a, b) => 
-    a.nombre.localeCompare(b.nombre)
-  )
+  // Obtener listas únicas de evaluadores para el filtro
+  const evaluadoresUnicos = useMemo(() => {
+    const evaluadores = new Set<string>()
+    atletasConAnalisis.forEach(atleta => {
+      atleta.analisis.forEach(analisis => {
+        evaluadores.add(analisis.evaluador)
+      })
+    })
+    return Array.from(evaluadores).sort()
+  }, [])
 
-  // Filtrar por búsqueda
-  const atletasFiltrados = atletasOrdenados.filter(atleta =>
-    atleta.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    atleta.analisis.some(a => a.evaluador.toLowerCase().includes(busqueda.toLowerCase()))
-  )
+  // Función de ordenamiento
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
+
+  // Aplicar filtros y ordenamiento
+  const atletasFiltrados = useMemo(() => {
+    let resultado = [...atletasConAnalisis]
+
+    // Filtro de búsqueda
+    if (debouncedBusqueda) {
+      resultado = resultado.filter(atleta =>
+        atleta.nombre.toLowerCase().includes(debouncedBusqueda.toLowerCase()) ||
+        atleta.analisis.some(a => a.evaluador.toLowerCase().includes(debouncedBusqueda.toLowerCase()))
+      )
+    }
+
+    // Filtro por evaluador
+    if (filtroEvaluador) {
+      resultado = resultado.filter(atleta =>
+        atleta.analisis.some(a => a.evaluador === filtroEvaluador)
+      )
+    }
+
+    // Filtro por clasificación
+    if (filtroClasificacion) {
+      resultado = resultado.filter(atleta =>
+        atleta.analisis[0].clasificacion === filtroClasificacion
+      )
+    }
+
+    // Filtro por fecha (mes/año)
+    if (filtroFecha) {
+      resultado = resultado.filter(atleta => {
+        const fecha = new Date(atleta.analisis[0].fecha)
+        const fechaStr = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`
+        return fechaStr === filtroFecha
+      })
+    }
+
+    // Ordenamiento
+    resultado.sort((a, b) => {
+      let comparison = 0
+      switch (sortField) {
+        case 'atleta':
+          comparison = a.nombre.localeCompare(b.nombre)
+          break
+        case 'evaluador':
+          comparison = a.analisis[0].evaluador.localeCompare(b.analisis[0].evaluador)
+          break
+        case 'clasificacion':
+          const orden = { 'Encima del Promedio': 3, 'Promedio': 2, 'Debajo del Promedio': 1 }
+          comparison = orden[a.analisis[0].clasificacion] - orden[b.analisis[0].clasificacion]
+          break
+        case 'fecha':
+          comparison = new Date(b.analisis[0].fecha).getTime() - new Date(a.analisis[0].fecha).getTime()
+          break
+      }
+      return sortDirection === 'asc' ? comparison : -comparison
+    })
+
+    return resultado
+  }, [debouncedBusqueda, filtroEvaluador, filtroClasificacion, filtroFecha, sortField, sortDirection])
+
+  // Paginación
+  const totalPages = Math.ceil(atletasFiltrados.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const atletasPaginados = atletasFiltrados.slice(startIndex, endIndex)
+
+  // Reset página al cambiar filtros
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filtroEvaluador, filtroClasificacion, filtroFecha])
 
   const handleVerDetalles = (atleta: any) => {
-    navigate('/detalle-atleta', { state: { atleta } })
+    navigate('/detalle-atleta', { state: { atleta, from: 'todos-analisis' } })
+  }
+
+  const limpiarFiltros = () => {
+    setFiltroEvaluador('')
+    setFiltroClasificacion('')
+    setFiltroFecha('')
+    setBusqueda('')
   }
 
   const handleVerAnalisis = (analisisId: number) => {
@@ -646,12 +753,18 @@ function TodosAnalisis() {
   return (
     <PageTemplate
       title="Todos los Análisis"
-      subtitle={`${atletasOrdenados.length} atletas con análisis registrados`}
       className="todos-analisis-page"
       showBackButton={true}
       backTo="/analisis"
     >
-      {/* Buscador */}
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <span className="breadcrumb-item" onClick={() => navigate('/analisis')}>Análisis</span>
+        <span className="breadcrumb-separator">/</span>
+        <span className="breadcrumb-item active">Todos los Análisis</span>
+      </div>
+
+      {/* Buscador y Filtros */}
       <div className="todos-analisis-header">
         <div className="search-container">
           <IoSearch className="search-icon" />
@@ -663,6 +776,36 @@ function TodosAnalisis() {
             className="search-input"
           />
         </div>
+
+        <div className="filters-container">
+          <select 
+            className="filter-select"
+            value={filtroEvaluador}
+            onChange={(e) => setFiltroEvaluador(e.target.value)}
+          >
+            <option value="">Todos los evaluadores</option>
+            {evaluadoresUnicos.map(evaluador => (
+              <option key={evaluador} value={evaluador}>{evaluador}</option>
+            ))}
+          </select>
+
+          <select 
+            className="filter-select"
+            value={filtroClasificacion}
+            onChange={(e) => setFiltroClasificacion(e.target.value)}
+          >
+            <option value="">Todas las clasificaciones</option>
+            <option value="Encima del Promedio">Encima del Promedio</option>
+            <option value="Promedio">Promedio</option>
+            <option value="Debajo del Promedio">Debajo del Promedio</option>
+          </select>
+
+          {(filtroEvaluador || filtroClasificacion || filtroFecha || busqueda) && (
+            <button className="btn-clear-filters" onClick={limpiarFiltros}>
+              <IoClose /> Limpiar filtros
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabla de análisis */}
@@ -671,18 +814,42 @@ function TodosAnalisis() {
           <table className="analisis-table">
             <thead>
               <tr>
-                <th>Atleta</th>
-                <th>Evaluador</th>
-                <th>Clasificación</th>
-                <th>Acciones</th>
+                <th className="sortable" onClick={() => handleSort('atleta')}>
+                  <div className="th-content">
+                    Atleta
+                    {sortField === 'atleta' && (
+                      sortDirection === 'asc' ? <IoChevronUp /> : <IoChevronDown />
+                    )}
+                  </div>
+                </th>
+                <th className="sortable" onClick={() => handleSort('evaluador')}>
+                  <div className="th-content">
+                    Evaluador
+                    {sortField === 'evaluador' && (
+                      sortDirection === 'asc' ? <IoChevronUp /> : <IoChevronDown />
+                    )}
+                  </div>
+                </th>
+                <th className="sortable" onClick={() => handleSort('clasificacion')}>
+                  <div className="th-content">
+                    Clasificación
+                    {sortField === 'clasificacion' && (
+                      sortDirection === 'asc' ? <IoChevronUp /> : <IoChevronDown />
+                    )}
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {atletasFiltrados.length > 0 ? (
-                atletasFiltrados.map(atleta => {
+              {atletasPaginados.length > 0 ? (
+                atletasPaginados.map(atleta => {
                   const ultimoAnalisis = atleta.analisis[0]
                   return (
-                    <tr key={atleta.codigoAcceso}>
+                    <tr 
+                      key={atleta.codigoAcceso}
+                      className="clickable-row"
+                      onClick={() => handleVerDetalles(atleta)}
+                    >
                       <td>
                         <div className="atleta-cell">
                           <div className="atleta-avatar">
@@ -697,29 +864,55 @@ function TodosAnalisis() {
                           {ultimoAnalisis.clasificacion}
                         </span>
                       </td>
-                      <td>
-                        <div className="table-actions">
-                          <button 
-                            className="btn-icon-small" 
-                            title="Ver detalles"
-                            onClick={() => handleVerDetalles(atleta)}
-                          >
-                            👁️
-                          </button>
-                        </div>
-                      </td>
                     </tr>
                   )
                 })
               ) : (
                 <tr>
-                  <td colSpan={4} className="no-results">
-                    No se encontraron atletas que coincidan con tu búsqueda
+                  <td colSpan={3} className="no-results">
+                    No se encontraron atletas que coincidan con los filtros
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button 
+              className="pagination-btn"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              <IoChevronBack />
+            </button>
+            
+            <div className="pagination-info">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  className={`pagination-page ${currentPage === page ? 'active' : ''}`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button 
+              className="pagination-btn"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <IoChevronForward />
+            </button>
+          </div>
+        )}
+
+        <div className="results-info">
+          Mostrando {startIndex + 1}-{Math.min(endIndex, atletasFiltrados.length)} de {atletasFiltrados.length} atletas
         </div>
       </div>
     </PageTemplate>

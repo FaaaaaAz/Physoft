@@ -267,14 +267,7 @@ function Analisis() {
       <div className="analisis-section">
         <div className="section-header">
           <h2 className="section-title">Análisis Recientes</h2>
-          <div className="section-header-actions">
-            <button 
-              className="btn-ver-todos"
-              onClick={() => navigate('/todos-analisis')}
-            >
-              Ver Todos
-            </button>
-            <div className="search-small">
+          <div className="search-small">
             <IoSearch className="search-icon-small" />
             <input
               type="text"
@@ -283,7 +276,6 @@ function Analisis() {
               onChange={(e) => setBusqueda(e.target.value)}
               className="search-input-small"
             />
-            </div>
           </div>
         </div>
 
@@ -298,7 +290,11 @@ function Analisis() {
             </thead>
             <tbody>
               {atletasRecientes.map(atleta => (
-                <tr key={atleta.codigoAcceso}>
+                <tr 
+                  key={atleta.codigoAcceso}
+                  className="clickable-row"
+                  onClick={() => navigate('/detalle-atleta', { state: { atleta, from: 'analisis' } })}
+                >
                   <td>
                     <div className="atleta-cell">
                       <div className="atleta-avatar">
@@ -317,6 +313,16 @@ function Analisis() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Botón Ver Todos */}
+        <div className="ver-todos-container">
+          <button 
+            className="btn-ver-todos"
+            onClick={() => navigate('/todos-analisis')}
+          >
+            Ver Todos
+          </button>
         </div>
       </div>
 
