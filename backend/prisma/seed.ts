@@ -5,6 +5,7 @@
 // ============================================
 
 import { PrismaClient } from '@prisma/client'
+import { randomUUID } from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -22,61 +23,87 @@ async function main() {
   const athletes = await Promise.all([
     prisma.athlete.create({
       data: {
+        id: randomUUID(),
+        accessCode: '00001',
         name: 'Lionel Messi',
-        gender: 'Masculino',
-        sport: 'Fútbol',
-        position: 'Delantero',
-        bodyType: 'Mesomorfo',
+        gender: 'Male',
+        birthDate: '1987-06-24',
+        nationality: 'Argentina',
+        sport: 'Soccer',
+        club: 'Inter Miami',
+        position: 'Forward',
+        bodyType: 'Mesomorph',
         height: 169.5,
         weight: 69.2,
-        age: 37,
+        email: 'messi@example.com',
+        phone: '+1234567890',
       }
     }),
     prisma.athlete.create({
       data: {
-        name: 'Neymar JR',
-        gender: 'Masculino',
-        sport: 'Fútbol',
-        position: 'Delantero',
-        bodyType: 'Ectomorfo',
+        id: randomUUID(),
+        accessCode: '00002',
+        name: 'Neymar Jr',
+        gender: 'Male',
+        birthDate: '1992-02-05',
+        nationality: 'Brazil',
+        sport: 'Soccer',
+        club: 'Al Hilal',
+        position: 'Forward',
+        bodyType: 'Ectomorph',
         height: 175.0,
         weight: 62.5,
-        age: 35,
+        email: 'neymar@example.com',
       }
     }),
     prisma.athlete.create({
       data: {
+        id: randomUUID(),
+        accessCode: '00003',
         name: 'Cristiano Ronaldo',
-        gender: 'Masculino',
-        sport: 'Fútbol',
-        position: 'Delantero',
-        bodyType: 'Mesomorfo',
+        gender: 'Male',
+        birthDate: '1985-02-05',
+        nationality: 'Portugal',
+        sport: 'Soccer',
+        club: 'Al Nassr',
+        position: 'Forward',
+        bodyType: 'Mesomorph',
         height: 187.0,
-        weight: 80.0,
-        age: 40,
+        weight: 84.0,
+        email: 'cr7@example.com',
+        phone: '+9876543210',
       }
     }),
     prisma.athlete.create({
       data: {
+        id: randomUUID(),
+        accessCode: '00004',
         name: 'Antoine Griezmann',
-        gender: 'Masculino',
-        sport: 'Fútbol',
-        position: 'Delantero',
-        bodyType: 'Mesomorfo',
+        gender: 'Male',
+        birthDate: '1991-03-21',
+        nationality: 'France',
+        sport: 'Soccer',
+        club: 'Atletico Madrid',
+        position: 'Forward',
+        bodyType: 'Mesomorph',
         height: 175.5,
         weight: 70.0,
-        age: 33,
       }
     }),
     prisma.athlete.create({
       data: {
+        id: randomUUID(),
+        accessCode: '00005',
         name: 'Álvaro Morata',
-        gender: 'Masculino',
-        sport: 'Fútbol',
-        bodyType: 'Ectomorfo',
-        height: 182.0,
-        weight: 77.0,
-        age: 32,
+        gender: 'Male',
+        birthDate: '1992-10-23',
+        nationality: 'Spain',
+        sport: 'Soccer',
+        club: 'AC Milan',
+        position: 'Forward',
+        bodyType: 'Ectomorph',
+        height: 190.0,
+        weight: 84.0,
       }
     }),
   ])

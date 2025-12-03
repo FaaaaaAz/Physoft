@@ -144,7 +144,7 @@ export const athleteAPI = {
     }
 
     const response = await apiClient.post<{ success: boolean; data: Athlete; message: string }>(
-      '/atletas',
+      '/athletes',
       formData,
       {
         headers: {
@@ -169,8 +169,13 @@ export const athleteAPI = {
     const formData = new FormData()
     formData.append('photo', photo)
 
-    const response = await apiClient.post<{ success: boolean; data: Athlete; message: string }>(
-      `/atletas/${id}/photo`,
+    const response = await apiClient.post<{
+      success: boolean
+      data: Athlete
+      message: string
+      cloudinaryStatus?: 'uploaded' | 'offline_mode'
+    }>(
+      `/athletes/${id}/photo`,
       formData,
       {
         headers: {
@@ -185,28 +190,6 @@ export const athleteAPI = {
   delete: async (id: string) => {
     const response = await apiClient.delete<{ success: boolean; message: string }>(
       `/athletes/${id}`
-    )
-    return response.data
-  },
-
-  // Upload athlete photo
-  uploadPhoto: async (id: number, file: File) => {
-    const formData = new FormData()
-    formData.append('photo', file)
-
-    const response = await apiClient.post<{
-      success: boolean
-      data: Athlete
-      message: string
-      cloudinaryStatus: 'uploaded' | 'offline_mode'
-    }>(
-      `/athletes/${id}/photo`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
     )
     return response.data
   },

@@ -106,7 +106,7 @@ export class AthleteController {
   }
 
   /**
-   * POST /api/atletas
+   * POST /api/athletes
    * Create a new athlete with optional photo
    */
   static async create(req: Request, res: Response) {
