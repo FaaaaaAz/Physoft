@@ -1,7 +1,8 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoDocument, IoImage, IoAdd, IoTrash, IoCloudUpload } from 'react-icons/io5'
+import { IoDocument, IoImage, IoAdd, IoTrash, IoCloudUpload, IoSearch } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
+import { athleteAPI, analysisAPI, Athlete } from '../services/api'
 import '../styles/NuevoAnalisis.css'
 
 interface PuntoDebil {
@@ -21,11 +22,14 @@ function NuevoAnalisis() {
   const navigate = useNavigate()
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error', texto: string } | null>(null)
+  const [athletes, setAthletes] = useState<Athlete[]>([])
+  const [selectedAthlete, setSelectedAthlete] = useState<Athlete | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showAthleteDropdown, setShowAthleteDropdown] = useState(false)
 
   const [formData, setFormData] = useState({
     // Sección 1
-    atletaCodigo: '',
-    atletaNombre: '',
+    athleteId: '',
     fechaEvaluacion: '',
     imagenes: [] as File[],
     
@@ -53,6 +57,32 @@ function NuevoAnalisis() {
   const [imagenesPreview, setImagenesPreview] = useState<string[]>([])
   const [proximoIdPuntoDebil, setProximoIdPuntoDebil] = useState(1)
 
+  // Load athletes on mount
+  useEffect(() => {
+    loadAthletes()
+  }, [])
+
+  const loadAthletes = async () => {
+    try {
+      const response = await athleteAPI.getAll()
+      setAthletes(response.data || [])
+    } catch (error) {
+      console.error('Error loading athletes:', error)
+    }
+  }
+
+  // Filter athletes based on search
+  const filteredAthletes = athletes.filter(athlete => 
+    athlete.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    athlete.accessCode.includes(searchQuery)
+  )
+
+  const handleAthleteSelect = (athlete: Athlete) => {
+    setSelectedAthlete(athlete)
+    setFormData(prev => ({ ...prev, athleteId: athlete.id }))
+    setSearchQuery(`${athlete.accessCode} - ${athlete.name}`)
+    setShowAthleteDropdown(false)
+  }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -120,8 +150,8 @@ function NuevoAnalisis() {
     e.preventDefault()
     
     // Validación básica
-    if (!formData.atletaCodigo && !formData.atletaNombre) {
-      setMensaje({ tipo: 'error', texto: 'Debe seleccionar o ingresar un atleta' })
+    if (!formData.athleteId) {
+      setMensaje({ tipo: 'error', texto: 'Debe seleccionar un atleta' })
       return
     }
     if (!formData.fechaEvaluacion) {
@@ -133,16 +163,45 @@ function NuevoAnalisis() {
     setMensaje(null)
 
     try {
-      // Aquí irá la lógica para guardar el análisis
-      console.log('Análisis guardado:', formData)
+      // Prepare weak points as JSON array
+      const weakPointsArray = formData.puntosDebiles
+        .filter(p => p.texto.trim() !== '')
+        .map(p => p.texto)
+
+      // Create analysis DTO
+      const analysisData = {
+        athleteId: formData.athleteId,
+        evaluationDate: new Date(formData.fechaEvaluacion).toISOString(),
+        flexibilityAnalysis: formData.analisisFlexibilidad || undefined,
+        biobitAnalysis: formData.analisisBiobit || undefined,
+        muscularAsymmetry: formData.asimetriaMuscular || undefined,
+        activeMotorControl: formData.controlMotorActivo || undefined,
+        functionalMuscleFatigue: formData.fatigaMuscular || undefined,
+        inertiaForceControl: formData.controlFuerzaInercia || undefined,
+        weakPoints: weakPointsArray.length > 0 ? JSON.stringify(weakPointsArray) : undefined,
+        power: formData.capacidadesFisicas.potencia || undefined,
+        endurance: formData.capacidadesFisicas.resistencia || undefined,
+        strength: formData.capacidadesFisicas.fuerza || undefined,
+        flexibility: formData.capacidadesFisicas.flexibilidad || undefined,
+        speed: formData.capacidadesFisicas.velocidad || undefined,
+        globalClassification: formData.clasificacionCohorte || undefined,
+        coachRecommendations: formData.recomendaciones || undefined,
+        graphs: formData.imagenes.length > 0 ? formData.imagenes : undefined
+      }
+
+      const response = await analysisAPI.create(analysisData)
       
       setMensaje({ tipo: 'success', texto: '✅ Análisis guardado exitosamente' })
       
       setTimeout(() => {
-        navigate('/analisis')
+        navigate('/analysis')
       }, 2000)
     } catch (error: any) {
-      setMensaje({ tipo: 'error', texto: `❌ Error: ${error.message}` })
+      console.error('Error creating analysis:', error)
+      setMensaje({ 
+        tipo: 'error', 
+        texto: `❌ Error: ${error.response?.data?.error || error.message}` 
+      })
     } finally {
       setGuardando(false)
     }
@@ -157,7 +216,7 @@ function NuevoAnalisis() {
       title="Análisis Deportivo"
       subtitle="Formulario de evaluación kinesiológica"
       showBackButton={true}
-      backTo="/analisis"
+      backTo="/analysis"
       className="nuevo-analisis-page"
     >
       <div className="nuevo-analisis-container">
@@ -178,17 +237,44 @@ function NuevoAnalisis() {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="atletaCodigo">Atleta / Código *</label>
-                <input
-                  type="text"
-                  id="atletaCodigo"
-                  name="atletaCodigo"
-                  value={formData.atletaCodigo}
-                  onChange={handleChange}
-                  placeholder="Buscar por código o nombre"
-                  required
-                />
-                <p className="field-hint">Ingrese el código del atleta o búsquelo por nombre</p>
+                <label htmlFor="athleteSearch">Atleta / Código *</label>
+                <div className="athlete-search-wrapper">
+                  <input
+                    type="text"
+                    id="athleteSearch"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value)
+                      setShowAthleteDropdown(true)
+                    }}
+                    onFocus={() => setShowAthleteDropdown(true)}
+                    placeholder="Buscar por código o nombre"
+                    required
+                  />
+                  <IoSearch className="search-icon" />
+                  
+                  {showAthleteDropdown && filteredAthletes.length > 0 && (
+                    <div className="athlete-dropdown">
+                      {filteredAthletes.slice(0, 5).map((athlete) => (
+                        <div
+                          key={athlete.id}
+                          className="athlete-dropdown-item"
+                          onClick={() => handleAthleteSelect(athlete)}
+                        >
+                          <span className="athlete-code">{athlete.accessCode}</span>
+                          <span className="athlete-name">{athlete.name}</span>
+                          <span className="athlete-sport">{athlete.sport}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="field-hint">
+                  {selectedAthlete 
+                    ? `Atleta seleccionado: ${selectedAthlete.name} - ${selectedAthlete.sport}`
+                    : 'Ingrese el código del atleta o búsquelo por nombre'
+                  }
+                </p>
               </div>
 
               <div className="form-group">
@@ -515,9 +601,9 @@ function NuevoAnalisis() {
                 className="form-select"
               >
                 <option value="">Seleccionar clasificación</option>
-                <option value="bajo">Por debajo del promedio (Bajo)</option>
-                <option value="medio">En el promedio (Medio)</option>
-                <option value="alto">Por encima del promedio (Alto)</option>
+                <option value="low">Por debajo del promedio (Bajo)</option>
+                <option value="medium">En el promedio (Medio)</option>
+                <option value="high">Por encima del promedio (Alto)</option>
               </select>
             </div>
 

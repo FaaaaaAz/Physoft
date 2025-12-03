@@ -729,7 +729,7 @@ function TodosAnalisis() {
   }, [filtroEvaluador, filtroClasificacion, filtroFecha])
 
   const handleVerDetalles = (atleta: any) => {
-    navigate('/detalle-atleta', { state: { atleta, from: 'todos-analisis' } })
+    navigate('/athlete-detail', { state: { atleta, from: 'all-analysis' } })
   }
 
   const limpiarFiltros = () => {
@@ -760,11 +760,11 @@ function TodosAnalisis() {
       title="Todos los Análisis"
       className="todos-analisis-page"
       showBackButton={true}
-      backTo="/analisis"
+      backTo="/analysis"
     >
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-item" onClick={() => navigate('/analisis')}>Análisis</span>
+        <span className="breadcrumb-item" onClick={() => navigate('/analysis')}>Ánalisis</span>
         <span className="breadcrumb-separator">/</span>
         <span className="breadcrumb-item active">Todos los Análisis</span>
       </div>

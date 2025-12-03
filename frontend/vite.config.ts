@@ -7,7 +7,11 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    open: true
+    open: true,
+    // Fix CSP eval warning in development
+    headers: {
+      'Content-Security-Policy': "script-src 'self' 'unsafe-eval' 'unsafe-inline';"
+    }
   },
   build: {
     outDir: 'dist',

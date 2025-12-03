@@ -125,15 +125,15 @@ function DetalleAtleta() {
     <PageTemplate 
       title={`Detalle de ${atleta.nombre}`}
       showBackButton={true}
-      backTo={from === 'analisis' ? '/analisis' : '/todos-analisis'}
+      backTo={from === 'analysis' ? '/analysis' : '/all-analysis'}
     >
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <span className="breadcrumb-item" onClick={() => navigate('/analisis')}>Análisis</span>
+        <span className="breadcrumb-item" onClick={() => navigate('/analysis')}>Ánalisis</span>
         <IoChevronForward className="breadcrumb-separator" />
         {from === 'todos-analisis' && (
           <>
-            <span className="breadcrumb-item" onClick={() => navigate('/todos-analisis')}>Todos los Análisis</span>
+            <span className="breadcrumb-item" onClick={() => navigate('/all-analysis')}>Todos los Análisis</span>
             <IoChevronForward className="breadcrumb-separator" />
           </>
         )}

@@ -16,13 +16,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/analisis" element={<Analisis />} />
-        <Route path="/todos-analisis" element={<TodosAnalisis />} />
-        <Route path="/detalle-atleta" element={<DetalleAtleta />} />
-        <Route path="/agregar-atleta" element={<AgregarAtleta />} />
-        <Route path="/nuevo-analisis" element={<NuevoAnalisis />} />
-        <Route path="/configuracion" element={<Configuracion />} />
-        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/analysis" element={<Analisis />} />
+        <Route path="/all-analysis" element={<TodosAnalisis />} />
+        <Route path="/athlete-detail" element={<DetalleAtleta />} />
+        <Route path="/add-athlete" element={<AgregarAtleta />} />
+        <Route path="/new-analysis" element={<NuevoAnalisis />} />
+        <Route path="/settings" element={<Configuracion />} />
+        <Route path="/profile" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

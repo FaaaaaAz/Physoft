@@ -69,9 +69,9 @@ function Navbar({
               href="#" 
               onClick={(e) => { 
                 e.preventDefault()
-                navigate('/analisis')
+                navigate('/analysis')
               }} 
-              className={`navbar-link ${isActive('/analisis') ? 'active' : ''}`}
+              className={`navbar-link ${isActive('/analysis') ? 'active' : ''}`}
             >
               Análisis
             </a>
@@ -101,14 +101,14 @@ function Navbar({
           <button 
             className="navbar-icon-btn" 
             title="Configuración"
-            onClick={() => navigate('/configuracion')}
+            onClick={() => navigate('/settings')}
           >
             <IoSettings />
           </button>
           <button 
             className="navbar-icon-btn" 
             title="Perfil"
-            onClick={() => navigate('/perfil')}
+            onClick={() => navigate('/profile')}
           >
             <IoPerson />
           </button>

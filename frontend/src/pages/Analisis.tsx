@@ -198,7 +198,7 @@ function Analisis() {
   ]
 
   const handleCrearAnalisis = () => {
-    navigate('/nuevo-analisis')
+    navigate('/new-analysis')
   }
 
   const handleAtletaSeleccionado = (atleta: any, _esNuevo: boolean) => {
@@ -293,7 +293,7 @@ function Analisis() {
                 <tr 
                   key={atleta.codigoAcceso}
                   className="clickable-row"
-                  onClick={() => navigate('/detalle-atleta', { state: { atleta, from: 'analisis' } })}
+                  onClick={() => navigate('/athlete-detail', { state: { atleta, from: 'analysis' } })}
                 >
                   <td>
                     <div className="atleta-cell">
@@ -319,7 +319,7 @@ function Analisis() {
         <div className="ver-todos-container">
           <button 
             className="btn-ver-todos"
-            onClick={() => navigate('/todos-analisis')}
+            onClick={() => navigate('/all-analysis')}
           >
             Ver Todos
           </button>

@@ -37,20 +37,39 @@ model Athlete {
 }
 
 model Analysis {
-  id                Int      @id @default(autoincrement())
-  athleteId         String
-  analysisDate      DateTime @default(now())
-  analysisType      String
-  dataJson          String
-  overallStatus     String?
-  weakPoint1        String?
-  weakPoint2        String?
-  weakPoint3        String?
-  improvementMargin Float?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  athlete           Athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  id                      Int      @id @default(autoincrement())
+  athleteId               String
+  evaluationDate          DateTime
+  graphImages             String?  // JSON array of image URLs
+  
+  // Textual Analyses (optional)
+  flexibilityAnalysis     String?
+  biobitAnalysis          String?
+  muscularAsymmetry       String?
+  activeMotorControl      String?
+  functionalMuscleFatigue String?
+  inertiaForceControl     String?
+  
+  // Weak Points
+  weakPoints              String?  // JSON array of strings
+  
+  // Physical Capacities (0-100)
+  power                   Int?
+  endurance               Int?
+  strength                Int?
+  flexibility             Int?
+  speed                   Int?
+  
+  // Global Classification
+  globalClassification    String?  // "low", "medium", "high"
+  
+  // Recommendations
+  coachRecommendations    String?
+  
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  athlete                 Athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)
 
-  @@index([athleteId, analysisDate])
+  @@index([athleteId, evaluationDate])
   @@map("analyses")
 }
