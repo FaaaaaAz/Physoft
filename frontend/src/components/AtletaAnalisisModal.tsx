@@ -1,4 +1,5 @@
 import { IoClose, IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan } from 'react-icons/io5'
+import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../hooks/usePentagonChart'
 import '../styles/AtletaAnalisisModal.css'
 
 interface Analisis {
@@ -50,41 +51,11 @@ function AtletaAnalisisModal({ atleta, onClose, onVerAnalisis, onDescargarAnalis
     return 'badge-debajo'
   }
 
-  // Calcular puntos del pentágono (radar chart)
-  const calcularPuntosPentagono = () => {
-    const centerX = 150
-    const centerY = 150
-    const maxRadius = 120
-    
-    const capacidadesArray = [
-      { nombre: 'Potencia', valor: atleta.capacidades.potencia },
-      { nombre: 'Fuerza', valor: atleta.capacidades.fuerza },
-      { nombre: 'Velocidad', valor: atleta.capacidades.velocidad },
-      { nombre: 'Flexibilidad', valor: atleta.capacidades.flexibilidad },
-      { nombre: 'Resistencia', valor: atleta.capacidades.resistencia }
-    ]
-
-    const puntos = capacidadesArray.map((cap, index) => {
-      const angulo = (Math.PI * 2 * index) / 5 - Math.PI / 2
-      const radio = (cap.valor / 100) * maxRadius
-      return {
-        x: centerX + Math.cos(angulo) * radio,
-        y: centerY + Math.sin(angulo) * radio,
-        nombre: cap.nombre,
-        valor: cap.valor,
-        baseX: centerX + Math.cos(angulo) * maxRadius,
-        baseY: centerY + Math.sin(angulo) * maxRadius,
-        labelX: centerX + Math.cos(angulo) * (maxRadius + 35),
-        labelY: centerY + Math.sin(angulo) * (maxRadius + 35)
-      }
-    })
-
-    return puntos
-  }
-
-  const puntosPentagono = calcularPuntosPentagono()
-  const pathData = puntosPentagono.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z'
-  const basePathData = puntosPentagono.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.baseX} ${p.baseY}`).join(' ') + ' Z'
+  // Pentagon chart configuration
+  const chartConfig = { centerX: 150, centerY: 150, maxRadius: 120, labelOffset: 35 }
+  const pentagonData = usePentagonChart(atleta.capacidades, chartConfig)
+  const guideLines = usePentagonGuideLines(chartConfig)
+  const radialLines = usePentagonRadialLines(chartConfig)
 
 
   return (
@@ -167,21 +138,13 @@ function AtletaAnalisisModal({ atleta, onClose, onVerAnalisis, onDescargarAnalis
           </h3>
           <div className="pentagon-chart-container">
             <svg width="300" height="300" viewBox="0 0 300 300">
-              {/* Líneas de guía (niveles de 20%, 40%, 60%, 80%, 100%) */}
-              {[20, 40, 60, 80, 100].map((nivel) => {
-                const radius = (nivel / 100) * 120
-                const puntos = Array.from({ length: 5 }, (_, i) => {
-                  const angulo = (Math.PI * 2 * i) / 5 - Math.PI / 2
-                  return {
-                    x: 150 + Math.cos(angulo) * radius,
-                    y: 150 + Math.sin(angulo) * radius
-                  }
-                })
-                const path = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z'
+              {/* Guide lines (20%, 40%, 60%, 80%, 100%) */}
+              {guideLines.map((path, idx) => {
+                const nivel = [20, 40, 60, 80, 100][idx]
                 return (
-                  <path
-                    key={nivel}
-                    d={path}
+                  <polygon
+                    key={`guide-${nivel}`}
+                    points={path}
                     fill="none"
                     stroke="rgba(255, 255, 255, 0.1)"
                     strokeWidth="1"
@@ -189,37 +152,37 @@ function AtletaAnalisisModal({ atleta, onClose, onVerAnalisis, onDescargarAnalis
                 )
               })}
 
-              {/* Líneas desde el centro a cada vértice */}
-              {puntosPentagono.map((punto, index) => (
+              {/* Radial lines from center to vertices */}
+              {radialLines.map((line, idx) => (
                 <line
-                  key={`line-${index}`}
-                  x1="150"
-                  y1="150"
-                  x2={punto.baseX}
-                  y2={punto.baseY}
+                  key={`radial-${idx}`}
+                  x1={line.x1}
+                  y1={line.y1}
+                  x2={line.x2}
+                  y2={line.y2}
                   stroke="rgba(255, 255, 255, 0.1)"
                   strokeWidth="1"
                 />
               ))}
 
-              {/* Pentágono base (contorno) */}
-              <path
-                d={basePathData}
+              {/* Background pentagon (outline) */}
+              <polygon
+                points={pentagonData.backgroundPath}
                 fill="none"
                 stroke="rgba(20, 184, 166, 0.3)"
                 strokeWidth="2"
               />
 
-              {/* Pentágono con valores del atleta */}
-              <path
-                d={pathData}
+              {/* Athlete data pentagon */}
+              <polygon
+                points={pentagonData.pointsPath}
                 fill="rgba(20, 184, 166, 0.2)"
                 stroke="var(--primary-color)"
                 strokeWidth="2.5"
               />
 
-              {/* Puntos en los vértices */}
-              {puntosPentagono.map((punto, index) => (
+              {/* Points at vertices */}
+              {pentagonData.points.map((punto, index) => (
                 <circle
                   key={`point-${index}`}
                   cx={punto.x}
@@ -231,8 +194,8 @@ function AtletaAnalisisModal({ atleta, onClose, onVerAnalisis, onDescargarAnalis
                 />
               ))}
 
-              {/* Etiquetas */}
-              {puntosPentagono.map((punto, index) => (
+              {/* Labels and values */}
+              {pentagonData.points.map((punto, index) => (
                 <g key={`label-${index}`}>
                   <text
                     x={punto.labelX}

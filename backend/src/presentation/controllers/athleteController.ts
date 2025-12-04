@@ -135,7 +135,11 @@ export class AthleteController {
       let cloudinaryPublicId: string | null = null
 
       if (req.file) {
-        const uploadResult = await UploadService.uploadPhoto(req.file, id)
+        const uploadResult = await UploadService.uploadPhoto(
+          req.file, 
+          id,
+          `physoft/athletes/${id}`
+        )
         photoUrl = uploadResult.url
         cloudinaryPublicId = uploadResult.publicId || null
       }
@@ -262,7 +266,11 @@ export class AthleteController {
       }
 
       // Upload new photo
-      const uploadResult = await UploadService.uploadPhoto(req.file, id)
+      const uploadResult = await UploadService.uploadPhoto(
+        req.file, 
+        id,
+        `physoft/athletes/${id}`
+      )
 
       // Update athlete with new photo
       const updatedAthlete = await prisma.athlete.update({

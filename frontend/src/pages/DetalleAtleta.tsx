@@ -1,129 +1,134 @@
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
-import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoChevronForward, IoEye, IoDownload, IoTrash } from 'react-icons/io5'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoChevronForward, IoEye } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
+import { athleteAPI, analysisAPI, Athlete, Analysis } from '../services/api'
+import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../hooks/usePentagonChart'
 import '../styles/DetalleAtleta.css'
-
-interface Analisis {
-  id: number
-  fecha: string
-  evaluador: string
-  clasificacion: 'Encima del Promedio' | 'Promedio' | 'Debajo del Promedio'
-  puntoDebil: string
-  capacidades?: {
-    velocidad: number
-    resistencia: number
-    fuerza: number
-    potencia: number
-    flexibilidad: number
-  }
-}
-
-interface AtletaData {
-  nombre: string
-  foto?: string
-  edad: number
-  posicion: string
-  club: string
-  codigoAcceso: string
-  somatipo?: string
-  altura?: number
-  peso?: number
-  capacidades: {
-    velocidad: number
-    resistencia: number
-    fuerza: number
-    potencia: number
-    flexibilidad: number
-  }
-  analisis: Analisis[]
-}
 
 function DetalleAtleta() {
   const navigate = useNavigate()
   const location = useLocation()
-  const atleta = location.state?.atleta as AtletaData
-  const from = location.state?.from || 'todos-analisis'
+  const { id } = useParams<{ id: string }>()
+  const from = location.state?.from || 'all-analysis'
+  
+  const [athlete, setAthlete] = useState<Athlete | null>(null)
+  const [analyses, setAnalyses] = useState<Analysis[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string>('')
 
   // Scroll to top cuando el componente se monta
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
-  if (!atleta) {
-    navigate(-1)
-    return null
+  useEffect(() => {
+    if (id) {
+      loadAthleteData(id)
+    }
+  }, [id])
+
+  const loadAthleteData = async (athleteId: string) => {
+    try {
+      setIsLoading(true)
+      setError('')
+      
+      const [athleteResponse, analysesResponse] = await Promise.all([
+        athleteAPI.getById(athleteId),
+        analysisAPI.getAll({ athleteId })
+      ])
+      
+      setAthlete(athleteResponse.data)
+      setAnalyses(analysesResponse.data.sort((a, b) => 
+        new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
+      ))
+    } catch (err) {
+      console.error('Error loading athlete data:', err)
+      setError('Error al cargar los datos del atleta')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const calcularPuntosPentagono = () => {
-    const capacidades = [
-      { nombre: 'Potencia', valor: atleta.capacidades.potencia },
-      { nombre: 'Fuerza', valor: atleta.capacidades.fuerza },
-      { nombre: 'Velocidad', valor: atleta.capacidades.velocidad },
-      { nombre: 'Flexibilidad', valor: atleta.capacidades.flexibilidad },
-      { nombre: 'Resistencia', valor: atleta.capacidades.resistencia }
-    ]
-
-    const centerX = 150
-    const centerY = 150
-    const maxRadius = 120
-
-    return capacidades.map((cap, i) => {
-      const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
-      const radius = (cap.valor / 100) * maxRadius
-      const x = centerX + radius * Math.cos(angle)
-      const y = centerY + radius * Math.sin(angle)
-      
-      const labelRadius = maxRadius + 30
-      const labelX = centerX + labelRadius * Math.cos(angle)
-      const labelY = centerY + labelRadius * Math.sin(angle)
-      
-      return {
-        x,
-        y,
-        labelX,
-        labelY,
-        nombre: cap.nombre,
-        valor: cap.valor
-      }
-    })
+  // Calculate latest capacities from most recent analysis (before early returns for hooks)
+  const latestAnalysis = analyses[0]
+  const capacidades = latestAnalysis ? {
+    potencia: latestAnalysis.power || 0,
+    fuerza: latestAnalysis.strength || 0,
+    velocidad: latestAnalysis.speed || 0,
+    flexibilidad: latestAnalysis.flexibility || 0,
+    resistencia: latestAnalysis.endurance || 0
+  } : {
+    potencia: 0,
+    fuerza: 0,
+    velocidad: 0,
+    flexibilidad: 0,
+    resistencia: 0
   }
 
-  const puntos = calcularPuntosPentagono()
-  const puntosPath = puntos.map(p => `${p.x},${p.y}`).join(' ')
-  const backgroundPath = puntos.map((_, i) => {
-    const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
-    const x = 150 + 120 * Math.cos(angle)
-    const y = 150 + 120 * Math.sin(angle)
-    return `${x},${y}`
-  }).join(' ')
+  // Pentagon chart using custom hook - MUST be called before any conditional returns
+  const chartConfig = { centerX: 150, centerY: 150, maxRadius: 120, labelOffset: 30 }
+  const pentagonData = usePentagonChart(capacidades, chartConfig)
+  const guideLines = usePentagonGuideLines(chartConfig)
+  const radialLines = usePentagonRadialLines(chartConfig)
 
-  const getBadgeClass = (clasificacion: string) => {
-    if (clasificacion === 'Encima del Promedio') return 'badge-encima'
-    if (clasificacion === 'Promedio') return 'badge-promedio'
-    return 'badge-debajo'
+  // Early returns AFTER all hooks
+  if (isLoading) {
+    return (
+      <PageTemplate title="Cargando..." showBackButton={true} backTo="/all-analysis">
+        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-primary)' }}>
+          <p>Cargando datos del atleta...</p>
+        </div>
+      </PageTemplate>
+    )
+  }
+
+  if (error || !athlete) {
+    return (
+      <PageTemplate title="Error" showBackButton={true} backTo="/all-analysis">
+        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-primary)' }}>
+          <p>{error || 'Atleta no encontrado'}</p>
+        </div>
+      </PageTemplate>
+    )
+  }
+
+  const getClassificationLabel = (classification: string | null | undefined) => {
+    if (classification === 'high') return 'Encima del Promedio'
+    if (classification === 'medium') return 'Promedio'
+    if (classification === 'low') return 'Debajo del Promedio'
+    return 'N/A'
+  }
+
+  const getBadgeClass = (classification: string | null | undefined) => {
+    if (classification === 'high') return 'badge-encima'
+    if (classification === 'medium') return 'badge-promedio'
+    if (classification === 'low') return 'badge-debajo'
+    return 'badge-promedio'
   }
 
   const handleVerAnalisis = (analisisId: number) => {
-    console.log('Ver análisis:', analisisId)
-    // Aquí irá la lógica para ver el análisis
+    navigate(`/analysis-view/${analisisId}`)
   }
 
-  const handleDescargarAnalisis = (analisisId: number) => {
-    console.log('Descargar análisis:', analisisId)
-    // Aquí irá la lógica para descargar el análisis
+  const calculateAge = (birthDate: string | null | undefined): number => {
+    if (!birthDate) return 0
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const monthDiff = today.getMonth() - birth.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return age
   }
 
-  const handleEliminarAnalisis = (analisisId: number) => {
-    console.log('Eliminar análisis:', analisisId)
-    // Aquí irá la lógica para eliminar el análisis
-  }
-
-  const ultimaClasificacion = atleta.analisis[0]?.clasificacion || 'N/A'
+  const edad = calculateAge(athlete.birthDate)
+  const ultimaClasificacion = latestAnalysis?.globalClassification
 
   return (
     <PageTemplate 
-      title={`Detalle de ${atleta.nombre}`}
+      title={`Detalle de ${athlete.name}`}
       showBackButton={true}
       backTo={from === 'analysis' ? '/analysis' : '/all-analysis'}
     >
@@ -131,13 +136,13 @@ function DetalleAtleta() {
       <div className="breadcrumb">
         <span className="breadcrumb-item" onClick={() => navigate('/analysis')}>Ánalisis</span>
         <IoChevronForward className="breadcrumb-separator" />
-        {from === 'todos-analisis' && (
+        {from === 'all-analysis' && (
           <>
             <span className="breadcrumb-item" onClick={() => navigate('/all-analysis')}>Todos los Análisis</span>
             <IoChevronForward className="breadcrumb-separator" />
           </>
         )}
-        <span className="breadcrumb-item active">{atleta.nombre}</span>
+        <span className="breadcrumb-item active">{athlete.name}</span>
       </div>
 
       <div className="detalle-atleta-container">
@@ -145,18 +150,18 @@ function DetalleAtleta() {
         <div className="detalle-header">
           <div className="detalle-header-left">
             <div className="detalle-avatar">
-              {atleta.foto ? (
-                <img src={atleta.foto} alt={atleta.nombre} />
+              {athlete.photo ? (
+                <img src={athlete.photo} alt={athlete.name} />
               ) : (
                 <div className="detalle-avatar-placeholder">
-                  {atleta.nombre.charAt(0)}
+                  {athlete.name.charAt(0)}
                 </div>
               )}
             </div>
             <div className="detalle-info-principal">
-              <h1 className="detalle-nombre">{atleta.nombre}</h1>
-              <p className="detalle-posicion-club">{atleta.posicion} • {atleta.club}</p>
-              <p className="detalle-codigo">#{atleta.codigoAcceso}</p>
+              <h1 className="detalle-nombre">{athlete.name}</h1>
+              <p className="detalle-posicion-club">{athlete.position || 'N/A'} • {athlete.club || 'N/A'}</p>
+              <p className="detalle-codigo">#{athlete.accessCode}</p>
             </div>
           </div>
         </div>
@@ -167,7 +172,7 @@ function DetalleAtleta() {
             <IoCalendar className="card-icon" />
             <div className="card-content">
               <span className="card-label">EDAD</span>
-              <span className="card-value">{atleta.edad} años</span>
+              <span className="card-value">{edad > 0 ? `${edad} años` : 'N/A'}</span>
             </div>
           </div>
 
@@ -175,7 +180,7 @@ function DetalleAtleta() {
             <IoMan className="card-icon" />
             <div className="card-content">
               <span className="card-label">SOMATIPO</span>
-              <span className="card-value-small">{atleta.somatipo || 'N/A'}</span>
+              <span className="card-value-small">{athlete.bodyType || 'N/A'}</span>
             </div>
           </div>
 
@@ -183,7 +188,7 @@ function DetalleAtleta() {
             <IoResize className="card-icon" />
             <div className="card-content">
               <span className="card-label">ALTURA</span>
-              <span className="card-value">{atleta.altura ? `${atleta.altura} cm` : 'N/A'}</span>
+              <span className="card-value">{athlete.height ? `${athlete.height} cm` : 'N/A'}</span>
             </div>
           </div>
 
@@ -191,7 +196,7 @@ function DetalleAtleta() {
             <IoBarbell className="card-icon" />
             <div className="card-content">
               <span className="card-label">PESO</span>
-              <span className="card-value">{atleta.peso ? `${atleta.peso} kg` : 'N/A'}</span>
+              <span className="card-value">{athlete.weight ? `${athlete.weight} kg` : 'N/A'}</span>
             </div>
           </div>
 
@@ -199,7 +204,7 @@ function DetalleAtleta() {
             <IoBody className="card-icon" />
             <div className="card-content">
               <span className="card-label">TOTAL ANÁLISIS</span>
-              <span className="card-value">{atleta.analisis.length}</span>
+              <span className="card-value">{analyses.length}</span>
             </div>
           </div>
 
@@ -208,31 +213,32 @@ function DetalleAtleta() {
             <div className="card-content">
               <span className="card-label">ÚLTIMA CLASIFICACIÓN</span>
               <span className={`badge ${getBadgeClass(ultimaClasificacion)}`}>
-                {ultimaClasificacion}
+                {getClassificationLabel(ultimaClasificacion)}
               </span>
             </div>
           </div>
         </div>
 
         {/* Capacidades Físicas Actuales */}
-        <div className="detalle-section">
-          <h2 className="section-title">
-            <IoBody />
-            Capacidades Físicas Actuales
-          </h2>
-          <div className="pentagon-chart-container">
-            <svg width="100%" height="100%" viewBox="0 0 300 320" preserveAspectRatio="xMidYMid meet">
-              {/* Guías del pentágono */}
-              <polygon
-                points={backgroundPath}
-                fill="none"
-                stroke="rgba(255, 255, 255, 0.1)"
-                strokeWidth="1"
-              />
+        {analyses.length > 0 && (
+          <div className="detalle-section">
+            <h2 className="section-title">
+              <IoBody />
+              Capacidades Físicas Actuales
+            </h2>
+            <div className="pentagon-chart-container">
+              <svg width="100%" height="100%" viewBox="0 0 300 320" preserveAspectRatio="xMidYMid meet">
+                {/* Guías del pentágono */}
+                <polygon
+                  points={pentagonData.backgroundPath}
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.1)"
+                  strokeWidth="1"
+                />
               
               {/* Pentágono de capacidades */}
               <polygon
-                points={puntosPath}
+                points={pentagonData.pointsPath}
                 fill="rgba(20, 184, 166, 0.3)"
                 stroke="var(--primary-color)"
                 strokeWidth="3"
@@ -240,7 +246,7 @@ function DetalleAtleta() {
               />
 
               {/* Puntos y etiquetas */}
-              {puntos.map((punto, i) => (
+              {pentagonData.points.map((punto, i) => (
                 <g key={i}>
                   {/* Punto */}
                   <circle
@@ -291,222 +297,226 @@ function DetalleAtleta() {
               ))}
 
               {/* Líneas desde el centro a cada vértice */}
-              {puntos.map((_, i) => {
-                const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
-                const maxX = 150 + 120 * Math.cos(angle)
-                const maxY = 150 + 120 * Math.sin(angle)
-                return (
-                  <line
-                    key={`line-${i}`}
-                    x1="150"
-                    y1="150"
-                    x2={maxX}
-                    y2={maxY}
-                    stroke="rgba(255, 255, 255, 0.1)"
-                    strokeWidth="1"
-                  />
-                )
-              })}
-            </svg>
-          </div>
-        </div>
-
-        {/* Timeline de Mejoría */}
-        <div className="detalle-section">
-          <h2 className="section-title">
-            <IoTrendingUp />
-            Timeline de Mejoría - 2025
-          </h2>
-          <div className="abilities-timeline-container">
-            <svg width="100%" height="300" viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet">
-              {/* Grid horizontal lines */}
-              {[0, 25, 50, 75, 100].map((y) => (
+              {radialLines.map((line, i) => (
                 <line
-                  key={`grid-${y}`}
-                  x1="60"
-                  y1={260 - (y * 2)}
-                  x2="840"
-                  y2={260 - (y * 2)}
+                  key={`line-${i}`}
+                  x1={line.x1}
+                  y1={line.y1}
+                  x2={line.x2}
+                  y2={line.y2}
                   stroke="rgba(255, 255, 255, 0.1)"
                   strokeWidth="1"
-                  strokeDasharray="5,5"
                 />
               ))}
+              </svg>
+            </div>
+          </div>
+        )}
 
-              {/* Y-axis labels */}
-              {[0, 25, 50, 75, 100].map((value) => (
-                <text
-                  key={`y-label-${value}`}
-                  x="45"
-                  y={265 - (value * 2)}
-                  fill="rgba(255, 255, 255, 0.5)"
-                  fontSize="11"
-                  textAnchor="end"
-                >
-                  {value}
-                </text>
-              ))}
-
-              {/* X-axis labels (meses) */}
-              {['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((mes, index) => (
-                <text
-                  key={`x-label-${mes}`}
-                  x={60 + (index * 65)}
-                  y="285"
-                  fill="rgba(255, 255, 255, 0.5)"
-                  fontSize="11"
-                  textAnchor="middle"
-                >
-                  {mes}
-                </text>
-              ))}
-
-              {/* Líneas de capacidades */}
-              {atleta.analisis.length > 1 && atleta.analisis[0].capacidades && (
-                <>
-                  {/* Fuerza - Rojo */}
-                  <polyline
-                    points={atleta.analisis.slice(0, 5).reverse().map((a, i) => 
-                      `${60 + (i * 195)},${260 - (a.capacidades?.fuerza || 0) * 2}`
-                    ).join(' ')}
-                    fill="none"
-                    stroke="#ef4444"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+        {/* Timeline de Mejoría */}
+        {analyses.length > 1 && (
+          <div className="detalle-section">
+            <h2 className="section-title">
+              <IoTrendingUp />
+              Timeline de Mejoría
+            </h2>
+            <div className="abilities-timeline-container">
+              <svg width="100%" height="300" viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet">
+                {/* Grid horizontal lines */}
+                {[0, 25, 50, 75, 100].map((y) => (
+                  <line
+                    key={`grid-${y}`}
+                    x1="60"
+                    y1={260 - (y * 2)}
+                    x2="840"
+                    y2={260 - (y * 2)}
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="1"
+                    strokeDasharray="5,5"
                   />
-                  {atleta.analisis.slice(0, 5).reverse().map((a, i) => (
-                    <circle
-                      key={`fuerza-${i}`}
-                      cx={60 + (i * 195)}
-                      cy={260 - (a.capacidades?.fuerza || 0) * 2}
-                      r="5"
-                      fill="#ef4444"
-                      stroke="#0a0a0a"
-                      strokeWidth="2"
-                    />
-                  ))}
+                ))}
 
-                  {/* Velocidad - Cyan */}
-                  <polyline
-                    points={atleta.analisis.slice(0, 5).reverse().map((a, i) => 
-                      `${60 + (i * 195)},${260 - (a.capacidades?.velocidad || 0) * 2}`
-                    ).join(' ')}
-                    fill="none"
-                    stroke="#06b6d4"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {atleta.analisis.slice(0, 5).reverse().map((a, i) => (
-                    <circle
-                      key={`velocidad-${i}`}
-                      cx={60 + (i * 195)}
-                      cy={260 - (a.capacidades?.velocidad || 0) * 2}
-                      r="5"
-                      fill="#06b6d4"
-                      stroke="#0a0a0a"
-                      strokeWidth="2"
-                    />
-                  ))}
+                {/* Y-axis labels */}
+                {[0, 25, 50, 75, 100].map((value) => (
+                  <text
+                    key={`y-label-${value}`}
+                    x="45"
+                    y={265 - (value * 2)}
+                    fill="rgba(255, 255, 255, 0.5)"
+                    fontSize="11"
+                    textAnchor="end"
+                  >
+                    {value}
+                  </text>
+                ))}
 
-                  {/* Resistencia - Verde */}
-                  <polyline
-                    points={atleta.analisis.slice(0, 5).reverse().map((a, i) => 
-                      `${60 + (i * 195)},${260 - (a.capacidades?.resistencia || 0) * 2}`
-                    ).join(' ')}
-                    fill="none"
-                    stroke="#10b981"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {atleta.analisis.slice(0, 5).reverse().map((a, i) => (
-                    <circle
-                      key={`resistencia-${i}`}
-                      cx={60 + (i * 195)}
-                      cy={260 - (a.capacidades?.resistencia || 0) * 2}
-                      r="5"
-                      fill="#10b981"
-                      stroke="#0a0a0a"
-                      strokeWidth="2"
-                    />
-                  ))}
+                {/* Líneas de capacidades */}
+                {analyses.length > 0 && (
+                  <>
+                    {/* Fuerza - Rojo */}
+                    {analyses.slice(0, 5).some(a => a.strength !== null && a.strength !== undefined) && (
+                      <>
+                        <polyline
+                          points={analyses.slice(0, 5).reverse().map((a, i) => 
+                            `${60 + (i * 195)},${260 - ((a.strength || 0) * 2)}`
+                          ).join(' ')}
+                          fill="none"
+                          stroke="#ef4444"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        {analyses.slice(0, 5).reverse().map((a, i) => (
+                          <circle
+                            key={`fuerza-${i}`}
+                            cx={60 + (i * 195)}
+                            cy={260 - ((a.strength || 0) * 2)}
+                            r="5"
+                            fill="#ef4444"
+                            stroke="#0a0a0a"
+                            strokeWidth="2"
+                          />
+                        ))}
+                      </>
+                    )}
 
-                  {/* Flexibilidad - Amarillo */}
-                  <polyline
-                    points={atleta.analisis.slice(0, 5).reverse().map((a, i) => 
-                      `${60 + (i * 195)},${260 - (a.capacidades?.flexibilidad || 0) * 2}`
-                    ).join(' ')}
-                    fill="none"
-                    stroke="#f59e0b"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {atleta.analisis.slice(0, 5).reverse().map((a, i) => (
-                    <circle
-                      key={`flexibilidad-${i}`}
-                      cx={60 + (i * 195)}
-                      cy={260 - (a.capacidades?.flexibilidad || 0) * 2}
-                      r="5"
-                      fill="#f59e0b"
-                      stroke="#0a0a0a"
-                      strokeWidth="2"
-                    />
-                  ))}
+                    {/* Velocidad - Cyan */}
+                    {analyses.slice(0, 5).some(a => a.speed !== null && a.speed !== undefined) && (
+                      <>
+                        <polyline
+                          points={analyses.slice(0, 5).reverse().map((a, i) => 
+                            `${60 + (i * 195)},${260 - ((a.speed || 0) * 2)}`
+                          ).join(' ')}
+                          fill="none"
+                          stroke="#06b6d4"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        {analyses.slice(0, 5).reverse().map((a, i) => (
+                          <circle
+                            key={`velocidad-${i}`}
+                            cx={60 + (i * 195)}
+                            cy={260 - ((a.speed || 0) * 2)}
+                            r="5"
+                            fill="#06b6d4"
+                            stroke="#0a0a0a"
+                            strokeWidth="2"
+                          />
+                        ))}
+                      </>
+                    )}
 
-                  {/* Potencia - Morado */}
-                  <polyline
-                    points={atleta.analisis.slice(0, 5).reverse().map((a, i) => 
-                      `${60 + (i * 195)},${260 - (a.capacidades?.potencia || 0) * 2}`
-                    ).join(' ')}
-                    fill="none"
-                    stroke="#a855f7"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {atleta.analisis.slice(0, 5).reverse().map((a, i) => (
-                    <circle
-                      key={`potencia-${i}`}
-                      cx={60 + (i * 195)}
-                      cy={260 - (a.capacidades?.potencia || 0) * 2}
-                      r="5"
-                      fill="#a855f7"
-                      stroke="#0a0a0a"
-                      strokeWidth="2"
-                    />
-                  ))}
-                </>
-              )}
-            </svg>
+                    {/* Resistencia - Verde */}
+                    {analyses.slice(0, 5).some(a => a.endurance !== null && a.endurance !== undefined) && (
+                      <>
+                        <polyline
+                          points={analyses.slice(0, 5).reverse().map((a, i) => 
+                            `${60 + (i * 195)},${260 - ((a.endurance || 0) * 2)}`
+                          ).join(' ')}
+                          fill="none"
+                          stroke="#10b981"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        {analyses.slice(0, 5).reverse().map((a, i) => (
+                          <circle
+                            key={`resistencia-${i}`}
+                            cx={60 + (i * 195)}
+                            cy={260 - ((a.endurance || 0) * 2)}
+                            r="5"
+                            fill="#10b981"
+                            stroke="#0a0a0a"
+                            strokeWidth="2"
+                          />
+                        ))}
+                      </>
+                    )}
 
-            {/* Leyenda */}
-            <div className="abilities-legend">
-              <div className="legend-item-ability">
-                <div className="legend-line" style={{ backgroundColor: '#ef4444' }}></div>
-                <span>Fuerza</span>
-              </div>
-              <div className="legend-item-ability">
-                <div className="legend-line" style={{ backgroundColor: '#06b6d4' }}></div>
-                <span>Velocidad</span>
-              </div>
-              <div className="legend-item-ability">
-                <div className="legend-line" style={{ backgroundColor: '#10b981' }}></div>
-                <span>Resistencia</span>
-              </div>
-              <div className="legend-item-ability">
-                <div className="legend-line" style={{ backgroundColor: '#f59e0b' }}></div>
-                <span>Flexibilidad</span>
-              </div>
-              <div className="legend-item-ability">
-                <div className="legend-line" style={{ backgroundColor: '#a855f7' }}></div>
-                <span>Potencia</span>
+                    {/* Flexibilidad - Amarillo */}
+                    {analyses.slice(0, 5).some(a => a.flexibility !== null && a.flexibility !== undefined) && (
+                      <>
+                        <polyline
+                          points={analyses.slice(0, 5).reverse().map((a, i) => 
+                            `${60 + (i * 195)},${260 - ((a.flexibility || 0) * 2)}`
+                          ).join(' ')}
+                          fill="none"
+                          stroke="#f59e0b"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        {analyses.slice(0, 5).reverse().map((a, i) => (
+                          <circle
+                            key={`flexibilidad-${i}`}
+                            cx={60 + (i * 195)}
+                            cy={260 - ((a.flexibility || 0) * 2)}
+                            r="5"
+                            fill="#f59e0b"
+                            stroke="#0a0a0a"
+                            strokeWidth="2"
+                          />
+                        ))}
+                      </>
+                    )}
+
+                    {/* Potencia - Morado */}
+                    {analyses.slice(0, 5).some(a => a.power !== null && a.power !== undefined) && (
+                      <>
+                        <polyline
+                          points={analyses.slice(0, 5).reverse().map((a, i) => 
+                            `${60 + (i * 195)},${260 - ((a.power || 0) * 2)}`
+                          ).join(' ')}
+                          fill="none"
+                          stroke="#a855f7"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        {analyses.slice(0, 5).reverse().map((a, i) => (
+                          <circle
+                            key={`potencia-${i}`}
+                            cx={60 + (i * 195)}
+                            cy={260 - ((a.power || 0) * 2)}
+                            r="5"
+                            fill="#a855f7"
+                            stroke="#0a0a0a"
+                            strokeWidth="2"
+                          />
+                        ))}
+                      </>
+                    )}
+                  </>
+                )}
+              </svg>
+
+              {/* Leyenda */}
+              <div className="abilities-legend">
+                <div className="legend-item-ability">
+                  <div className="legend-line" style={{ backgroundColor: '#ef4444' }}></div>
+                  <span>Fuerza</span>
+                </div>
+                <div className="legend-item-ability">
+                  <div className="legend-line" style={{ backgroundColor: '#06b6d4' }}></div>
+                  <span>Velocidad</span>
+                </div>
+                <div className="legend-item-ability">
+                  <div className="legend-line" style={{ backgroundColor: '#10b981' }}></div>
+                  <span>Resistencia</span>
+                </div>
+                <div className="legend-item-ability">
+                  <div className="legend-line" style={{ backgroundColor: '#f59e0b' }}></div>
+                  <span>Flexibilidad</span>
+                </div>
+                <div className="legend-item-ability">
+                  <div className="legend-line" style={{ backgroundColor: '#a855f7' }}></div>
+                  <span>Potencia</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Historial de Análisis */}
         <div className="detalle-section">
@@ -519,23 +529,19 @@ function DetalleAtleta() {
               <thead>
                 <tr>
                   <th>Fecha</th>
-                  <th>Evaluador</th>
                   <th>Clasificación</th>
-                  <th>Punto Débil</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {atleta.analisis.map((analisis) => (
+                {analyses.map((analisis) => (
                   <tr key={analisis.id}>
-                    <td>{new Date(analisis.fecha).toLocaleDateString('es-ES')}</td>
-                    <td>{analisis.evaluador}</td>
+                    <td>{new Date(analisis.evaluationDate).toLocaleDateString('es-ES')}</td>
                     <td>
-                      <span className={`badge ${getBadgeClass(analisis.clasificacion)}`}>
-                        {analisis.clasificacion}
+                      <span className={`badge ${getBadgeClass(analisis.globalClassification)}`}>
+                        {getClassificationLabel(analisis.globalClassification)}
                       </span>
                     </td>
-                    <td>{analisis.puntoDebil}</td>
                     <td>
                       <div className="historial-actions">
                         <button 
@@ -544,20 +550,6 @@ function DetalleAtleta() {
                           title="Ver detalles"
                         >
                           <IoEye />
-                        </button>
-                        <button 
-                          className="action-btn action-btn-download"
-                          onClick={() => handleDescargarAnalisis(analisis.id)}
-                          title="Descargar"
-                        >
-                          <IoDownload />
-                        </button>
-                        <button 
-                          className="action-btn action-btn-delete"
-                          onClick={() => handleEliminarAnalisis(analisis.id)}
-                          title="Eliminar"
-                        >
-                          <IoTrash />
                         </button>
                       </div>
                     </td>

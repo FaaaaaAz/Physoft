@@ -204,9 +204,15 @@ export class AnalysisController {
 
       // Handle multiple graph images upload
       let graphImagesArray: string[] = []
+      let tempAnalysisId = `temp_${Date.now()}`
+      
       if (req.files && Array.isArray(req.files)) {
         const uploadPromises = (req.files as Express.Multer.File[]).map(async (file) => {
-          const result = await UploadService.uploadPhoto(file, `analysis-${Date.now()}`)
+          const result = await UploadService.uploadPhoto(
+            file, 
+            tempAnalysisId,
+            `physoft/analysis/${tempAnalysisId}`
+          )
           return result.url
         })
         graphImagesArray = await Promise.all(uploadPromises)
@@ -381,7 +387,11 @@ export class AnalysisController {
 
       // Upload new graph images
       const uploadPromises = (req.files as Express.Multer.File[]).map(async (file) => {
-        const result = await UploadService.uploadPhoto(file, `analysis-${id}-${Date.now()}`)
+        const result = await UploadService.uploadPhoto(
+          file, 
+          `analysis_${id}`,
+          `physoft/analysis/${id}`
+        )
         return result.url
       })
       const newGraphUrls = await Promise.all(uploadPromises)

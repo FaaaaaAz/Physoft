@@ -2,223 +2,54 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoSearch, IoFitness, IoTrendingUp, IoDocument } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
-import AtletaSelectionModal from '../components/AtletaSelectionModal'
-import FormularioAnalisis from '../components/FormularioAnalisis'
+import { Analysis } from '../services/api'
+import { useAthletes } from '../hooks/useAthletes'
+import { useAnalyses } from '../hooks/useAnalyses'
 import '../styles/Analisis.css'
 
 function Analisis() {
   const navigate = useNavigate()
-  const [showAtletaModal, setShowAtletaModal] = useState(false)
-  const [showFormulario, setShowFormulario] = useState(false)
-  const [atletaSeleccionado, setAtletaSeleccionado] = useState<any>(null)
   const [busqueda, setBusqueda] = useState('')
+  
+  // Use custom hooks for data fetching
+  const { analyses, loading: loadingAnalyses } = useAnalyses()
+  const { athletes, loading: loadingAthletes } = useAthletes()
+  
+  const loading = loadingAnalyses || loadingAthletes
+  const recentAnalyses = analyses.slice(0, 10)
 
-  // Datos de ejemplo de atletas con sus análisis
-  const atletasRecientes = [
-    {
-      nombre: 'Lionel Messi',
-      foto: undefined,
-      edad: 37,
-      somatipo: 'Mesomorfo',
-      altura: 170,
-      peso: 67,
-      posicion: 'Delantero',
-      club: 'Inter Miami',
-      codigoAcceso: '00000',
-      capacidades: {
-        velocidad: 80,
-        resistencia: 85,
-        fuerza: 75,
-        potencia: 95,
-        flexibilidad: 88
-      },
-      analisis: [
-        { 
-          id: 701, 
-          fecha: '2025-11-22', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Encima del Promedio' as const, 
-          puntoDebil: 'Oblicuidad de cadera',
-          capacidades: { velocidad: 80, resistencia: 85, fuerza: 75, potencia: 95, flexibilidad: 88 }
-        },
-        { 
-          id: 702, 
-          fecha: '2025-10-20', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Encima del Promedio' as const, 
-          puntoDebil: 'Estabilidad pélvica',
-          capacidades: { velocidad: 79, resistencia: 84, fuerza: 74, potencia: 94, flexibilidad: 87 }
-        },
-        { 
-          id: 703, 
-          fecha: '2025-08-12', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Promedio' as const, 
-          puntoDebil: 'Fuerza',
-          capacidades: { velocidad: 78, resistencia: 83, fuerza: 73, potencia: 93, flexibilidad: 86 }
-        },
-        { 
-          id: 704, 
-          fecha: '2025-06-08', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Promedio' as const, 
-          puntoDebil: 'Velocidad',
-          capacidades: { velocidad: 77, resistencia: 82, fuerza: 72, potencia: 92, flexibilidad: 85 }
-        },
-        { 
-          id: 705, 
-          fecha: '2025-04-02', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Encima del Promedio' as const, 
-          puntoDebil: 'Resistencia',
-          capacidades: { velocidad: 76, resistencia: 81, fuerza: 71, potencia: 91, flexibilidad: 84 }
-        }
-      ]
-    },
-    {
-      nombre: 'Kylian Mbappé',
-      foto: undefined,
-      edad: 25,
-      somatipo: 'Mesomorfo',
-      altura: 178,
-      peso: 73,
-      posicion: 'Delantero',
-      club: 'Real Madrid',
-      codigoAcceso: '00003',
-      capacidades: {
-        velocidad: 98,
-        resistencia: 88,
-        fuerza: 85,
-        potencia: 92,
-        flexibilidad: 80
-      },
-      analisis: [
-        { 
-          id: 601, 
-          fecha: '2025-10-25', 
-          evaluador: 'Dra. María González', 
-          clasificacion: 'Encima del Promedio' as const, 
-          puntoDebil: 'Estabilidad del core',
-          capacidades: { velocidad: 98, resistencia: 88, fuerza: 85, potencia: 92, flexibilidad: 80 }
-        },
-        { 
-          id: 602, 
-          fecha: '2025-10-12', 
-          evaluador: 'Dra. María González', 
-          clasificacion: 'Promedio' as const, 
-          puntoDebil: 'Balance de activación',
-          capacidades: { velocidad: 97, resistencia: 87, fuerza: 84, potencia: 90, flexibilidad: 79 }
-        },
-        { 
-          id: 603, 
-          fecha: '2025-08-20', 
-          evaluador: 'Dra. María González', 
-          clasificacion: 'Encima del Promedio' as const, 
-          puntoDebil: 'Flexibilidad',
-          capacidades: { velocidad: 96, resistencia: 86, fuerza: 83, potencia: 89, flexibilidad: 78 }
-        },
-        { 
-          id: 604, 
-          fecha: '2025-06-18', 
-          evaluador: 'Dra. María González', 
-          clasificacion: 'Encima del Promedio' as const, 
-          puntoDebil: 'Fuerza',
-          capacidades: { velocidad: 95, resistencia: 85, fuerza: 82, potencia: 88, flexibilidad: 77 }
-        },
-        { 
-          id: 605, 
-          fecha: '2025-04-12', 
-          evaluador: 'Dra. María González', 
-          clasificacion: 'Promedio' as const, 
-          puntoDebil: 'Resistencia',
-          capacidades: { velocidad: 94, resistencia: 84, fuerza: 81, potencia: 87, flexibilidad: 76 }
-        }
-      ]
-    },
-    {
-      nombre: 'Neymar Jr',
-      foto: undefined,
-      edad: 32,
-      somatipo: 'Ectomorfo',
-      altura: 175,
-      peso: 68,
-      posicion: 'Extremo',
-      club: 'Al-Hilal',
-      codigoAcceso: '00002',
-      capacidades: {
-        velocidad: 88,
-        resistencia: 80,
-        fuerza: 72,
-        potencia: 95,
-        flexibilidad: 92
-      },
-      analisis: [
-        { 
-          id: 901, 
-          fecha: '2025-10-20', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Promedio' as const, 
-          puntoDebil: 'Equilibrio pierna izquierda',
-          capacidades: { velocidad: 88, resistencia: 80, fuerza: 72, potencia: 95, flexibilidad: 92 }
-        },
-        { 
-          id: 902, 
-          fecha: '2025-10-15', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Debajo del Promedio' as const, 
-          puntoDebil: 'Estabilidad del core',
-          capacidades: { velocidad: 87, resistencia: 79, fuerza: 71, potencia: 94, flexibilidad: 91 }
-        },
-        { 
-          id: 903, 
-          fecha: '2025-08-25', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Promedio' as const, 
-          puntoDebil: 'Fuerza',
-          capacidades: { velocidad: 86, resistencia: 78, fuerza: 70, potencia: 93, flexibilidad: 90 }
-        },
-        { 
-          id: 904, 
-          fecha: '2025-06-20', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Debajo del Promedio' as const, 
-          puntoDebil: 'Resistencia',
-          capacidades: { velocidad: 85, resistencia: 77, fuerza: 69, potencia: 92, flexibilidad: 89 }
-        },
-        { 
-          id: 905, 
-          fecha: '2025-04-18', 
-          evaluador: 'Dr. Juan Pérez', 
-          clasificacion: 'Promedio' as const, 
-          puntoDebil: 'Core',
-          capacidades: { velocidad: 84, resistencia: 76, fuerza: 68, potencia: 91, flexibilidad: 88 }
-        }
-      ]
-    }
-  ]
+  // Calculate stats from loaded data
+  const stats = {
+    total: analyses.length,
+    thisWeek: analyses.length, // TODO: calcular semana actual
+    athletes: athletes.length
+  }
+
+  const getClassificationBadge = (classification: string | null | undefined) => {
+    if (!classification) return 'promedio'
+    if (classification === 'high') return 'encima'
+    if (classification === 'low') return 'debajo'
+    return 'promedio'
+  }
+
+  const getClassificationText = (classification: string | null | undefined) => {
+    if (!classification) return 'Promedio'
+    if (classification === 'high') return 'Encima del Promedio'
+    if (classification === 'low') return 'Debajo del Promedio'
+    return 'Promedio'
+  }
+
+  const filteredAnalyses = recentAnalyses.filter(analysis =>
+    analysis.athlete?.name.toLowerCase().includes(busqueda.toLowerCase()) ||
+    analysis.athlete?.accessCode.includes(busqueda)
+  )
 
   const handleCrearAnalisis = () => {
     navigate('/new-analysis')
   }
 
-  const handleAtletaSeleccionado = (atleta: any, _esNuevo: boolean) => {
-    setAtletaSeleccionado(atleta)
-    setShowAtletaModal(false)
-    setShowFormulario(true)
-  }
-
-  const handleCerrarFormulario = () => {
-    setShowFormulario(false)
-    setAtletaSeleccionado(null)
-  }
-
-  if (showFormulario) {
-    return (
-      <FormularioAnalisis
-        atleta={atletaSeleccionado}
-        onClose={handleCerrarFormulario}
-      />
-    )
+  const handleViewAnalysis = (analysis: Analysis) => {
+    navigate(`/analysis-view/${analysis.id}`)
   }
 
   return (
@@ -237,7 +68,7 @@ function Analisis() {
             <IoDocument style={{ color: 'var(--primary-color)' }} />
           </div>
           <div className="stat-info">
-            <h3>156</h3>
+            <h3>{loading ? '...' : stats.total}</h3>
             <p>Análisis Totales</p>
           </div>
         </div>
@@ -247,7 +78,7 @@ function Analisis() {
             <IoTrendingUp style={{ color: '#34d399' }} />
           </div>
           <div className="stat-info">
-            <h3>23</h3>
+            <h3>{loading ? '...' : stats.thisWeek}</h3>
             <p>Esta Semana</p>
           </div>
         </div>
@@ -257,7 +88,7 @@ function Analisis() {
             <IoFitness style={{ color: '#60a5fa' }} />
           </div>
           <div className="stat-info">
-            <h3>89</h3>
+            <h3>{loading ? '...' : stats.athletes}</h3>
             <p>Atletas Evaluados</p>
           </div>
         </div>
@@ -279,60 +110,64 @@ function Analisis() {
           </div>
         </div>
 
-        <div className="analisis-table-container">
-          <table className="analisis-table">
-            <thead>
-              <tr>
-                <th>Atleta</th>
-                <th>Evaluador</th>
-                <th>Clasificación</th>
-              </tr>
-            </thead>
-            <tbody>
-              {atletasRecientes.map(atleta => (
-                <tr 
-                  key={atleta.codigoAcceso}
-                  className="clickable-row"
-                  onClick={() => navigate('/athlete-detail', { state: { atleta, from: 'analysis' } })}
-                >
-                  <td>
-                    <div className="atleta-cell">
-                      <div className="atleta-avatar">
-                        {atleta.nombre.charAt(0)}
-                      </div>
-                      <span className="atleta-nombre">{atleta.nombre}</span>
-                    </div>
-                  </td>
-                  <td>{atleta.analisis[0].evaluador}</td>
-                  <td>
-                    <span className={`badge badge-${atleta.analisis[0].clasificacion === 'Encima del Promedio' ? 'encima' : atleta.analisis[0].clasificacion === 'Promedio' ? 'promedio' : 'debajo'}`}>
-                      {atleta.analisis[0].clasificacion}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Cargando análisis...</p>
+          </div>
+        ) : filteredAnalyses.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>No hay análisis recientes</p>
+          </div>
+        ) : (
+          <>
+            <div className="analisis-table-container">
+              <table className="analisis-table">
+                <thead>
+                  <tr>
+                    <th>Atleta</th>
+                    <th>Fecha</th>
+                    <th>Clasificación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAnalyses.map(analysis => (
+                    <tr 
+                      key={analysis.id}
+                      className="clickable-row"
+                      onClick={() => handleViewAnalysis(analysis)}
+                    >
+                      <td>
+                        <div className="atleta-cell">
+                          <div className="atleta-avatar">
+                            {analysis.athlete?.name.charAt(0) || '?'}
+                          </div>
+                          <span className="atleta-nombre">{analysis.athlete?.name || 'Atleta desconocido'}</span>
+                        </div>
+                      </td>
+                      <td>{new Date(analysis.evaluationDate).toLocaleDateString('es-ES')}</td>
+                      <td>
+                        <span className={`badge badge-${getClassificationBadge(analysis.globalClassification)}`}>
+                          {getClassificationText(analysis.globalClassification)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Botón Ver Todos */}
-        <div className="ver-todos-container">
-          <button 
-            className="btn-ver-todos"
-            onClick={() => navigate('/all-analysis')}
-          >
-            Ver Todos
-          </button>
-        </div>
+            {/* Botón Ver Todos */}
+            <div className="ver-todos-container">
+              <button 
+                className="btn-ver-todos"
+                onClick={() => navigate('/all-analysis')}
+              >
+                Ver Todos
+              </button>
+            </div>
+          </>
+        )}
       </div>
-
-      {/* Modal de selección de atleta */}
-      {showAtletaModal && (
-        <AtletaSelectionModal
-          onClose={() => setShowAtletaModal(false)}
-          onSelect={handleAtletaSeleccionado}
-        />
-      )}
     </PageTemplate>
   )
 }

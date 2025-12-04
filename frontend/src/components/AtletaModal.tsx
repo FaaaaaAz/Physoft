@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
 import { IoClose, IoFootball } from 'react-icons/io5'
 import { translateBodyType } from '../utils/translations'
+import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../hooks/usePentagonChart'
 import '../styles/AtletaModal.css'
 
 interface AtletaModalProps {
@@ -28,114 +28,16 @@ interface AtletaModalProps {
 }
 
 function AtletaModal({ atleta, onClose }: AtletaModalProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  // Pentagon chart configuration
+  const chartConfig = { centerX: 170, centerY: 170, maxRadius: 100, labelOffset: 30 }
+  
+  // Always call hooks unconditionally - use default values if atleta is null
+  const defaultCapacidades = { potencia: 0, fuerza: 0, velocidad: 0, flexibilidad: 0, resistencia: 0 }
+  const pentagonData = usePentagonChart(atleta?.capacidades || defaultCapacidades, chartConfig)
+  const guideLines = usePentagonGuideLines(chartConfig)
+  const radialLines = usePentagonRadialLines(chartConfig)
 
-  useEffect(() => {
-    if (!atleta || !canvasRef.current) return
-
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Configuración
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
-    const radius = 100
-    const stats = [
-      { label: 'Potencia', value: atleta.capacidades.potencia },
-      { label: 'Fuerza', value: atleta.capacidades.fuerza },
-      { label: 'Velocidad', value: atleta.capacidades.velocidad },
-      { label: 'Flexibilidad', value: atleta.capacidades.flexibilidad },
-      { label: 'Resistencia', value: atleta.capacidades.resistencia }
-    ]
-
-    // Limpiar canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    // Dibujar líneas de fondo (pentágono guía)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
-    ctx.lineWidth = 1
-
-    for (let i = 1; i <= 5; i++) {
-      ctx.beginPath()
-      for (let j = 0; j <= stats.length; j++) {
-        const angle = (Math.PI * 2 * j) / stats.length - Math.PI / 2
-        const r = (radius * i) / 5
-        const x = centerX + r * Math.cos(angle)
-        const y = centerY + r * Math.sin(angle)
-        if (j === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
-      }
-      ctx.closePath()
-      ctx.stroke()
-    }
-
-    // Dibujar líneas radiales
-    stats.forEach((_, i) => {
-      const angle = (Math.PI * 2 * i) / stats.length - Math.PI / 2
-      ctx.beginPath()
-      ctx.moveTo(centerX, centerY)
-      ctx.lineTo(
-        centerX + radius * Math.cos(angle),
-        centerY + radius * Math.sin(angle)
-      )
-      ctx.stroke()
-    })
-
-    // Dibujar datos del atleta
-    ctx.fillStyle = 'rgba(20, 184, 166, 0.3)'
-    ctx.strokeStyle = '#14b8a6'
-    ctx.lineWidth = 2
-
-    ctx.beginPath()
-    stats.forEach((stat, i) => {
-      const angle = (Math.PI * 2 * i) / stats.length - Math.PI / 2
-      const r = (radius * stat.value) / 100
-      const x = centerX + r * Math.cos(angle)
-      const y = centerY + r * Math.sin(angle)
-      if (i === 0) ctx.moveTo(x, y)
-      else ctx.lineTo(x, y)
-    })
-    ctx.closePath()
-    ctx.fill()
-    ctx.stroke()
-
-    // Dibujar puntos
-    ctx.fillStyle = '#14b8a6'
-    stats.forEach((stat, i) => {
-      const angle = (Math.PI * 2 * i) / stats.length - Math.PI / 2
-      const r = (radius * stat.value) / 100
-      const x = centerX + r * Math.cos(angle)
-      const y = centerY + r * Math.sin(angle)
-      ctx.beginPath()
-      ctx.arc(x, y, 4, 0, Math.PI * 2)
-      ctx.fill()
-    })
-
-    // Dibujar etiquetas
-    ctx.fillStyle = 'white'
-    ctx.font = 'bold 12px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-
-    stats.forEach((stat, i) => {
-      const angle = (Math.PI * 2 * i) / stats.length - Math.PI / 2
-      const labelRadius = radius + 30
-      const x = centerX + labelRadius * Math.cos(angle)
-      const y = centerY + labelRadius * Math.sin(angle)
-
-      // Etiqueta
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
-      ctx.fillText(stat.label, x, y - 10)
-
-      // Valor
-      ctx.fillStyle = '#14b8a6'
-      ctx.font = 'bold 14px sans-serif'
-      ctx.fillText(stat.value.toString(), x, y + 10)
-      ctx.font = 'bold 12px sans-serif'
-    })
-  }, [atleta])
-
+  // Early return AFTER all hooks
   if (!atleta) return null
 
   const promedio = Math.round(
@@ -207,12 +109,76 @@ function AtletaModal({ atleta, onClose }: AtletaModalProps) {
           <div className="modal-section">
             <h3 className="section-title">Capacidades Físicas</h3>
             <div className="chart-container">
-              <canvas
-                ref={canvasRef}
-                width="340"
-                height="340"
-                className="radar-chart"
-              />
+              <svg width="340" height="340" viewBox="0 0 340 340">
+                {/* Guide lines (20%, 40%, 60%, 80%, 100%) */}
+                {guideLines.map((path, idx) => (
+                  <polygon
+                    key={`guide-${idx}`}
+                    points={path}
+                    fill="none"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="1"
+                  />
+                ))}
+
+                {/* Radial lines from center to vertices */}
+                {radialLines.map((line, idx) => (
+                  <line
+                    key={`radial-${idx}`}
+                    x1={line.x1}
+                    y1={line.y1}
+                    x2={line.x2}
+                    y2={line.y2}
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="1"
+                  />
+                ))}
+
+                {/* Athlete data polygon */}
+                <polygon
+                  points={pentagonData.pointsPath}
+                  fill="rgba(20, 184, 166, 0.3)"
+                  stroke="#14b8a6"
+                  strokeWidth="2"
+                />
+                
+                {/* Points at vertices */}
+                {pentagonData.points.map((point, idx) => (
+                  <circle
+                    key={`point-${idx}`}
+                    cx={point.x}
+                    cy={point.y}
+                    r="4"
+                    fill="#14b8a6"
+                  />
+                ))}
+
+                {/* Labels and values */}
+                {pentagonData.points.map((point, idx) => (
+                  <g key={`label-${idx}`}>
+                    <text
+                      x={point.labelX}
+                      y={point.labelY - 10}
+                      textAnchor="middle"
+                      fill="rgba(255, 255, 255, 0.7)"
+                      fontSize="12"
+                      fontWeight="bold"
+                    >
+                      {point.nombre}
+                    </text>
+                    <text
+                      x={point.labelX}
+                      y={point.labelY + 10}
+                      textAnchor="middle"
+                      fill="#14b8a6"
+                      fontSize="14"
+                      fontWeight="bold"
+                    >
+                      {point.valor}
+                    </text>
+                  </g>
+                ))}
+              </svg>
             </div>
           </div>
         </div>
