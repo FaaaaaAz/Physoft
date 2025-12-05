@@ -1,7 +1,8 @@
+import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoEye, IoDownload, IoTrash, IoChevronForward } from 'react-icons/io5'
+import PageTemplate from '../components/templates/PageTemplate'
+import { BreadcrumbItem } from '../components/Breadcrumb'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoChevronForward, IoEye } from 'react-icons/io5'
-import PageTemplate from '../components/templates/PageTemplate'
 import { athleteAPI, analysisAPI, Athlete, Analysis } from '../services/api'
 import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../hooks/usePentagonChart'
 import '../styles/DetalleAtleta.css'
@@ -126,25 +127,25 @@ function DetalleAtleta() {
   const edad = calculateAge(athlete.birthDate)
   const ultimaClasificacion = latestAnalysis?.globalClassification
 
+  // Breadcrumb dinámico según origen
+  const breadcrumbItems: BreadcrumbItem[] = from === 'todos-analisis' 
+    ? [
+        { label: 'Análisis', path: '/analisis' },
+        { label: 'Todos los Análisis', path: '/todos-analisis' },
+        { label: atleta.nombre }
+      ]
+    : [
+        { label: 'Análisis', path: '/analisis' },
+        { label: atleta.nombre }
+      ]
+
   return (
     <PageTemplate 
       title={`Detalle de ${athlete.name}`}
       showBackButton={true}
       backTo={from === 'analysis' ? '/analysis' : '/all-analysis'}
+      breadcrumbItems={breadcrumbItems}
     >
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-item" onClick={() => navigate('/analysis')}>Ánalisis</span>
-        <IoChevronForward className="breadcrumb-separator" />
-        {from === 'all-analysis' && (
-          <>
-            <span className="breadcrumb-item" onClick={() => navigate('/all-analysis')}>Todos los Análisis</span>
-            <IoChevronForward className="breadcrumb-separator" />
-          </>
-        )}
-        <span className="breadcrumb-item active">{athlete.name}</span>
-      </div>
-
       <div className="detalle-atleta-container">
         {/* Header con información básica */}
         <div className="detalle-header">

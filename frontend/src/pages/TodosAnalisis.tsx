@@ -192,15 +192,12 @@ function TodosAnalisis() {
       title="Todos los Análisis"
       className="todos-analisis-page"
       showBackButton={true}
-      backTo="/analysis"
+      backTo='/analysis'
+      breadcrumbItems={[
+        { label: 'Análisis', path: '/analysis' },
+        { label: 'Todos los Análisis' }
+      ]}
     >
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-item" onClick={() => navigate('/analysis')}>Ánalisis</span>
-        <span className="breadcrumb-separator">/</span>
-        <span className="breadcrumb-item active">Todos los Análisis</span>
-      </div>
-
       {/* Buscador y Filtros */}
       <div className="todos-analisis-header">
         <div className="search-container">

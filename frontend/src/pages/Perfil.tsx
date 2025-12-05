@@ -36,14 +36,11 @@ function Perfil() {
       subtitle="Administra tu información personal"
       showBackButton={true}
       backTo="/dashboard"
+      breadcrumbItems={[
+        { label: 'Inicio', path: '/dashboard' },
+        { label: 'Perfil' }
+      ]}
     >
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-item" onClick={() => navigate('/dashboard')}>Inicio</span>
-        <span className="breadcrumb-separator">/</span>
-        <span className="breadcrumb-item active">Perfil</span>
-      </div>
-
       <div className="perfil-container">
         {/* Header del Perfil */}
         <div className="perfil-header">

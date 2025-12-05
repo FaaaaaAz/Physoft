@@ -3,6 +3,9 @@
    Modo oscuro por defecto con paleta turquesa
    ============================================ */
 
+/* Importar estilos de componentes globales */
+@import './Breadcrumb.css';
+
 /* Variables CSS - Paleta de colores */
 :root {
   /* Colores principales */
