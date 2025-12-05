@@ -275,9 +275,9 @@ function AgregarAtleta() {
                   name="height"
                   value={formData.height || ''}
                   onChange={handleChange}
-                  placeholder="Ej: 175"
+                  placeholder="Ej: 175.5"
                   min="1"
-                  step="0.1"
+                  step="0.01"
                   required
                 />
               </div>
@@ -290,9 +290,9 @@ function AgregarAtleta() {
                   name="weight"
                   value={formData.weight || ''}
                   onChange={handleChange}
-                  placeholder="Ej: 75"
+                  placeholder="Ej: 75.5"
                   min="1"
-                  step="0.1"
+                  step="0.01"
                   required
                 />
               </div>

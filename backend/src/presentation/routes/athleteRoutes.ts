@@ -6,7 +6,8 @@
 
 import { Router } from 'express'
 import { AthleteController } from '../controllers/athleteController'
-import { upload } from '../../infrastructure/uploadMiddleware'
+import { upload } from '../../middleware/upload'
+import { AnalysisController } from '../controllers/analysisController'
 
 const router = Router()
 
@@ -14,14 +15,17 @@ const router = Router()
 router.get('/statistics/summary', AthleteController.estadisticas) // GET /api/athletes/statistics/summary
 
 // Athlete CRUD routes
-router.get('/', AthleteController.getAll)           // GET /api/atletas (with optional filters)
-router.get('/:id', AthleteController.getById)       // GET /api/atletas/:id
-router.post('/', upload.single('photo'), AthleteController.create)  // POST /api/atletas (with optional photo)
-router.put('/:id', AthleteController.update)        // PUT /api/atletas/:id
-router.delete('/:id', AthleteController.delete)     // DELETE /api/atletas/:id
+router.get('/', AthleteController.getAll)           // GET /api/athletes (with optional filters)
+router.get('/:id', AthleteController.getById)       // GET /api/athletes/:id
+router.post('/', upload.single('photo'), AthleteController.create)  // POST /api/athletes (with optional photo)
+router.put('/:id', AthleteController.update)        // PUT /api/athletes/:id
+router.delete('/:id', AthleteController.delete)     // DELETE /api/athletes/:id
 
 // Photo upload route
-router.post('/:id/photo', upload.single('photo'), AthleteController.uploadPhoto)  // POST /api/atletas/:id/photo
+router.post('/:id/photo', upload.single('photo'), AthleteController.uploadPhoto)  // POST /api/athletes/:id/photo
+
+// Athlete analyses route
+router.get('/:athleteId/analyses', AnalysisController.getByAthlete)  // GET /api/athletes/:athleteId/analyses
 
 // Comparison route
 router.get('/:id/compare', AthleteController.comparar)  // GET /api/athletes/:id/compare

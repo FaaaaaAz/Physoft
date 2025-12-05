@@ -13,15 +13,21 @@ export class UploadService {
      * Upload photo - Dual Strategy (Local + Cloudinary)
      * Always saves locally first for offline support.
      * Attempts to upload to Cloudinary if credentials exist.
+     * @param file - The file to upload
+     * @param resourceId - The ID of the resource (athlete ID or analysis ID)
+     * @param folder - The Cloudinary folder path (e.g., 'physoft/athletes/ATHLETE_ID' or 'physoft/analysis/ANALYSIS_ID')
      */
-    static async uploadPhoto(file: Express.Multer.File, athleteId: string): Promise<UploadResult> {
+    static async uploadPhoto(file: Express.Multer.File, resourceId: string, folder?: string): Promise<UploadResult> {
         // 1. Always save locally first (Multer already did this to disk)
         const filename = file.filename
         const localUrl = `/uploads/athletes/${filename}`
         let cloudinaryUrl: string | null = null
         let publicId: string | null = null
 
-        // 2. Try to upload to Cloudinary if configured
+        // 2. Determine Cloudinary folder
+        const cloudinaryFolder = folder || `physoft/athletes/${resourceId}`
+
+        // 3. Try to upload to Cloudinary if configured
         const useCloudinary = process.env.UPLOAD_STRATEGY === 'cloudinary' ||
             (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY)
 
@@ -30,8 +36,8 @@ export class UploadService {
                 const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
                     const uploadStream = cloudinary.uploader.upload_stream(
                         {
-                            folder: 'physoft/athletes',
-                            public_id: `athlete_${athleteId}_${Date.now()}`,
+                            folder: cloudinaryFolder,
+                            public_id: `${resourceId}_${Date.now()}`,
                             resource_type: 'image',
                             overwrite: true,
                             invalidate: true,
@@ -57,8 +63,7 @@ export class UploadService {
             }
         }
 
-        // 3. Return Cloudinary URL if available, otherwise local URL
-        // We could store both, but for now we return the best available one
+        // 4. Return Cloudinary URL if available, otherwise local URL
         return {
             url: cloudinaryUrl || localUrl,
             publicId: publicId

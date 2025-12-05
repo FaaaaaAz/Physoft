@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { IoClose, IoSearch, IoPerson, IoAdd, IoCheckmark } from 'react-icons/io5'
+import { useAthletes } from '../hooks/useAthletes'
+import { useAnalyses } from '../hooks/useAnalyses'
 import '../styles/AtletaSelectionModal.css'
 
 interface AtletaSelectionModalProps {
@@ -12,18 +14,26 @@ function AtletaSelectionModal({ onClose, onSelect }: AtletaSelectionModalProps) 
   const [busqueda, setBusqueda] = useState('')
   const [atletaSeleccionado, setAtletaSeleccionado] = useState<any>(null)
 
-  // Atletas existentes con análisis
-  const atletasExistentes = [
-    { id: 1, nombre: 'Lionel Messi', club: 'Inter Miami', analisisCount: 5 },
-    { id: 2, nombre: 'Cristiano Ronaldo', club: 'Al Nassr', analisisCount: 3 },
-    { id: 3, nombre: 'Neymar Jr', club: 'Al Hilal', analisisCount: 2 },
-    { id: 4, nombre: 'Kylian Mbappé', club: 'PSG', analisisCount: 4 },
-    { id: 5, nombre: 'Erling Haaland', club: 'Manchester City', analisisCount: 6 }
-  ]
+  // Fetch real athletes and analyses
+  const { athletes, loading: loadingAthletes } = useAthletes()
+  const { analyses, loading: loadingAnalyses } = useAnalyses()
 
-  const atletasFiltrados = atletasExistentes.filter(a =>
-    a.nombre.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  // Map athletes with their analysis count
+  const atletasConAnalisis = useMemo(() => {
+    return athletes.map(athlete => ({
+      id: athlete.id,
+      nombre: athlete.name,
+      club: athlete.club || 'Sin club',
+      analisisCount: analyses.filter(a => a.athleteId === athlete.id).length
+    }))
+  }, [athletes, analyses])
+
+  // Filter athletes by search term
+  const atletasFiltrados = useMemo(() => {
+    return atletasConAnalisis.filter(a =>
+      a.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    )
+  }, [atletasConAnalisis, busqueda])
 
   const handleExiste = () => {
     setPaso('buscar')
@@ -95,7 +105,11 @@ function AtletaSelectionModal({ onClose, onSelect }: AtletaSelectionModalProps) 
             </div>
 
             <div className="atletas-list">
-              {atletasFiltrados.length > 0 ? (
+              {loadingAthletes || loadingAnalyses ? (
+                <div className="loading-modal">
+                  <p>Cargando atletas...</p>
+                </div>
+              ) : atletasFiltrados.length > 0 ? (
                 atletasFiltrados.map(atleta => (
                   <div
                     key={atleta.id}
@@ -110,7 +124,7 @@ function AtletaSelectionModal({ onClose, onSelect }: AtletaSelectionModalProps) 
                       <p>{atleta.club}</p>
                     </div>
                     <div className="atleta-item-badge">
-                      {atleta.analisisCount} análisis
+                      {atleta.analisisCount} {atleta.analisisCount === 1 ? 'análisis' : 'análisis'}
                     </div>
                     {atletaSeleccionado?.id === atleta.id && (
                       <IoCheckmark className="check-icon" />

@@ -144,7 +144,7 @@ export const athleteAPI = {
     }
 
     const response = await apiClient.post<{ success: boolean; data: Athlete; message: string }>(
-      '/atletas',
+      '/athletes',
       formData,
       {
         headers: {
@@ -169,8 +169,13 @@ export const athleteAPI = {
     const formData = new FormData()
     formData.append('photo', photo)
 
-    const response = await apiClient.post<{ success: boolean; data: Athlete; message: string }>(
-      `/atletas/${id}/photo`,
+    const response = await apiClient.post<{
+      success: boolean
+      data: Athlete
+      message: string
+      cloudinaryStatus?: 'uploaded' | 'offline_mode'
+    }>(
+      `/athletes/${id}/photo`,
       formData,
       {
         headers: {
@@ -185,28 +190,6 @@ export const athleteAPI = {
   delete: async (id: string) => {
     const response = await apiClient.delete<{ success: boolean; message: string }>(
       `/athletes/${id}`
-    )
-    return response.data
-  },
-
-  // Upload athlete photo
-  uploadPhoto: async (id: number, file: File) => {
-    const formData = new FormData()
-    formData.append('photo', file)
-
-    const response = await apiClient.post<{
-      success: boolean
-      data: Athlete
-      message: string
-      cloudinaryStatus: 'uploaded' | 'offline_mode'
-    }>(
-      `/athletes/${id}/photo`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
     )
     return response.data
   },
@@ -245,89 +228,172 @@ export function getPhotoUrl(photo: string | null | undefined): string {
 export interface Analysis {
   id: number
   athleteId: string
-  analysisDate: string
-  analysisType: string
-  dataJson: string
-  overallStatus?: string | null
-  weakPoint1?: string | null
-  weakPoint2?: string | null
-  weakPoint3?: string | null
-  improvementMargin?: number | null
+  evaluationDate: string
+  graphImages?: string | null  // JSON array of URLs
+  flexibilityAnalysis?: string | null
+  biobitAnalysis?: string | null
+  muscularAsymmetry?: string | null
+  activeMotorControl?: string | null
+  functionalMuscleFatigue?: string | null
+  inertiaForceControl?: string | null
+  weakPoints?: string | null  // JSON array of strings
+  power?: number | null
+  endurance?: number | null
+  strength?: number | null
+  flexibility?: number | null
+  speed?: number | null
+  globalClassification?: string | null  // "low", "medium", "high"
+  coachRecommendations?: string | null
   createdAt: string
   updatedAt: string
+  athlete?: {
+    id: string
+    accessCode: string
+    name: string
+    sport: string
+    photo?: string | null
+  }
 }
 
 export interface CreateAnalysisDTO {
   athleteId: string
-  analysisType: string
-  dataJson: any
-  overallStatus?: string
-  weakPoint1?: string
-  weakPoint2?: string
-  weakPoint3?: string
-  improvementMargin?: number
+  evaluationDate: string
+  flexibilityAnalysis?: string
+  biobitAnalysis?: string
+  muscularAsymmetry?: string
+  activeMotorControl?: string
+  functionalMuscleFatigue?: string
+  inertiaForceControl?: string
+  weakPoints?: string  // JSON stringified array
+  power?: number
+  endurance?: number
+  strength?: number
+  flexibility?: number
+  speed?: number
+  globalClassification?: string
+  coachRecommendations?: string
+  graphs?: File[]  // Graph images to upload
 }
 
 export const analysisAPI = {
   // Get all analyses with optional filters
-  getAll: async (filters?: { athleteId?: string; analysisType?: string; fechaDesde?: string; fechaHasta?: string }) => {
+  getAll: async (filters?: { athleteId?: string; globalClassification?: string; startDate?: string; endDate?: string }) => {
     const params = new URLSearchParams()
     if (filters?.athleteId) params.append('athleteId', filters.athleteId)
-    if (filters?.analysisType) params.append('analysisType', filters.analysisType)
-    if (filters?.fechaDesde) params.append('fechaDesde', filters.fechaDesde)
-    if (filters?.fechaHasta) params.append('fechaHasta', filters.fechaHasta)
+    if (filters?.globalClassification) params.append('globalClassification', filters.globalClassification)
+    if (filters?.startDate) params.append('startDate', filters.startDate)
+    if (filters?.endDate) params.append('endDate', filters.endDate)
 
-    const response = await apiClient.get(`/analisis?${params.toString()}`)
+    const response = await apiClient.get<{ success: boolean; data: Analysis[]; total: number }>(
+      `/analyses?${params.toString()}`
+    )
     return response.data
   },
 
   // Get analysis by ID
   getById: async (id: number) => {
-    const response = await apiClient.get(`/analisis/${id}`)
+    const response = await apiClient.get<{ success: boolean; data: Analysis }>(
+      `/analyses/${id}`
+    )
     return response.data
   },
 
   // Get analyses by athlete ID
   getByAthleteId: async (athleteId: string) => {
-    const response = await apiClient.get(`/analisis/atleta/${athleteId}`)
+    const response = await apiClient.get<{ success: boolean; data: Analysis[]; total: number }>(
+      `/athletes/${athleteId}/analyses`
+    )
     return response.data
   },
 
-  // Create new analysis
+  // Create new analysis with graph images
   create: async (analysis: CreateAnalysisDTO) => {
-    const dataToSend = {
-      ...analysis,
-      dataJson: typeof analysis.dataJson === 'string'
-        ? analysis.dataJson
-        : JSON.stringify(analysis.dataJson)
+    const formData = new FormData()
+
+    // Append required fields
+    formData.append('athleteId', analysis.athleteId)
+    formData.append('evaluationDate', analysis.evaluationDate)
+
+    // Append optional textual analyses
+    if (analysis.flexibilityAnalysis) formData.append('flexibilityAnalysis', analysis.flexibilityAnalysis)
+    if (analysis.biobitAnalysis) formData.append('biobitAnalysis', analysis.biobitAnalysis)
+    if (analysis.muscularAsymmetry) formData.append('muscularAsymmetry', analysis.muscularAsymmetry)
+    if (analysis.activeMotorControl) formData.append('activeMotorControl', analysis.activeMotorControl)
+    if (analysis.functionalMuscleFatigue) formData.append('functionalMuscleFatigue', analysis.functionalMuscleFatigue)
+    if (analysis.inertiaForceControl) formData.append('inertiaForceControl', analysis.inertiaForceControl)
+
+    // Append weak points as JSON string
+    if (analysis.weakPoints) formData.append('weakPoints', analysis.weakPoints)
+
+    // Append physical capacities
+    if (analysis.power !== undefined) formData.append('power', analysis.power.toString())
+    if (analysis.endurance !== undefined) formData.append('endurance', analysis.endurance.toString())
+    if (analysis.strength !== undefined) formData.append('strength', analysis.strength.toString())
+    if (analysis.flexibility !== undefined) formData.append('flexibility', analysis.flexibility.toString())
+    if (analysis.speed !== undefined) formData.append('speed', analysis.speed.toString())
+
+    // Append global classification and recommendations
+    if (analysis.globalClassification) formData.append('globalClassification', analysis.globalClassification)
+    if (analysis.coachRecommendations) formData.append('coachRecommendations', analysis.coachRecommendations)
+
+    // Append graph images
+    if (analysis.graphs && analysis.graphs.length > 0) {
+      analysis.graphs.forEach((file) => {
+        formData.append('graphs', file)
+      })
     }
-    const response = await apiClient.post('/analisis', dataToSend)
+
+    const response = await apiClient.post<{ success: boolean; data: Analysis; message: string }>(
+      '/analyses',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    return response.data
+  },
+
+  // Upload additional graph images
+  uploadGraphs: async (id: number, graphs: File[]) => {
+    const formData = new FormData()
+    graphs.forEach((file) => {
+      formData.append('graphs', file)
+    })
+
+    const response = await apiClient.post<{ success: boolean; data: Analysis; message: string }>(
+      `/analyses/${id}/graphs`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
     return response.data
   },
 
   // Update analysis
   update: async (id: number, analysis: Partial<CreateAnalysisDTO>) => {
-    const dataToSend = analysis.dataJson
-      ? {
-        ...analysis,
-        dataJson: typeof analysis.dataJson === 'string'
-          ? analysis.dataJson
-          : JSON.stringify(analysis.dataJson)
-      }
-      : analysis
-    const response = await apiClient.put(`/analisis/${id}`, dataToSend)
+    const response = await apiClient.put<{ success: boolean; data: Analysis; message: string }>(
+      `/analyses/${id}`,
+      analysis
+    )
     return response.data
   },
 
   // Delete analysis
   delete: async (id: number) => {
-    const response = await apiClient.delete(`/analisis/${id}`)
+    const response = await apiClient.delete<{ success: boolean; message: string }>(
+      `/analyses/${id}`
+    )
     return response.data
   },
 
   // Get statistics
   getStatistics: async () => {
-    const response = await apiClient.get('/analisis/estadisticas/resumen')
+    const response = await apiClient.get('/analyses/statistics/summary')
     return response.data
   }
 }

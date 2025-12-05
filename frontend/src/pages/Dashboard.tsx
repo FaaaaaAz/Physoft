@@ -175,7 +175,7 @@ function Dashboard() {
 
         <button
           className="btn-add-atleta"
-          onClick={() => navigate('/agregar-atleta')}
+          onClick={() => navigate('/add-athlete')}
           title="Agregar Atleta"
         >
           <IoFootball />
@@ -207,7 +207,7 @@ function Dashboard() {
         <div className="empty-state">
           <IoFootball />
           <h3>No se encontraron atletas</h3>
-          <p>Intenta con otros criterios de búsqueda o <button onClick={() => navigate('/agregar-atleta')} style={{ textDecoration: 'underline', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer' }}>agrega uno nuevo</button></p>
+          <p>Intenta con otros criterios de búsqueda o <button onClick={() => navigate('/add-athlete')} style={{ textDecoration: 'underline', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer' }}>agrega uno nuevo</button></p>
         </div>
       )}
 

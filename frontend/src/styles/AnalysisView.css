@@ -1,0 +1,211 @@
+.analysis-view-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.btn-back {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+.analysis-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.analysis-section {
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.analysis-section h2 {
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.athlete-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.athlete-info-grid > div {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-text-secondary);
+}
+
+.athlete-info-grid > div strong {
+  color: var(--color-text-primary);
+  margin-right: 0.5rem;
+}
+
+.graphs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.graph-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.graph-image:hover {
+  transform: scale(1.05);
+}
+
+.analysis-item {
+  margin-bottom: 2rem;
+}
+
+.analysis-item h3 {
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.analysis-item p {
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.capacities-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.capacity-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 80px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.capacity-label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.capacity-bar {
+  height: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.capacity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), #0d9488);
+  border-radius: 12px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+}
+
+.capacity-value {
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: right;
+}
+
+.weak-points-list {
+  list-style: none;
+  padding: 0;
+}
+
+.weak-points-list li {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid #ef4444;
+  border-radius: 8px;
+  color: #fca5a5;
+}
+
+.classification-badge {
+  display: inline-block;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.classification-high {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 2px solid #10b981;
+}
+
+.classification-medium {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 2px solid #f59e0b;
+}
+
+.classification-low {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 2px solid #ef4444;
+}
+
+.recommendations-text {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+  .athlete-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .graphs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .capacity-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .capacity-value {
+    text-align: left;
+  }
+}
