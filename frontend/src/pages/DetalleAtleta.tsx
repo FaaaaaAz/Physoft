@@ -1,7 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoChevronForward, IoEye, IoDownload, IoTrash } from 'react-icons/io5'
+import { IoCalendar, IoBody, IoTrophy, IoTrendingUp, IoResize, IoBarbell, IoMan, IoEye, IoDownload, IoTrash } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
+import { BreadcrumbItem } from '../components/Breadcrumb'
 import '../styles/DetalleAtleta.css'
 
 interface Analisis {
@@ -121,25 +122,25 @@ function DetalleAtleta() {
 
   const ultimaClasificacion = atleta.analisis[0]?.clasificacion || 'N/A'
 
+  // Breadcrumb dinámico según origen
+  const breadcrumbItems: BreadcrumbItem[] = from === 'todos-analisis' 
+    ? [
+        { label: 'Análisis', path: '/analisis' },
+        { label: 'Todos los Análisis', path: '/todos-analisis' },
+        { label: atleta.nombre }
+      ]
+    : [
+        { label: 'Análisis', path: '/analisis' },
+        { label: atleta.nombre }
+      ]
+
   return (
     <PageTemplate 
       title={`Detalle de ${atleta.nombre}`}
       showBackButton={true}
       backTo={from === 'analisis' ? '/analisis' : '/todos-analisis'}
+      breadcrumbItems={breadcrumbItems}
     >
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-item" onClick={() => navigate('/analisis')}>Análisis</span>
-        <IoChevronForward className="breadcrumb-separator" />
-        {from === 'todos-analisis' && (
-          <>
-            <span className="breadcrumb-item" onClick={() => navigate('/todos-analisis')}>Todos los Análisis</span>
-            <IoChevronForward className="breadcrumb-separator" />
-          </>
-        )}
-        <span className="breadcrumb-item active">{atleta.nombre}</span>
-      </div>
-
       <div className="detalle-atleta-container">
         {/* Header con información básica */}
         <div className="detalle-header">

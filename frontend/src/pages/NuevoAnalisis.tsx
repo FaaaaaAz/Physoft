@@ -159,6 +159,11 @@ function NuevoAnalisis() {
       showBackButton={true}
       backTo="/analisis"
       className="nuevo-analisis-page"
+      breadcrumbItems={[
+        { label: 'Inicio', path: '/dashboard' },
+        { label: 'Análisis', path: '/analisis' },
+        { label: 'Nuevo Análisis' }
+      ]}
     >
       <div className="nuevo-analisis-container">
         {mensaje && (

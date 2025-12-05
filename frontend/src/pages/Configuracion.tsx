@@ -18,14 +18,11 @@ function Configuracion() {
       subtitle="Personaliza tu experiencia en Physoft"
       showBackButton={true}
       backTo="/dashboard"
+      breadcrumbItems={[
+        { label: 'Inicio', path: '/dashboard' },
+        { label: 'Configuración' }
+      ]}
     >
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span className="breadcrumb-item" onClick={() => navigate('/dashboard')}>Inicio</span>
-        <span className="breadcrumb-separator">/</span>
-        <span className="breadcrumb-item active">Configuración</span>
-      </div>
-
       <div className="configuracion-container">
         {/* Notificaciones */}
         <div className="config-section">

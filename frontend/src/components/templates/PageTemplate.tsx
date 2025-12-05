@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoAdd, IoArrowBack } from 'react-icons/io5'
 import Navbar from '../Navbar'
+import Breadcrumb, { BreadcrumbItem } from '../Breadcrumb'
 import '../../styles/PageTemplate.css'
 
 interface PageTemplateProps {
@@ -12,6 +13,7 @@ interface PageTemplateProps {
   showAddButton?: boolean
   onAddClick?: () => void
   addButtonText?: string
+  breadcrumbItems?: BreadcrumbItem[]
   children: ReactNode
   className?: string
   showNavbar?: boolean
@@ -25,6 +27,7 @@ function PageTemplate({
   showAddButton = false,
   onAddClick,
   addButtonText = "Agregar",
+  breadcrumbItems,
   children,
   className = "",
   showNavbar = true
@@ -55,6 +58,11 @@ function PageTemplate({
 
       {/* Contenido Principal */}
       <main className="page-content">
+        {/* Breadcrumb (siempre arriba si existe) */}
+        {breadcrumbItems && breadcrumbItems.length > 0 && (
+          <Breadcrumb items={breadcrumbItems} />
+        )}
+        
         {/* Header de Página (si se proporciona título) */}
         {(title || subtitle || showAddButton) && (
           <div className="page-header">
