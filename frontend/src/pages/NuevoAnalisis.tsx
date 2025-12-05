@@ -2,7 +2,8 @@ import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoAdd, IoTrash, IoCloudUpload, IoSearch, IoCheckmark } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
-import { athleteAPI, analysisAPI, Athlete } from '../services/api'
+import { analysisAPI, Athlete } from '../services/api'
+import { useAthletes } from '../hooks/useAthletes'
 import '../styles/NuevoAnalisis.css'
 
 interface PuntoDebil {
@@ -29,9 +30,9 @@ interface AnalysisCheckboxes {
 
 function NuevoAnalisis() {
   const navigate = useNavigate()
+  const { athletes, loading: loadingAthletes } = useAthletes()
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error', texto: string } | null>(null)
-  const [athletes, setAthletes] = useState<Athlete[]>([])
   const [selectedAthlete, setSelectedAthlete] = useState<Athlete | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAthleteDropdown, setShowAthleteDropdown] = useState(false)
@@ -81,9 +82,6 @@ function NuevoAnalisis() {
   const [proximoIdPuntoDebil, setProximoIdPuntoDebil] = useState(1)
 
   useEffect(() => {
-    loadAthletes()
-    
-    // Monitorear conexión a internet
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
     
@@ -96,25 +94,15 @@ function NuevoAnalisis() {
     }
   }, [])
 
-  const loadAthletes = async () => {
-    try {
-      const response = await athleteAPI.getAll()
-      console.log('Athletes loaded:', response.data?.length || 0)
-      setAthletes(response.data || [])
-      if (response.data?.length === 0) {
-        setMensaje({ 
-          tipo: 'error', 
-          texto: 'No hay atletas en la base de datos. Crea uno primero en la sección de Atletas.' 
-        })
-      }
-    } catch (error) {
-      console.error('Error loading athletes:', error)
+  // Mostrar mensaje si no hay atletas
+  useEffect(() => {
+    if (!loadingAthletes && athletes.length === 0) {
       setMensaje({ 
         tipo: 'error', 
-        texto: 'Error al cargar atletas. Verifica que el backend esté funcionando.' 
+        texto: 'No hay atletas en la base de datos. Crea uno primero en la sección de Atletas.' 
       })
     }
-  }
+  }, [loadingAthletes, athletes])
 
   const filteredAthletes = athletes.filter(athlete => 
     athlete.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

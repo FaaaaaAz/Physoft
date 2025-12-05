@@ -1,8 +1,13 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoSearch, IoChevronDown, IoChevronUp, IoClose, IoChevronBack, IoChevronForward } from 'react-icons/io5'
+import { IoChevronDown, IoChevronUp, IoClose, IoChevronBack, IoChevronForward } from 'react-icons/io5'
 import PageTemplate from '../components/templates/PageTemplate'
 import { athleteAPI, analysisAPI, type Athlete, type Analysis } from '../services/api'
+import { useDebounce } from '../hooks/useDebounce'
+import { SearchBar } from '../components/common/SearchBar'
+import { Badge } from '../components/common/Badge'
+import { getClassificationOrder } from '../utils/classification.utils'
+import { ITEMS_PER_PAGE } from '../utils/constants'
 import '../styles/TodosAnalisis.css'
 
 type SortField = 'atleta' | 'evaluador' | 'clasificacion' | 'fecha'
@@ -16,14 +21,13 @@ interface AtletaConAnalisis {
 function TodosAnalisis() {
   const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
-  const [debouncedBusqueda, setDebouncedBusqueda] = useState('')
+  const debouncedBusqueda = useDebounce(busqueda)
   const [filtroEvaluador, setFiltroEvaluador] = useState('')
   const [filtroClasificacion, setFiltroClasificacion] = useState('')
   const [filtroFecha, setFiltroFecha] = useState('')
   const [sortField, setSortField] = useState<SortField>('atleta')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
   
   // Data state
   const [atletasConAnalisis, setAtletasConAnalisis] = useState<AtletaConAnalisis[]>([])
@@ -83,14 +87,10 @@ function TodosAnalisis() {
     }
   }
 
-  // Debounce para el buscador
+  // Reset a primera página al buscar
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedBusqueda(busqueda)
-      setCurrentPage(1) // Reset a primera página al buscar
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [busqueda])
+    setCurrentPage(1)
+  }, [debouncedBusqueda])
 
   // Función de ordenamiento
   const handleSort = (field: SortField) => {
@@ -137,9 +137,8 @@ function TodosAnalisis() {
           comparison = a.athlete.name.localeCompare(b.athlete.name)
           break
         case 'clasificacion':
-          const orden: Record<string, number> = { 'high': 3, 'medium': 2, 'low': 1 }
-          const aVal = orden[a.latestAnalysis.globalClassification || 'medium']
-          const bVal = orden[b.latestAnalysis.globalClassification || 'medium']
+          const aVal = getClassificationOrder(a.latestAnalysis.globalClassification)
+          const bVal = getClassificationOrder(b.latestAnalysis.globalClassification)
           comparison = aVal - bVal
           break
         case 'fecha':
@@ -153,9 +152,9 @@ function TodosAnalisis() {
   }, [atletasConAnalisis, debouncedBusqueda, filtroClasificacion, filtroFecha, sortField, sortDirection])
 
   // Paginación
-  const totalPages = Math.ceil(atletasFiltrados.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
+  const totalPages = Math.ceil(atletasFiltrados.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex = startIndex + ITEMS_PER_PAGE
   const atletasPaginados = atletasFiltrados.slice(startIndex, endIndex)
 
   // Reset página al cambiar filtros
@@ -174,19 +173,6 @@ function TodosAnalisis() {
     setBusqueda('')
   }
 
-  const getBadgeClass = (clasificacion: string | null | undefined) => {
-    if (clasificacion === 'high') return 'badge-encima'
-    if (clasificacion === 'medium') return 'badge-promedio'
-    return 'badge-debajo'
-  }
-
-  const getClassificationLabel = (clasificacion: string | null | undefined) => {
-    if (clasificacion === 'high') return 'Encima del Promedio'
-    if (clasificacion === 'medium') return 'Promedio'
-    if (clasificacion === 'low') return 'Debajo del Promedio'
-    return 'Sin clasificar'
-  }
-
   return (
     <PageTemplate
       title="Todos los Análisis"
@@ -203,16 +189,11 @@ function TodosAnalisis() {
 
       {/* Buscador y Filtros */}
       <div className="todos-analisis-header">
-        <div className="search-container">
-          <IoSearch className="search-icon" />
-          <input
-            type="text"
-            placeholder="Buscar por atleta..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="search-input"
-          />
-        </div>
+        <SearchBar
+          value={busqueda}
+          onChange={setBusqueda}
+          placeholder="Buscar por atleta..."
+        />
 
         <div className="filters-container">
           <select 
@@ -281,9 +262,7 @@ function TodosAnalisis() {
                           </div>
                         </td>
                         <td>
-                          <span className={`badge ${getBadgeClass(item.latestAnalysis.globalClassification)}`}>
-                            {getClassificationLabel(item.latestAnalysis.globalClassification)}
-                          </span>
+                          <Badge classification={item.latestAnalysis.globalClassification} />
                         </td>
                       </tr>
                     ))
