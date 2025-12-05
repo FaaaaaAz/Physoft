@@ -132,11 +132,11 @@ function DetalleAtleta() {
     ? [
         { label: 'Análisis', path: '/analisis' },
         { label: 'Todos los Análisis', path: '/todos-analisis' },
-        { label: atleta.nombre }
+        { label: athlete.name }
       ]
     : [
         { label: 'Análisis', path: '/analisis' },
-        { label: atleta.nombre }
+        { label: athlete.name }
       ]
 
   return (
