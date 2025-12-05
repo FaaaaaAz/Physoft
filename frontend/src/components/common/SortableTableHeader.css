@@ -1,0 +1,68 @@
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+  padding: 1rem;
+  text-align: left;
+}
+
+.sortable-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sortable-header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sortable-header-left .sortable-header-content {
+  justify-content: flex-start;
+}
+
+.sortable-header-center .sortable-header-content {
+  justify-content: center;
+}
+
+.sortable-header-right .sortable-header-content {
+  justify-content: flex-end;
+}
+
+.sort-icons {
+  display: flex;
+  flex-direction: column;
+  gap: -4px;
+  position: relative;
+  width: 16px;
+  height: 20px;
+}
+
+.sort-icon {
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.sort-icon.active {
+  color: var(--primary-color);
+  opacity: 1;
+}
+
+.sort-icon.inactive {
+  color: rgba(255, 255, 255, 0.3);
+  opacity: 0.5;
+  position: absolute;
+}
+
+.sort-icon.inactive:first-child {
+  top: 0;
+}
+
+.sort-icon.inactive:last-child {
+  bottom: 0;
+}
+
+.sortable-header:hover .sort-icon.inactive {
+  opacity: 0.7;
+}
