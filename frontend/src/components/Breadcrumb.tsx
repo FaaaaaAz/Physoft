@@ -19,13 +19,13 @@ function Breadcrumb({ items }: BreadcrumbProps) {
       <ol className="breadcrumb-list">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
-          
+
           return (
             <li key={index} className="breadcrumb-list-item">
               {!isLast && item.path ? (
                 <>
-                  <span 
-                    className="breadcrumb-link" 
+                  <span
+                    className="breadcrumb-link"
                     onClick={() => navigate(item.path!)}
                   >
                     {item.label}
@@ -44,3 +44,4 @@ function Breadcrumb({ items }: BreadcrumbProps) {
 }
 
 export default Breadcrumb
+export type { BreadcrumbItem }

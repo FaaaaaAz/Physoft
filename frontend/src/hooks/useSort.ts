@@ -1,50 +1,47 @@
-import { useState, useMemo } from 'react'
-import { sortBy } from '../utils/array.utils'
+import { useState, useCallback } from 'react'
 
-export type SortOrder = 'asc' | 'desc'
+export type SortDirection = 'asc' | 'desc'
 
 interface UseSortReturn<T> {
-  sortedData: T[]
-  sortKey: keyof T | null
-  sortOrder: SortOrder
-  sortByKey: (key: keyof T) => void
+  sortField: T
+  sortDirection: SortDirection
+  handleSort: (field: T) => void
   resetSort: () => void
 }
 
 /**
- * Hook para gestionar ordenamiento de datos
- * Usado en: TodosAnalisis.tsx, Dashboard
+ * Hook for managing table sorting
+ * @param initialField - Initial field to sort by
+ * @param initialDirection - Initial sort direction (default: 'asc')
+ * @returns Sort state and handlers
  */
-export function useSort<T>(data: T[]): UseSortReturn<T> {
-  const [sortKey, setSortKey] = useState<keyof T | null>(null)
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+export function useSort<T extends string>(
+  initialField: T,
+  initialDirection: SortDirection = 'asc'
+): UseSortReturn<T> {
+  const [sortField, setSortField] = useState<T>(initialField)
+  const [sortDirection, setSortDirection] = useState<SortDirection>(initialDirection)
 
-  const sortedData = useMemo(() => {
-    if (!sortKey) return data
-    return sortBy(data, sortKey, sortOrder)
-  }, [data, sortKey, sortOrder])
-
-  const sortByKey = (key: keyof T) => {
-    if (sortKey === key) {
-      // Toggle order if same key
-      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')
+  const handleSort = useCallback((field: T) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
     } else {
-      // New key, start with asc
-      setSortKey(key)
-      setSortOrder('asc')
+      // New field, reset to ascending
+      setSortField(field)
+      setSortDirection('asc')
     }
-  }
+  }, [sortField])
 
-  const resetSort = () => {
-    setSortKey(null)
-    setSortOrder('asc')
-  }
+  const resetSort = useCallback(() => {
+    setSortField(initialField)
+    setSortDirection(initialDirection)
+  }, [initialField, initialDirection])
 
   return {
-    sortedData,
-    sortKey,
-    sortOrder,
-    sortByKey,
+    sortField,
+    sortDirection,
+    handleSort,
     resetSort
   }
 }

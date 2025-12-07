@@ -1,78 +1,71 @@
-import { useState, useCallback, useMemo } from 'react'
-import { getPaginationInfo, generatePageNumbers } from '../utils/array.utils'
+import { useState, useMemo, useCallback } from 'react'
 
 interface UsePaginationReturn<T> {
   currentPage: number
   totalPages: number
-  paginatedData: T[]
+  paginatedItems: T[]
   goToPage: (page: number) => void
   nextPage: () => void
   previousPage: () => void
-  goToFirstPage: () => void
-  goToLastPage: () => void
-  paginationInfo: ReturnType<typeof getPaginationInfo>
-  pageNumbers: (number | string)[]
+  startIndex: number
+  endIndex: number
+  itemsPerPage: number
 }
 
 /**
- * Hook para gestionar paginación de datos
- * Usado en: TodosAnalisis.tsx, Dashboard (si se implementa paginación)
+ * Hook for managing pagination
+ * @param items - Array of items to paginate
+ * @param itemsPerPage - Number of items per page (default: 10)
+ * @returns Pagination state and handlers
  */
 export function usePagination<T>(
-  data: T[],
+  items: T[],
   itemsPerPage: number = 10
 ): UsePaginationReturn<T> {
   const [currentPage, setCurrentPage] = useState(1)
 
-  const paginationInfo = useMemo(
-    () => getPaginationInfo(data.length, currentPage, itemsPerPage),
-    [data.length, currentPage, itemsPerPage]
-  )
+  // Calculate total pages
+  const totalPages = Math.ceil(items.length / itemsPerPage)
 
-  const paginatedData = useMemo(() => {
-    return data.slice(paginationInfo.startIndex, paginationInfo.endIndex)
-  }, [data, paginationInfo.startIndex, paginationInfo.endIndex])
+  // Calculate indices
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
 
-  const pageNumbers = useMemo(
-    () => generatePageNumbers(currentPage, paginationInfo.totalPages),
-    [currentPage, paginationInfo.totalPages]
-  )
+  // Get paginated items
+  const paginatedItems = useMemo(() => {
+    return items.slice(startIndex, endIndex)
+  }, [items, startIndex, endIndex])
 
+  // Navigation handlers
   const goToPage = useCallback((page: number) => {
-    const validPage = Math.max(1, Math.min(page, paginationInfo.totalPages))
-    setCurrentPage(validPage)
-  }, [paginationInfo.totalPages])
+    const pageNumber = Math.max(1, Math.min(page, totalPages))
+    setCurrentPage(pageNumber)
+  }, [totalPages])
 
   const nextPage = useCallback(() => {
-    if (paginationInfo.hasNext) {
-      setCurrentPage(prev => prev + 1)
-    }
-  }, [paginationInfo.hasNext])
+    setCurrentPage(prev => Math.min(prev + 1, totalPages))
+  }, [totalPages])
 
   const previousPage = useCallback(() => {
-    if (paginationInfo.hasPrevious) {
-      setCurrentPage(prev => prev - 1)
-    }
-  }, [paginationInfo.hasPrevious])
-
-  const goToFirstPage = useCallback(() => {
-    setCurrentPage(1)
+    setCurrentPage(prev => Math.max(prev - 1, 1))
   }, [])
 
-  const goToLastPage = useCallback(() => {
-    setCurrentPage(paginationInfo.totalPages)
-  }, [paginationInfo.totalPages])
+  // Reset to page 1 when items change
+  useMemo(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1)
+    }
+  }, [items.length, totalPages])
 
   return {
     currentPage,
-    totalPages: paginationInfo.totalPages,
-    paginatedData,
+    totalPages,
+    paginatedItems,
     goToPage,
     nextPage,
     previousPage,
-    goToFirstPage,
-    goToLastPage,
-    paginationInfo,
-    pageNumbers
+    startIndex,
+    endIndex,
+    itemsPerPage
   }
 }

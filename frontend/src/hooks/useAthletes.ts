@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
-import { athleteAPI, Athlete } from '../services/api'
+import { athleteAPI, Athlete, CreateAthleteDTO } from '../services/api'
 
 interface UseAthletesReturn {
   athletes: Athlete[]
   loading: boolean
   error: string | null
   refetch: () => Promise<void>
+  createAthlete: (data: CreateAthleteDTO) => Promise<any>
+  updateAthlete: (id: string, data: Partial<CreateAthleteDTO>) => Promise<any>
+  deleteAthlete: (id: string) => Promise<any>
 }
 
 interface UseAthleteReturn {
@@ -32,7 +35,7 @@ export const useAthletes = (): UseAthletesReturn => {
       setAthletes(response.data)
     } catch (err) {
       console.error('Error fetching athletes:', err)
-      setError('Error al cargar los atletas')
+      setError('Error loading athletes')
     } finally {
       setLoading(false)
     }
@@ -42,11 +45,47 @@ export const useAthletes = (): UseAthletesReturn => {
     fetchAthletes()
   }, [fetchAthletes])
 
+  const createAthlete = useCallback(async (data: CreateAthleteDTO) => {
+    try {
+      const response = await athleteAPI.create(data)
+      await fetchAthletes() // Refresh list
+      return response
+    } catch (err) {
+      console.error('Error creating athlete:', err)
+      throw err
+    }
+  }, [fetchAthletes])
+
+  const updateAthlete = useCallback(async (id: string, data: Partial<CreateAthleteDTO>) => {
+    try {
+      const response = await athleteAPI.update(id, data)
+      await fetchAthletes() // Refresh list
+      return response
+    } catch (err) {
+      console.error('Error updating athlete:', err)
+      throw err
+    }
+  }, [fetchAthletes])
+
+  const deleteAthlete = useCallback(async (id: string) => {
+    try {
+      const response = await athleteAPI.delete(id)
+      await fetchAthletes() // Refresh list
+      return response
+    } catch (err) {
+      console.error('Error deleting athlete:', err)
+      throw err
+    }
+  }, [fetchAthletes])
+
   return {
     athletes,
     loading,
     error,
-    refetch: fetchAthletes
+    refetch: fetchAthletes,
+    createAthlete,
+    updateAthlete,
+    deleteAthlete
   }
 }
 
@@ -63,7 +102,7 @@ export const useAthlete = (id: string | undefined, enabled = true): UseAthleteRe
 
   const fetchAthlete = useCallback(async () => {
     if (!id) {
-      setError('ID de atleta no proporcionado')
+      setError('Athlete ID not provided')
       setLoading(false)
       return
     }
@@ -75,7 +114,7 @@ export const useAthlete = (id: string | undefined, enabled = true): UseAthleteRe
       setAthlete(response.data)
     } catch (err) {
       console.error('Error fetching athlete:', err)
-      setError('Error al cargar el atleta')
+      setError('Error loading athlete')
     } finally {
       setLoading(false)
     }

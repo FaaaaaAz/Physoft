@@ -3,42 +3,42 @@ import { useState } from 'react'
 export type MessageType = 'success' | 'error' | 'warning' | 'info'
 
 interface Message {
-  tipo: MessageType
-  texto: string
+  type: MessageType
+  text: string
 }
 
-interface UseFormMessageReturn {
-  mensaje: Message | null
-  showMessage: (tipo: MessageType, texto: string) => void
+export interface UseFormMessageReturn {
+  message: Message | null
+  showMessage: (type: MessageType, text: string) => void
   clearMessage: () => void
-  showSuccess: (texto: string) => void
-  showError: (texto: string) => void
-  showWarning: (texto: string) => void
-  showInfo: (texto: string) => void
+  showSuccess: (text: string) => void
+  showError: (text: string) => void
+  showWarning: (text: string) => void
+  showInfo: (text: string) => void
 }
 
 /**
- * Hook para gestionar mensajes de formulario (success/error/warning/info)
- * Usado en: NuevoAnalisis.tsx, AgregarAtleta.tsx, FormularioAnalisis.tsx
+ * Hook to manage form messages (success/error/warning/info)
+ * Used in: NewAnalysis.tsx, AddAthlete.tsx, AnalysisForm.tsx
  */
 export function useFormMessage(): UseFormMessageReturn {
-  const [mensaje, setMensaje] = useState<Message | null>(null)
+  const [message, setMessage] = useState<Message | null>(null)
 
-  const showMessage = (tipo: MessageType, texto: string) => {
-    setMensaje({ tipo, texto })
+  const showMessage = (type: MessageType, text: string) => {
+    setMessage({ type, text })
   }
 
   const clearMessage = () => {
-    setMensaje(null)
+    setMessage(null)
   }
 
-  const showSuccess = (texto: string) => showMessage('success', texto)
-  const showError = (texto: string) => showMessage('error', texto)
-  const showWarning = (texto: string) => showMessage('warning', texto)
-  const showInfo = (texto: string) => showMessage('info', texto)
+  const showSuccess = (text: string) => showMessage('success', text)
+  const showError = (text: string) => showMessage('error', text)
+  const showWarning = (text: string) => showMessage('warning', text)
+  const showInfo = (text: string) => showMessage('info', text)
 
   return {
-    mensaje,
+    message,
     showMessage,
     clearMessage,
     showSuccess,
