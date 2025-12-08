@@ -55,7 +55,7 @@ function NuevoAnalisis() {
     athleteId: '',
     fechaEvaluacion: '',
     imagenes: [] as File[],
-    
+
     // Análisis Textual
     analisisFlexibilidad: '',
     analisisBiobit: '',
@@ -63,7 +63,7 @@ function NuevoAnalisis() {
     controlMotorActivo: '',
     fatigaMuscular: '',
     controlFuerzaInercia: '',
-    
+
     // Conclusiones
     puntosDebiles: [] as PuntoDebil[],
     capacidadesFisicas: {
@@ -82,14 +82,14 @@ function NuevoAnalisis() {
 
   useEffect(() => {
     loadAthletes()
-    
+
     // Monitorear conexión a internet
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
-    
+
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-    
+
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
@@ -102,21 +102,21 @@ function NuevoAnalisis() {
       console.log('Athletes loaded:', response.data?.length || 0)
       setAthletes(response.data || [])
       if (response.data?.length === 0) {
-        setMensaje({ 
-          tipo: 'error', 
-          texto: 'No hay atletas en la base de datos. Crea uno primero en la sección de Atletas.' 
+        setMensaje({
+          tipo: 'error',
+          texto: 'No hay atletas en la base de datos. Crea uno primero en la sección de Atletas.'
         })
       }
     } catch (error) {
       console.error('Error loading athletes:', error)
-      setMensaje({ 
-        tipo: 'error', 
-        texto: 'Error al cargar atletas. Verifica que el backend esté funcionando.' 
+      setMensaje({
+        tipo: 'error',
+        texto: 'Error al cargar atletas. Verifica que el backend esté funcionando.'
       })
     }
   }
 
-  const filteredAthletes = athletes.filter(athlete => 
+  const filteredAthletes = athletes.filter(athlete =>
     athlete.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     athlete.accessCode.includes(searchQuery)
   )
@@ -147,7 +147,7 @@ function NuevoAnalisis() {
     if (e.target.files) {
       const files = Array.from(e.target.files)
       setFormData(prev => ({ ...prev, imagenes: [...prev.imagenes, ...files] }))
-      
+
       files.forEach(file => {
         const reader = new FileReader()
         reader.onloadend = () => {
@@ -209,56 +209,47 @@ function NuevoAnalisis() {
 
     setAiProcessing(true)
     setAiProgress(0)
+    setMensaje(null)
 
-    // Simular progreso de IA
-    const interval = setInterval(() => {
-      setAiProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-        return prev + 10
-      })
-    }, 300)
+    try {
+      // Simular progreso visual mientras se procesa
+      const progressInterval = setInterval(() => {
+        setAiProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return 90
+          }
+          return prev + 10
+        })
+      }, 500)
 
-    // Simular tiempo de procesamiento
-    setTimeout(() => {
-      clearInterval(interval)
+      // Llamar al endpoint real de IA
+      const response = await analysisAPI.aiAnalyze(formData.imagenes, analysisCheckboxes)
+
+      clearInterval(progressInterval)
       setAiProgress(100)
-      
-      // Generar análisis simulados basados en los checkboxes seleccionados
-      const simulatedAnalysis: any = {}
 
-      if (analysisCheckboxes.flexibilidad) {
-        simulatedAnalysis.analisisFlexibilidad = 'Análisis de flexibilidad generado por IA: Se observa un rango de movimiento adecuado en las principales articulaciones. Flexión de cadera: 85°, extensión de rodilla: 30°, dorsiflexión de tobillo: 20°. Recomendación: mantener rutina de estiramiento dinámico.'
-      }
+      // Mapear nombres de campos del backend (inglés) al frontend (español)
+      const mappedData: any = {}
+      if (response.data.flexibilityAnalysis) mappedData.analisisFlexibilidad = response.data.flexibilityAnalysis
+      if (response.data.biobitAnalysis) mappedData.analisisBiobit = response.data.biobitAnalysis
+      if (response.data.muscularAsymmetry) mappedData.asimetriaMuscular = response.data.muscularAsymmetry
+      if (response.data.activeMotorControl) mappedData.controlMotorActivo = response.data.activeMotorControl
+      if (response.data.functionalMuscleFatigue) mappedData.fatigaMuscular = response.data.functionalMuscleFatigue
+      if (response.data.inertiaForceControl) mappedData.controlFuerzaInercia = response.data.inertiaForceControl
 
-      if (analysisCheckboxes.biobit) {
-        simulatedAnalysis.analisisBiobit = 'Análisis Biobit generado por IA: Activación muscular simétrica detectada en un 92%. Patrón de disparo óptimo en cuádriceps y glúteos. Se detecta un retraso menor de 12ms en tibial anterior izquierdo.'
-      }
-
-      if (analysisCheckboxes.asimetria) {
-        simulatedAnalysis.asimetriaMuscular = 'Análisis de asimetría muscular generado por IA: Dominancia de pierna derecha evidente con 8% mayor amplitud EMG. Complejo aductor izquierdo muestra 15% menos activación durante movimientos laterales.'
-      }
-
-      if (analysisCheckboxes.controlMotor) {
-        simulatedAnalysis.controlMotorActivo = 'Análisis de control motor generado por IA: Respuesta propioceptiva superior. Test de equilibrio monopodal: 45s ojos abiertos, 28s ojos cerrados. Estabilidad del core en percentil 95.'
-      }
-
-      if (analysisCheckboxes.fatiga) {
-        simulatedAnalysis.fatigaMuscular = 'Análisis de fatiga muscular generado por IA: Índice de fatiga al 18% después del protocolo de 30min. Declive moderado en potencia explosiva (-12%) en series finales. Tiempo de recuperación recomendado: 48-52 horas.'
-      }
-
-      if (analysisCheckboxes.fuerzaInercia) {
-        simulatedAnalysis.controlFuerzaInercia = 'Análisis de control de fuerza e inercia generado por IA: Mecánica de desaceleración excepcional. Fuerzas de reacción del suelo bien distribuidas. Ratio de fuerza excéntrica: 1.15 (rango óptimo).'
-      }
-
-      setFormData(prev => ({ ...prev, ...simulatedAnalysis }))
+      // Actualizar formData con los resultados mapeados
+      setFormData(prev => ({ ...prev, ...mappedData }))
       setShowAnalysisFields(true)
       setUsedAI(true)
+      setMensaje({ tipo: 'success', texto: '✅ Análisis de IA completado. Puedes editar los campos generados.' })
+    } catch (error: any) {
+      console.error('Error en análisis de IA:', error)
+      const errorMessage = error.response?.data?.error || error.message || 'Error al procesar el análisis con IA'
+      setMensaje({ tipo: 'error', texto: errorMessage })
+    } finally {
       setAiProcessing(false)
-      setMensaje({ tipo: 'success', texto: 'Análisis de IA completado. Puedes editar los campos generados.' })
-    }, 3500)
+    }
   }
 
   const handleAgregarPuntoDebil = () => {
@@ -283,7 +274,7 @@ function NuevoAnalisis() {
   const handlePuntoDebilChange = (id: number, valor: string) => {
     setFormData(prev => ({
       ...prev,
-      puntosDebiles: prev.puntosDebiles.map(p => 
+      puntosDebiles: prev.puntosDebiles.map(p =>
         p.id === id ? { ...p, texto: valor } : p
       )
     }))
@@ -291,7 +282,7 @@ function NuevoAnalisis() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    
+
     if (!selectedAthlete || !formData.athleteId) {
       setMensaje({ tipo: 'error', texto: 'Debes seleccionar un atleta antes de guardar' })
       return
@@ -299,7 +290,7 @@ function NuevoAnalisis() {
 
     console.log('Selected Athlete ID:', formData.athleteId)
     console.log('Selected Athlete:', selectedAthlete)
-    
+
     setGuardando(true)
     setMensaje(null)
 
@@ -310,7 +301,7 @@ function NuevoAnalisis() {
         evaluationDate: new Date(formData.fechaEvaluacion).toISOString(),
         graphs: formData.imagenes, // File[] array
       }
-      
+
       // Análisis textuales
       if (formData.analisisFlexibilidad) submitData.flexibilityAnalysis = formData.analisisFlexibilidad
       if (formData.analisisBiobit) submitData.biobitAnalysis = formData.analisisBiobit
@@ -318,7 +309,7 @@ function NuevoAnalisis() {
       if (formData.controlMotorActivo) submitData.activeMotorControl = formData.controlMotorActivo
       if (formData.fatigaMuscular) submitData.functionalMuscleFatigue = formData.fatigaMuscular
       if (formData.controlFuerzaInercia) submitData.inertiaForceControl = formData.controlFuerzaInercia
-      
+
       // Puntos débiles
       const puntosDebilesTexto = formData.puntosDebiles
         .filter(p => p.texto.trim())
@@ -326,39 +317,39 @@ function NuevoAnalisis() {
       if (puntosDebilesTexto.length > 0) {
         submitData.weakPoints = JSON.stringify(puntosDebilesTexto)
       }
-      
+
       // Capacidades físicas
       if (formData.capacidadesFisicas.potencia > 0) submitData.power = formData.capacidadesFisicas.potencia
       if (formData.capacidadesFisicas.resistencia > 0) submitData.endurance = formData.capacidadesFisicas.resistencia
       if (formData.capacidadesFisicas.fuerza > 0) submitData.strength = formData.capacidadesFisicas.fuerza
       if (formData.capacidadesFisicas.flexibilidad > 0) submitData.flexibility = formData.capacidadesFisicas.flexibilidad
       if (formData.capacidadesFisicas.velocidad > 0) submitData.speed = formData.capacidadesFisicas.velocidad
-      
+
       // Clasificación y recomendaciones
       if (formData.clasificacionCohorte) submitData.globalClassification = formData.clasificacionCohorte
       if (formData.recomendaciones) submitData.coachRecommendations = formData.recomendaciones
 
       const response = await analysisAPI.create(submitData)
-      
+
       setMensaje({ tipo: 'success', texto: '✅ Análisis guardado exitosamente' })
-      
+
       setTimeout(() => {
         navigate(`/analysis-view/${response.data.id}`)
       }, 1500)
-      
+
     } catch (error: any) {
       console.error('Error creating analysis:', error)
       console.error('Error response:', error.response?.data)
       let errorMessage = 'Error al crear el análisis'
-      
+
       if (error.response?.data?.error) {
         errorMessage = error.response.data.error
       } else if (error.message) {
         errorMessage = error.message
       }
-      
-      setMensaje({ 
-        tipo: 'error', 
+
+      setMensaje({
+        tipo: 'error',
         texto: errorMessage
       })
     } finally {
@@ -387,7 +378,7 @@ function NuevoAnalisis() {
         )}
 
         <form onSubmit={handleSubmit} className="analisis-form">
-          
+
           {/* SECCIÓN 1 - Información General y Gráficos */}
           <div className="form-section">
             <h3 className="section-title">
@@ -412,7 +403,7 @@ function NuevoAnalisis() {
                     required
                   />
                   <IoSearch className="search-icon" />
-                  
+
                   {showAthleteDropdown && filteredAthletes.length > 0 && (
                     <div className="athlete-dropdown">
                       {filteredAthletes.slice(0, 5).map((athlete) => (
@@ -430,7 +421,7 @@ function NuevoAnalisis() {
                   )}
                 </div>
                 <p className="field-hint">
-                  {selectedAthlete 
+                  {selectedAthlete
                     ? `✓ Atleta: ${selectedAthlete.name} - ${selectedAthlete.sport}`
                     : 'Ingrese el código del atleta o búsquelo por nombre'
                   }
@@ -484,7 +475,7 @@ function NuevoAnalisis() {
                   ))}
                 </div>
               )}
-              
+
               {formData.imagenes.length === 0 && (
                 <div className="image-required-message">
                   Debes subir al menos una imagen para el análisis de IA
@@ -500,7 +491,7 @@ function NuevoAnalisis() {
               Análisis Textual
             </h3>
             <p className="section-description">
-              Selecciona los tipos de análisis que deseas generar con IA. 
+              Selecciona los tipos de análisis que deseas generar con IA.
               La IA analizará las imágenes adjuntadas y generará informes detallados.
             </p>
 
@@ -620,8 +611,8 @@ function NuevoAnalisis() {
                 {aiProcessing && (
                   <div className="ai-progress-container">
                     <div className="ai-progress-bar">
-                      <div 
-                        className="ai-progress-fill" 
+                      <div
+                        className="ai-progress-fill"
                         style={{ width: `${aiProgress}%` }}
                       ></div>
                     </div>
@@ -633,6 +624,12 @@ function NuevoAnalisis() {
               </>
             ) : (
               <div className="analisis-textual-grid">
+                {usedAI && (
+                  <div className="ai-disclaimer">
+                    ℹ️ <strong>Análisis generado por IA:</strong> Basado en patrones visuales del gráfico EMG.
+                    Los porcentajes y valores son estimaciones aproximadas. Se recomienda validación clínica.
+                  </div>
+                )}
                 {analysisCheckboxes.flexibilidad && (
                   <div className="form-group">
                     <label htmlFor="analisisFlexibilidad">
@@ -763,7 +760,7 @@ function NuevoAnalisis() {
                   <IoAdd /> Agregar punto débil
                 </button>
               </div>
-              
+
               {formData.puntosDebiles.length === 0 ? (
                 <p className="empty-message">
                   La IA identificará los puntos débiles automáticamente. También puede agregarlos manualmente.
@@ -804,7 +801,7 @@ function NuevoAnalisis() {
                   ⚠️ Análisis de Capacidades físicas con IA no disponible sin conexión
                 </div>
               )}
-              
+
               <div className="capacidades-grid">
                 <div className="capacidad-item">
                   <label htmlFor="potencia">Potencia</label>

@@ -205,11 +205,11 @@ export class AnalysisController {
       // Handle multiple graph images upload
       let graphImagesArray: string[] = []
       let tempAnalysisId = `temp_${Date.now()}`
-      
+
       if (req.files && Array.isArray(req.files)) {
         const uploadPromises = (req.files as Express.Multer.File[]).map(async (file) => {
           const result = await UploadService.uploadPhoto(
-            file, 
+            file,
             tempAnalysisId,
             `physoft/analysis/${tempAnalysisId}`
           )
@@ -388,7 +388,7 @@ export class AnalysisController {
       // Upload new graph images
       const uploadPromises = (req.files as Express.Multer.File[]).map(async (file) => {
         const result = await UploadService.uploadPhoto(
-          file, 
+          file,
           `analysis_${id}`,
           `physoft/analysis/${id}`
         )
@@ -476,6 +476,64 @@ export class AnalysisController {
       res.status(500).json({
         success: false,
         error: 'Error deleting analysis',
+      })
+    }
+  }
+
+  /**
+   * POST /api/analyses/ai-analyze
+   * Analyze images using Gemini AI
+   */
+  static async aiAnalyze(req: Request, res: Response) {
+    try {
+      // Import AI service dynamically to avoid circular dependencies
+      const aiService = (await import('../../application/services/ai.service')).default
+
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'No image files provided. Please upload at least one image.',
+        })
+      }
+
+      const { analysisTypes } = req.body
+
+      if (!analysisTypes) {
+        return res.status(400).json({
+          success: false,
+          error: 'analysisTypes is required',
+        })
+      }
+
+      // Parse analysisTypes if it's a JSON string
+      let parsedAnalysisTypes
+      try {
+        parsedAnalysisTypes = typeof analysisTypes === 'string'
+          ? JSON.parse(analysisTypes)
+          : analysisTypes
+      } catch (e) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid analysisTypes format',
+        })
+      }
+
+      // Convert uploaded files to buffers
+      const imageBuffers = (req.files as Express.Multer.File[]).map(file => file.buffer)
+
+      // Call AI service
+      const results = await aiService.analyzeImages(imageBuffers, parsedAnalysisTypes)
+
+      res.json({
+        success: true,
+        data: results,
+        message: 'AI analysis completed successfully',
+      })
+    } catch (error: any) {
+      console.error('Error in AI analysis:', error)
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Error processing AI analysis',
       })
     }
   }

@@ -6,7 +6,7 @@
 
 import { Router } from 'express'
 import { AnalysisController } from '../controllers/analysisController'
-import { upload } from '../../middleware/upload'
+import { upload, uploadMemory } from '../../middleware/upload'
 
 const router = Router()
 
@@ -51,6 +51,13 @@ router.put('/:id', AnalysisController.update)
  * Upload additional graph images to an existing analysis
  */
 router.post('/:id/graphs', upload.array('graphs', 10), AnalysisController.uploadGraphs)
+
+/**
+ * POST /api/analyses/ai-analyze
+ * Analyze images using Gemini AI
+ * Expects: images (multipart), analysisTypes (JSON string)
+ */
+router.post('/ai-analyze', uploadMemory.array('images', 10), AnalysisController.aiAnalyze)
 
 /**
  * DELETE /api/analyses/:id

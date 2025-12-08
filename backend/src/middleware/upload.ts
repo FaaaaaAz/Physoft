@@ -47,3 +47,14 @@ export const upload = multer({
         fileSize: 5 * 1024 * 1024 // 5MB max file size
     }
 })
+
+// Memory storage for AI analysis (needs buffer access)
+const memoryStorage = multer.memoryStorage()
+
+export const uploadMemory = multer({
+    storage: memoryStorage,
+    fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB max file size
+    }
+})

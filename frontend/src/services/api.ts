@@ -398,6 +398,30 @@ export const analysisAPI = {
   getStatistics: async () => {
     const response = await apiClient.get('/analyses/statistics/summary')
     return response.data
+  },
+
+  // Analyze images with AI
+  aiAnalyze: async (images: File[], analysisTypes: any) => {
+    const formData = new FormData()
+
+    // Append images
+    images.forEach((file) => {
+      formData.append('images', file)
+    })
+
+    // Append analysis types as JSON string
+    formData.append('analysisTypes', JSON.stringify(analysisTypes))
+
+    const response = await apiClient.post<{ success: boolean; data: any; message: string }>(
+      '/analyses/ai-analyze',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    return response.data
   }
 }
 
