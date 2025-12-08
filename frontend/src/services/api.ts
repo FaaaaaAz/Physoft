@@ -245,7 +245,8 @@ export interface Analysis {
   strength?: number | null
   flexibility?: number | null
   speed?: number | null
-  globalClassification?: string | null  // "low", "medium", "high"
+  globalClassification?: string | null  // "low", "medium", "high" - Calculated by comparing with same sport/bodyType
+  cohortClassification?: string | null  // "ELITE", "AVANZADO", "INTERMEDIO", "PRINCIPIANTE", "ATENCION_REQUERIDA"
   coachRecommendations?: string | null
   createdAt: string
   updatedAt: string

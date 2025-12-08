@@ -163,6 +163,23 @@
   text-align: center;
 }
 
+.classification-item {
+  margin-bottom: 1rem;
+}
+
+.classification-item h3 {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.classification-description {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* Global Classification badges */
 .classification-high {
   background: rgba(16, 185, 129, 0.15);
   color: #34d399;
@@ -176,6 +193,37 @@
 }
 
 .classification-low {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 2px solid #ef4444;
+}
+
+/* Cohort Classification badges */
+.cohort-elite {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 2px solid #a855f7;
+}
+
+.cohort-avanzado {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 2px solid #3b82f6;
+}
+
+.cohort-intermedio {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 2px solid #f59e0b;
+}
+
+.cohort-principiante {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+  border: 2px solid #f97316;
+}
+
+.cohort-atencion_requerida {
   background: rgba(239, 68, 68, 0.15);
   color: #f87171;
   border: 2px solid #ef4444;

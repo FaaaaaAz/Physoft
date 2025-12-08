@@ -56,6 +56,17 @@ function AnalysisView() {
     return classification
   }
 
+  const getCohortLabel = (cohort: string) => {
+    const labels: Record<string, string> = {
+      'ELITE': 'Elite',
+      'AVANZADO': 'Avanzado',
+      'INTERMEDIO': 'Intermedio',
+      'PRINCIPIANTE': 'Principiante',
+      'ATENCION_REQUERIDA': 'Atención Requerida'
+    }
+    return labels[cohort] || cohort
+  }
+
   if (loading) {
     return (
       <PageTemplate title="Cargando..." subtitle="">
@@ -255,13 +266,36 @@ function AnalysisView() {
           </section>
         )}
 
-        {/* Classification */}
-        {analysis.globalClassification && (
+        {/* Classifications */}
+        {(analysis.globalClassification || analysis.cohortClassification) && (
           <section className="analysis-section">
-            <h2>Clasificación Cohorte</h2>
-            <div className={`classification-badge classification-${analysis.globalClassification}`}>
-              {getClassificationLabel(analysis.globalClassification)}
-            </div>
+            <h2>Clasificaciones</h2>
+            
+            {/* Global Classification - Based on comparison with same sport/bodyType */}
+            {analysis.globalClassification && (
+              <div className="classification-item">
+                <h3>Clasificación Global</h3>
+                <p className="classification-description">
+                  Basada en la comparación con atletas del mismo deporte y somatotipo
+                </p>
+                <div className={`classification-badge classification-${analysis.globalClassification}`}>
+                  {getClassificationLabel(analysis.globalClassification)}
+                </div>
+              </div>
+            )}
+
+            {/* Cohort Classification - Elite, Avanzado, etc. */}
+            {analysis.cohortClassification && (
+              <div className="classification-item" style={{ marginTop: '1.5rem' }}>
+                <h3>Clasificación de Cohorte</h3>
+                <p className="classification-description">
+                  Nivel general del atleta según sus capacidades físicas
+                </p>
+                <div className={`classification-badge cohort-${analysis.cohortClassification.toLowerCase()}`}>
+                  {getCohortLabel(analysis.cohortClassification)}
+                </div>
+              </div>
+            )}
           </section>
         )}
 

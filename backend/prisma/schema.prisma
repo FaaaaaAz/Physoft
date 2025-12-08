@@ -60,8 +60,9 @@ model Analysis {
   flexibility             Int?
   speed                   Int?
   
-  // Global Classification
-  globalClassification    String?  // "low", "medium", "high"
+  // Classifications
+  globalClassification    String?  // "low", "medium", "high" - Based on comparison with same sport/bodyType
+  cohortClassification    String?  // "ELITE", "AVANZADO", "INTERMEDIO", "PRINCIPIANTE", "ATENCION_REQUERIDA"
   
   // Recommendations
   coachRecommendations    String?

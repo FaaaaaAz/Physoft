@@ -201,6 +201,18 @@ function AthleteDetail() {
                             </span>
                         </div>
                     </div>
+
+                    {latestAnalysis?.cohortClassification && (
+                        <div className="detail-info-card">
+                            <IoTrendingUp className="card-icon" />
+                            <div className="card-content">
+                                <span className="card-label">CLASIFICACIÓN COHORTE</span>
+                                <span className={`badge cohort-${latestAnalysis.cohortClassification.toLowerCase()}`}>
+                                    {latestAnalysis.cohortClassification}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div >
 
                 {/* Current Physical Capacities */}
