@@ -24,23 +24,23 @@ function AIAnalysisPanel({
     disabled = false
 }: AIAnalysisPanelProps) {
     const analysisTypes = [
-        { key: 'flexibility' as const, label: '1. Flexibility Analysis', description: 'AI will analyze range of motion and joint flexibility' },
-        { key: 'biobit' as const, label: '2. Biobit Analysis', description: 'AI will evaluate muscle activation patterns' },
-        { key: 'asymmetry' as const, label: '3. Muscular Asymmetry in Activation', description: 'AI will detect bilateral muscle imbalances' },
-        { key: 'motorControl' as const, label: '4. Active Motor Control Analysis', description: 'AI will evaluate stability and neuromuscular control' },
-        { key: 'fatigue' as const, label: '5. Functional Muscle Fatigue Analysis', description: 'AI will measure endurance and fatigue indices' },
-        { key: 'inertiaForce' as const, label: '6. Inertia Force Control Analysis', description: 'AI will analyze force generation and control capacity' }
+        { key: 'flexibility' as const, label: '1. Análisis de Flexibilidad', description: 'La IA analizará el rango de movimiento y flexibilidad articular' },
+        { key: 'biobit' as const, label: '2. Análisis Biobit', description: 'La IA evaluará los patrones de activación muscular' },
+        { key: 'asymmetry' as const, label: '3. Asimetría Muscular en Activación', description: 'La IA detectará desequilibrios musculares bilaterales' },
+        { key: 'motorControl' as const, label: '4. Análisis de Control Motor Activo', description: 'La IA evaluará la estabilidad y control neuromuscular' },
+        { key: 'fatigue' as const, label: '5. Análisis de Fatiga Muscular Funcional', description: 'La IA medirá la resistencia e índices de fatiga' },
+        { key: 'inertiaForce' as const, label: '6. Análisis de Control de Fuerza Inercial', description: 'La IA analizará la capacidad de generación y control de fuerza' }
     ]
 
     return (
         <div className="ai-analysis-panel">
             <h3 className="section-title">
                 <span className="section-number">2</span>
-                Textual Analysis
+                Análisis Textual
             </h3>
             <p className="section-description">
-                Select the types of analysis you want to generate with AI.
-                AI will analyze the attached images and generate detailed reports.
+                Selecciona los tipos de análisis que deseas generar con IA.
+                La IA analizará las imágenes adjuntas y generará informes detallados.
             </p>
 
             <div className="ai-checkbox-grid">
@@ -68,8 +68,8 @@ function AIAnalysisPanel({
                     onClick={onGenerateAI}
                     disabled={isProcessing || !isOnline || disabled}
                 >
-                    {isProcessing ? 'Analyzing with AI...' : 'Generate Analysis with AI'}
-                    {!isOnline && ' (Offline)'}
+                    {isProcessing ? 'Analizando con IA...' : 'Generar Análisis con IA'}
+                    {!isOnline && ' (Sin conexión)'}
                 </button>
 
                 <button
@@ -78,7 +78,7 @@ function AIAnalysisPanel({
                     onClick={onManualAnalysis}
                     disabled={isProcessing || disabled}
                 >
-                    Perform Manual Analysis
+                    Realizar Análisis Manual
                 </button>
             </div>
 
@@ -91,7 +91,7 @@ function AIAnalysisPanel({
                         ></div>
                     </div>
                     <p className="ai-progress-text">
-                        Processing images and generating analysis... {progress}%
+                        Procesando imágenes y generando análisis... {progress}%
                     </p>
                 </div>
             )}

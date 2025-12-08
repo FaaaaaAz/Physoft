@@ -53,7 +53,7 @@
   gap: 1rem;
 }
 
-.athlete-info-grid > div {
+.athlete-info-grid>div {
   padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
@@ -61,7 +61,7 @@
   color: var(--color-text-secondary);
 }
 
-.athlete-info-grid > div strong {
+.athlete-info-grid>div strong {
   color: var(--color-text-primary);
   margin-right: 0.5rem;
 }

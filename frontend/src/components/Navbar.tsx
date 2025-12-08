@@ -39,10 +39,10 @@ function Navbar({
     <nav className="navbar">
       <div className="navbar-content">
         {/* Logo y Título */}
-        <a 
-          href="#" 
-          className="navbar-brand" 
-          onClick={(e) => { 
+        <a
+          href="#"
+          className="navbar-brand"
+          onClick={(e) => {
             e.preventDefault()
             navigate('/dashboard')
           }}
@@ -53,24 +53,24 @@ function Navbar({
         {/* Menú de Navegación */}
         <ul className="navbar-menu">
           <li>
-            <a 
-              href="#" 
-              onClick={(e) => { 
+            <a
+              href="#"
+              onClick={(e) => {
                 e.preventDefault()
                 navigate('/dashboard')
-              }} 
+              }}
               className={`navbar-link ${isActive('/dashboard') ? 'active' : ''}`}
             >
               Inicio
             </a>
           </li>
           <li>
-            <a 
-              href="#" 
-              onClick={(e) => { 
+            <a
+              href="#"
+              onClick={(e) => {
                 e.preventDefault()
                 navigate('/analysis')
-              }} 
+              }}
               className={`navbar-link ${isActive('/analysis') ? 'active' : ''}`}
             >
               Análisis
@@ -81,32 +81,32 @@ function Navbar({
         {/* Acciones */}
         <div className="navbar-actions">
           {showBackButton && (
-            <button 
-              className="navbar-icon-btn" 
-              onClick={handleBack} 
+            <button
+              className="navbar-icon-btn"
+              onClick={handleBack}
               title="Volver"
             >
               <IoArrowBack />
             </button>
           )}
           {showAddButton && onAddClick && (
-            <button 
-              className="navbar-icon-btn btn-add" 
-              onClick={onAddClick} 
+            <button
+              className="navbar-icon-btn btn-add"
+              onClick={onAddClick}
               title={addButtonTitle}
             >
               <IoAdd />
             </button>
           )}
-          <button 
-            className="navbar-icon-btn" 
+          <button
+            className="navbar-icon-btn"
             title="Configuración"
             onClick={() => navigate('/settings')}
           >
             <IoSettings />
           </button>
-          <button 
-            className="navbar-icon-btn" 
+          <button
+            className="navbar-icon-btn"
             title="Perfil"
             onClick={() => navigate('/profile')}
           >

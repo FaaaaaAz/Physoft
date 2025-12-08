@@ -1,5 +1,5 @@
 /* ============================================
-   WELCOME SCREEN - Pantalla de Bienvenida
+   WELCOME SCREEN - Original Styles
    ============================================ */
 
 .welcome-container {
@@ -131,7 +131,7 @@
   opacity: 0.6;
 }
 
-/* Fondo animado con orbes de gradiente */
+/* Animated background with gradient orbs */
 .animated-background {
   position: absolute;
   width: 100%;
@@ -178,13 +178,14 @@
 }
 
 /* ============================================
-   ANIMACIONES
+   ANIMATIONS
    ============================================ */
 
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -194,6 +195,7 @@
   from {
     opacity: 1;
   }
+
   to {
     opacity: 0;
   }
@@ -204,6 +206,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -211,39 +214,52 @@
 }
 
 @keyframes logoFloat {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
 }
 
 @keyframes titleGlow {
-  0%, 100% {
+
+  0%,
+  100% {
     filter: drop-shadow(0 0 20px rgba(20, 184, 166, 0.5));
   }
+
   50% {
     filter: drop-shadow(0 0 30px rgba(20, 184, 166, 0.8));
   }
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateX(0);
   }
+
   50% {
     transform: translateX(5px);
   }
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
   }
+
   33% {
     transform: translate(30px, -50px) scale(1.1);
   }
+
   66% {
     transform: translate(-20px, 20px) scale(0.9);
   }
@@ -257,16 +273,16 @@
   .welcome-title {
     font-size: 3rem;
   }
-  
+
   .welcome-logo {
     width: 140px;
     height: 140px;
   }
-  
+
   .welcome-subtitle {
     font-size: 1.1rem;
   }
-  
+
   .welcome-button {
     padding: 1rem 2rem;
     font-size: 1rem;
@@ -277,7 +293,7 @@
   .welcome-title {
     font-size: 2.5rem;
   }
-  
+
   .welcome-content {
     padding: var(--spacing-md);
   }

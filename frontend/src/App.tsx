@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Welcome from './pages/Welcome/Welcome'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Home from './pages/Home/Home'
+import Analysis from './pages/Analysis/Analysis'
 import AllAnalyses from './pages/AllAnalyses/AllAnalyses'
 import AthleteDetail from './pages/AthleteDetail/AthleteDetail'
 import AddAthlete from './pages/AddAthlete/AddAthlete'
@@ -18,6 +19,7 @@ function App() {
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/home" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/analysis" element={<Analysis />} />
         <Route path="/all-analyses" element={<AllAnalyses />} />
         <Route path="/athlete-detail/:id" element={<AthleteDetail />} />
         <Route path="/add-athlete" element={<AddAthlete />} />
@@ -26,7 +28,6 @@ function App() {
         <Route path="/settings" element={<Settings />} />
 
         {/* Legacy redirects */}
-        <Route path="/analysis" element={<Navigate to="/all-analyses" replace />} />
         <Route path="/all-analysis" element={<Navigate to="/all-analyses" replace />} />
         <Route path="/configuracion" element={<Navigate to="/settings" replace />} />
 

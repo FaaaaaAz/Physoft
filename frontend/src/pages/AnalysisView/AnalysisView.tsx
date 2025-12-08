@@ -49,16 +49,16 @@ function AnalysisView() {
     }
 
     const getClassificationLabel = (classification: string) => {
-        if (classification === 'high') return 'Above Average'
-        if (classification === 'medium') return 'Average'
-        if (classification === 'low') return 'Below Average'
+        if (classification === 'high') return 'Por Encima del Promedio'
+        if (classification === 'medium') return 'Promedio'
+        if (classification === 'low') return 'Por Debajo del Promedio'
         return classification
     }
 
     if (loading) {
         return (
-            <PageTemplate title="Loading..." subtitle="">
-                <LoadingSpinner message="Loading analysis..." />
+            <PageTemplate title="Cargando..." subtitle="">
+                <LoadingSpinner message="Cargando análisis..." />
             </PageTemplate>
         )
     }
@@ -67,9 +67,9 @@ function AnalysisView() {
         return (
             <PageTemplate title="Error" subtitle="">
                 <div style={{ textAlign: 'center', padding: '4rem' }}>
-                    <p>Analysis not found</p>
+                    <p>Análisis no encontrado</p>
                     <button onClick={() => navigate('/analysis')} className="btn-primary" style={{ marginTop: '1rem' }}>
-                        Go Back
+                        Volver
                     </button>
                 </div>
             </PageTemplate>
@@ -81,28 +81,28 @@ function AnalysisView() {
 
     return (
         <PageTemplate
-            title={`Analysis of ${analysis.athlete?.name || 'Athlete'}`}
-            subtitle={`Evaluation performed on ${new Date(analysis.evaluationDate).toLocaleDateString('en-US')}`}
+            title={`Análisis de ${analysis.athlete?.name || 'Atleta'}`}
+            subtitle={`Evaluación realizada el ${new Date(analysis.evaluationDate).toLocaleDateString('es-ES')}`}
             className="analysis-view-page"
         >
             <button onClick={() => navigate('/analysis')} className="btn-back">
-                <IoArrowBack /> Back
+                <IoArrowBack /> Volver
             </button>
 
             <div className="analysis-view-container">
                 {/* Athlete Information */}
                 {analysis.athlete && (
                     <section className="analysis-section">
-                        <h2><IoPerson /> Athlete Information</h2>
+                        <h2><IoPerson /> Información del Atleta</h2>
                         <div className="athlete-info-grid">
                             <div>
-                                <strong>Name:</strong> {analysis.athlete.name}
+                                <strong>Nombre:</strong> {analysis.athlete.name}
                             </div>
                             <div>
-                                <strong>Code:</strong> {analysis.athlete.accessCode}
+                                <strong>Código:</strong> {analysis.athlete.accessCode}
                             </div>
                             <div>
-                                <strong>Sport:</strong> {analysis.athlete.sport}
+                                <strong>Deporte:</strong> {analysis.athlete.sport}
                             </div>
                         </div>
                     </section>
@@ -111,10 +111,10 @@ function AnalysisView() {
                 {/* Graphs */}
                 {graphImages.length > 0 && (
                     <section className="analysis-section">
-                        <h2><IoDocument /> Evaluation Graphs</h2>
+                        <h2><IoDocument /> Gráficos de Evaluación</h2>
                         <div className="graphs-grid">
                             {graphImages.map((url, index) => (
-                                <img key={index} src={url} alt={`Graph ${index + 1}`} className="graph-image" />
+                                <img key={index} src={url} alt={`Gráfico ${index + 1}`} className="graph-image" />
                             ))}
                         </div>
                     </section>
@@ -122,46 +122,46 @@ function AnalysisView() {
 
                 {/* Textual Analyses */}
                 <section className="analysis-section">
-                    <h2>Detailed Analysis</h2>
+                    <h2>Análisis Detallado</h2>
 
                     {analysis.flexibilityAnalysis && (
                         <div className="analysis-item">
-                            <h3>1. Flexibility Analysis</h3>
+                            <h3>1. Análisis de Flexibilidad</h3>
                             <p>{analysis.flexibilityAnalysis}</p>
                         </div>
                     )}
 
                     {analysis.biobitAnalysis && (
                         <div className="analysis-item">
-                            <h3>2. Biobit Analysis</h3>
+                            <h3>2. Análisis Biobit</h3>
                             <p>{analysis.biobitAnalysis}</p>
                         </div>
                     )}
 
                     {analysis.muscularAsymmetry && (
                         <div className="analysis-item">
-                            <h3>3. Muscular Asymmetry in Activation</h3>
+                            <h3>3. Asimetría Muscular en Activación</h3>
                             <p>{analysis.muscularAsymmetry}</p>
                         </div>
                     )}
 
                     {analysis.activeMotorControl && (
                         <div className="analysis-item">
-                            <h3>4. Active Motor Control Analysis</h3>
+                            <h3>4. Análisis de Control Motor Activo</h3>
                             <p>{analysis.activeMotorControl}</p>
                         </div>
                     )}
 
                     {analysis.functionalMuscleFatigue && (
                         <div className="analysis-item">
-                            <h3>5. Functional Muscle Fatigue Analysis</h3>
+                            <h3>5. Análisis de Fatiga Muscular Funcional</h3>
                             <p>{analysis.functionalMuscleFatigue}</p>
                         </div>
                     )}
 
                     {analysis.inertiaForceControl && (
                         <div className="analysis-item">
-                            <h3>6. Inertia Force Control Analysis</h3>
+                            <h3>6. Análisis de Control de Fuerza Inercial</h3>
                             <p>{analysis.inertiaForceControl}</p>
                         </div>
                     )}
@@ -169,11 +169,11 @@ function AnalysisView() {
 
                 {/* Physical Capacities */}
                 <section className="analysis-section">
-                    <h2>Physical Capacities</h2>
+                    <h2>Capacidades Físicas</h2>
                     <div className="capacities-grid">
                         {analysis.power !== null && analysis.power !== undefined && (
                             <div className="capacity-item">
-                                <div className="capacity-label">Power</div>
+                                <div className="capacity-label">Potencia</div>
                                 <div className="capacity-bar">
                                     <div className="capacity-fill" style={{ width: `${analysis.power}%` }}></div>
                                 </div>
@@ -183,7 +183,7 @@ function AnalysisView() {
 
                         {analysis.endurance !== null && analysis.endurance !== undefined && (
                             <div className="capacity-item">
-                                <div className="capacity-label">Endurance</div>
+                                <div className="capacity-label">Resistencia</div>
                                 <div className="capacity-bar">
                                     <div className="capacity-fill" style={{ width: `${analysis.endurance}%` }}></div>
                                 </div>
@@ -193,7 +193,7 @@ function AnalysisView() {
 
                         {analysis.strength !== null && analysis.strength !== undefined && (
                             <div className="capacity-item">
-                                <div className="capacity-label">Strength</div>
+                                <div className="capacity-label">Fuerza</div>
                                 <div className="capacity-bar">
                                     <div className="capacity-fill" style={{ width: `${analysis.strength}%` }}></div>
                                 </div>
@@ -203,7 +203,7 @@ function AnalysisView() {
 
                         {analysis.flexibility !== null && analysis.flexibility !== undefined && (
                             <div className="capacity-item">
-                                <div className="capacity-label">Flexibility</div>
+                                <div className="capacity-label">Flexibilidad</div>
                                 <div className="capacity-bar">
                                     <div className="capacity-fill" style={{ width: `${analysis.flexibility}%` }}></div>
                                 </div>
@@ -213,7 +213,7 @@ function AnalysisView() {
 
                         {analysis.speed !== null && analysis.speed !== undefined && (
                             <div className="capacity-item">
-                                <div className="capacity-label">Speed</div>
+                                <div className="capacity-label">Velocidad</div>
                                 <div className="capacity-bar">
                                     <div className="capacity-fill" style={{ width: `${analysis.speed}%` }}></div>
                                 </div>
@@ -226,7 +226,7 @@ function AnalysisView() {
                 {/* Weak Points */}
                 {weakPoints.length > 0 && (
                     <section className="analysis-section">
-                        <h2>Identified Weak Points</h2>
+                        <h2>Puntos Débiles Identificados</h2>
                         <ul className="weak-points-list">
                             {weakPoints.map((point, index) => (
                                 <li key={index}>{point}</li>
@@ -238,7 +238,7 @@ function AnalysisView() {
                 {/* Classification */}
                 {analysis.globalClassification && (
                     <section className="analysis-section">
-                        <h2>Global Classification vs Cohort</h2>
+                        <h2>Clasificación Global vs Cohorte</h2>
                         <div className={`classification-badge classification-${analysis.globalClassification}`}>
                             {getClassificationLabel(analysis.globalClassification)}
                         </div>
@@ -248,7 +248,7 @@ function AnalysisView() {
                 {/* Recommendations */}
                 {analysis.coachRecommendations && (
                     <section className="analysis-section">
-                        <h2>Recommendations for Coach</h2>
+                        <h2>Recomendaciones para el Entrenador</h2>
                         <p className="recommendations-text">{analysis.coachRecommendations}</p>
                     </section>
                 )}

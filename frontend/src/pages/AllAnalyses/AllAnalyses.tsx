@@ -80,7 +80,7 @@ function AllAnalyses() {
             setAthletesWithAnalyses(combined)
         } catch (err) {
             console.error('Error loading data:', err)
-            setError('Error loading data. Please try again.')
+            setError('Error al cargar los datos. Por favor intenta de nuevo.')
         } finally {
             setIsLoading(false)
         }
@@ -165,21 +165,21 @@ function AllAnalyses() {
     }
 
     const getClassificationLabel = (classification: string | null | undefined) => {
-        if (classification === 'high') return 'Above Average'
-        if (classification === 'medium') return 'Average'
-        if (classification === 'low') return 'Below Average'
-        return 'Unclassified'
+        if (classification === 'high') return 'Por Encima del Promedio'
+        if (classification === 'medium') return 'Promedio'
+        if (classification === 'low') return 'Por Debajo del Promedio'
+        return 'Sin Clasificar'
     }
 
     return (
         <PageTemplate
-            title="All Analyses"
+            title="Todos los Análisis"
             className="all-analyses-page"
             showBackButton={true}
             backTo='/analysis'
             breadcrumbItems={[
-                { label: 'Analysis', path: '/analysis' },
-                { label: 'All Analyses' }
+                { label: 'Análisis', path: '/analysis' },
+                { label: 'Todos los Análisis' }
             ]}
         >
             {/* Search and Filters */}
@@ -187,7 +187,7 @@ function AllAnalyses() {
                 <SearchBar
                     value={searchTerm}
                     onChange={setSearchTerm}
-                    placeholder="Search by athlete..."
+                    placeholder="Buscar por atleta..."
                 />
 
                 <div className="filters-container">
@@ -196,15 +196,15 @@ function AllAnalyses() {
                         value={classificationFilter}
                         onChange={(e) => setClassificationFilter(e.target.value)}
                     >
-                        <option value="">All classifications</option>
-                        <option value="high">Above Average</option>
-                        <option value="medium">Average</option>
-                        <option value="low">Below Average</option>
+                        <option value="">Todas las clasificaciones</option>
+                        <option value="high">Por Encima del Promedio</option>
+                        <option value="medium">Promedio</option>
+                        <option value="low">Por Debajo del Promedio</option>
                     </select>
 
                     {(classificationFilter || dateFilter || searchTerm) && (
                         <button className="btn-clear-filters" onClick={clearFilters}>
-                            <IoClose /> Clear filters
+                            <IoClose /> Limpiar filtros
                         </button>
                     )}
                 </div>
@@ -213,7 +213,7 @@ function AllAnalyses() {
             {/* Table */}
             <div className="all-analyses-content">
                 {isLoading ? (
-                    <LoadingSpinner message="Loading analyses..." />
+                    <LoadingSpinner message="Cargando análisis..." />
                 ) : error ? (
                     <div className="error-state">{error}</div>
                 ) : (
@@ -224,14 +224,14 @@ function AllAnalyses() {
                                     <tr>
                                         <SortableTableHeader
                                             field="athlete"
-                                            label="Athlete"
+                                            label="Atleta"
                                             currentSortField={sortField}
                                             currentSortDirection={sortDirection}
                                             onSort={() => handleSort('athlete')}
                                         />
                                         <SortableTableHeader
                                             field="classification"
-                                            label="Classification"
+                                            label="Clasificación"
                                             currentSortField={sortField}
                                             currentSortDirection={sortDirection}
                                             onSort={() => handleSort('classification')}
@@ -264,7 +264,7 @@ function AllAnalyses() {
                                     ) : (
                                         <tr>
                                             <td colSpan={2} className="no-results">
-                                                No athletes found matching the filters
+                                                No se encontraron atletas con los filtros aplicados
                                             </td>
                                         </tr>
                                     )}
@@ -284,7 +284,7 @@ function AllAnalyses() {
                         )}
 
                         <div className="results-info">
-                            Showing {startIndex + 1}-{Math.min(endIndex, filteredAthletes.length)} of {filteredAthletes.length} athletes
+                            Mostrando {startIndex + 1}-{Math.min(endIndex, filteredAthletes.length)} de {filteredAthletes.length} atletas
                         </div>
                     </>
                 )}

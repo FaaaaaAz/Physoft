@@ -4,7 +4,7 @@
   padding: 0 20px 40px;
 }
 
-/* Secciones de configuración */
+/* Configuration sections */
 .config-section {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -40,7 +40,7 @@
   margin: 0;
 }
 
-/* Opciones */
+/* Options */
 .config-options {
   display: flex;
   flex-direction: column;
@@ -117,21 +117,21 @@
   border-radius: 50%;
 }
 
-input:checked + .toggle-slider {
+input:checked+.toggle-slider {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
 }
 
-input:checked + .toggle-slider:before {
+input:checked+.toggle-slider:before {
   transform: translateX(24px);
 }
 
-input:disabled + .toggle-slider {
+input:disabled+.toggle-slider {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Botón de configuración */
+/* Configuration button */
 .config-btn {
   padding: 8px 20px;
   background: rgba(20, 184, 166, 0.1);

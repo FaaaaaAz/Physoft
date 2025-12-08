@@ -20,31 +20,31 @@ function WeakPointsList({
     return (
         <div className="weak-points-list">
             <div className="subsection-header">
-                <h4>Weak Points</h4>
+                <h4>Puntos Débiles</h4>
                 <button
                     type="button"
                     className="btn-add-point"
                     onClick={onAdd}
                     disabled={disabled}
                 >
-                    <IoAdd /> Add weak point
+                    <IoAdd /> Agregar punto débil
                 </button>
             </div>
 
             {weakPoints.length === 0 ? (
                 <p className="empty-message">
-                    AI will identify weak points automatically. You can also add them manually.
+                    La IA identificará puntos débiles automáticamente. También puedes agregarlos manualmente.
                 </p>
             ) : (
                 <div className="weak-points-items">
                     {weakPoints.map((point, index) => (
                         <div key={point.id} className="weak-point-item">
-                            <span className="point-number">Weak point {index + 1}</span>
+                            <span className="point-number">Punto débil {index + 1}</span>
                             <input
                                 type="text"
                                 value={point.text}
                                 onChange={(e) => onChange(point.id, e.target.value)}
-                                placeholder="Describe the weak point..."
+                                placeholder="Describe el punto débil..."
                                 className="weak-point-input"
                                 disabled={disabled}
                             />

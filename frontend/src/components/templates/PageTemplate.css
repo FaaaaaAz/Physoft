@@ -1,5 +1,5 @@
 /* ============================================
-   ESTILOS: PageTemplate
+   PageTemplate - Original Styles
    ============================================ */
 
 .page-template {
@@ -10,7 +10,7 @@
 }
 
 /* ============================================
-   CONTENIDO PRINCIPAL
+   MAIN CONTENT
    ============================================ */
 
 .page-content {
@@ -55,7 +55,7 @@
   font-weight: 400;
 }
 
-/* Botón de retroceso */
+/* Back button */
 .back-button {
   display: flex;
   align-items: center;
@@ -78,19 +78,19 @@
   color: var(--color-primary);
 }
 
-/* Acciones de página */
+/* Page actions */
 .page-actions {
   display: flex;
   gap: 1rem;
 }
 
-/* Cuerpo de la página */
+/* Page body */
 .page-body {
   width: 100%;
 }
 
 /* ============================================
-   BOTONES
+   BUTTONS
    ============================================ */
 
 .btn-primary {
@@ -137,7 +137,7 @@
 
 @media (max-width: 768px) {
   .navbar-menu {
-    display: none; /* Se puede implementar menú hamburguesa */
+    display: none;
   }
 
   .navbar-content {

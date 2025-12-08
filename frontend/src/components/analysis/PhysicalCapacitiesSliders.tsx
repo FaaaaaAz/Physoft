@@ -15,23 +15,23 @@ function PhysicalCapacitiesSliders({
     isOnline = true
 }: PhysicalCapacitiesSlidersProps) {
     const capacityLabels: Record<keyof PhysicalCapacities, string> = {
-        power: 'Power',
-        endurance: 'Endurance',
-        strength: 'Strength',
-        flexibility: 'Flexibility',
-        speed: 'Speed'
+        power: 'Potencia',
+        endurance: 'Resistencia',
+        strength: 'Fuerza',
+        flexibility: 'Flexibilidad',
+        speed: 'Velocidad'
     }
 
     return (
         <div className="physical-capacities-sliders">
-            <h4>Physical Capacities</h4>
+            <h4>Capacidades Físicas</h4>
             <p className="subsection-description">
-                AI will evaluate these values based on the analysis. You can adjust them manually.
+                La IA evaluará estos valores basándose en el análisis. Puedes ajustarlos manualmente.
             </p>
 
             {!isOnline && (
                 <div className="offline-warning">
-                    ⚠️ Physical capacities AI analysis not available offline
+                    ⚠️ Análisis de capacidades físicas con IA no disponible sin conexión
                 </div>
             )}
 

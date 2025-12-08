@@ -1,5 +1,5 @@
 /* ============================================
-   HOME PAGE - Estilos
+   HOME PAGE - Original Styles
    ============================================ */
 
 .home-page {
@@ -13,7 +13,7 @@
   padding: 2rem;
 }
 
-/* Estado de Conexión */
+/* Connection Status */
 .status-card {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
@@ -84,8 +84,15 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .hero-section h2 {

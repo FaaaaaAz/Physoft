@@ -9,22 +9,32 @@ interface AthleteCardProps {
 }
 
 function AthleteCard({ athlete, onClick }: AthleteCardProps) {
-    // Calculate average of capacities
     const average = useMemo(() => {
         const { power, strength, speed, flexibility, endurance } = athlete.capacities
         return Math.round((power + strength + speed + flexibility + endurance) / 5)
     }, [athlete.capacities])
 
     return (
-        <div className="athlete-card" onClick={onClick}>
+        <div className="atleta-card" onClick={onClick}>
             <div className="card-image-container">
-                {athlete.photo ? (
-                    <img src={athlete.photo} alt={athlete.name} className="card-image" />
-                ) : (
-                    <div className="card-image-placeholder">
-                        {athlete.name.charAt(0).toUpperCase()}
-                    </div>
-                )}
+                {athlete.photo && athlete.photo !== '/default-avatar.png' && athlete.photo !== 'default-avatar.png' ? (
+                    <img
+                        src={athlete.photo}
+                        alt={athlete.name}
+                        className="card-image"
+                        onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                            const placeholder = e.currentTarget.parentElement?.querySelector('.card-image-placeholder') as HTMLElement
+                            if (placeholder) placeholder.style.display = 'flex'
+                        }}
+                    />
+                ) : null}
+                <div
+                    className="card-image-placeholder"
+                    style={{ display: (athlete.photo && athlete.photo !== '/default-avatar.png' && athlete.photo !== 'default-avatar.png') ? 'none' : 'flex' }}
+                >
+                    {athlete.name.charAt(0).toUpperCase()}
+                </div>
                 <div className="card-overlay">
                     <span className="card-sport">
                         <IoFootball /> {athlete.sport}
@@ -41,8 +51,8 @@ function AthleteCard({ athlete, onClick }: AthleteCardProps) {
 
                 <div className="card-stats">
                     <div className="stat-item">
-                        <span className="stat-label">Age</span>
-                        <span className="stat-value">{athlete.age}</span>
+                        <span className="stat-label">Edad</span>
+                        <span className="stat-value">{athlete.age || '-'}</span>
                     </div>
                     <div className="stat-divider"></div>
                     <div className="stat-item">

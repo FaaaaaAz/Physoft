@@ -35,7 +35,7 @@ function ImageUploader({ images, onImagesChange, disabled = false, required = fa
 
     return (
         <div className="image-uploader">
-            <label>Attach Graph Images {required && '*'}</label>
+            <label>Adjuntar Imágenes de Gráficos {required && '*'}</label>
             <div className="upload-zone">
                 <input
                     type="file"
@@ -48,8 +48,8 @@ function ImageUploader({ images, onImagesChange, disabled = false, required = fa
                 />
                 <label htmlFor="images-input" className="upload-label">
                     <IoCloudUpload />
-                    <span>Upload Images</span>
-                    <p>Click to select graph images</p>
+                    <span>Subir Imágenes</span>
+                    <p>Haz clic para seleccionar imágenes de gráficos</p>
                 </label>
             </div>
 
@@ -68,12 +68,6 @@ function ImageUploader({ images, onImagesChange, disabled = false, required = fa
                             </button>
                         </div>
                     ))}
-                </div>
-            )}
-
-            {images.length === 0 && required && (
-                <div className="image-required-message">
-                    You must upload at least one image for AI analysis
                 </div>
             )}
         </div>

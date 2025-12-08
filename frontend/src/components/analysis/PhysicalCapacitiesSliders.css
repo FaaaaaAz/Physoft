@@ -1,15 +1,15 @@
-.capacities-container {
+.physical-capacities-sliders {
   margin-top: 1.5rem;
 }
 
-.capacities-container h4 {
+.physical-capacities-sliders h4 {
   margin: 0 0 0.5rem 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.capacities-description {
+.subsection-description {
   margin: 0.5rem 0 1rem 0;
   font-size: 0.9rem;
   color: var(--text-secondary);
@@ -53,7 +53,7 @@
   flex: 1;
   height: 6px;
   border-radius: 3px;
-  background: var(--border-color);
+  background: rgba(255, 255, 255, 0.2);
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -68,6 +68,7 @@
   background: var(--primary-color);
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .capacity-slider::-moz-range-thumb {
@@ -78,6 +79,7 @@
   cursor: pointer;
   border: none;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .capacity-slider:hover:not(:disabled)::-webkit-slider-thumb {

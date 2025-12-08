@@ -18,6 +18,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -33,7 +34,7 @@
   overflow-y: auto;
   border: 1px solid rgba(20, 184, 166, 0.2);
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
-              0 0 100px rgba(20, 184, 166, 0.1);
+    0 0 100px rgba(20, 184, 166, 0.1);
   animation: modalSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -42,13 +43,14 @@
     opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
-/* Scrollbar personalizado */
+/* Custom scrollbar */
 .modal-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -111,7 +113,7 @@
   object-fit: cover;
 }
 
-.modal-deporte-badge {
+.modal-sport-badge {
   position: absolute;
   bottom: 12px;
   left: 12px;
@@ -138,7 +140,7 @@
   gap: 12px;
 }
 
-.modal-nombre {
+.modal-name {
   font-size: 2.5rem;
   font-weight: 700;
   color: white;
@@ -236,7 +238,7 @@
   font-weight: 600;
 }
 
-.info-value.codigo-acceso {
+.info-value.access-code {
   color: var(--primary-color);
   font-size: 1.3rem;
   letter-spacing: 0.1em;
@@ -255,6 +257,44 @@
 
 .radar-chart {
   filter: drop-shadow(0 0 20px rgba(20, 184, 166, 0.3));
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 30px 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.btn-delete {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+  border-color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-delete:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
 
 /* Responsive */
@@ -277,7 +317,7 @@
     height: 150px;
   }
 
-  .modal-nombre {
+  .modal-name {
     font-size: 2rem;
   }
 
@@ -297,5 +337,14 @@
   .radar-chart {
     max-width: 100%;
     height: auto;
+  }
+
+  .modal-footer {
+    padding: 20px;
+  }
+
+  .btn-delete {
+    width: 100%;
+    justify-content: center;
   }
 }

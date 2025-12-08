@@ -1,4 +1,5 @@
 import { IoSearch } from 'react-icons/io5'
+import './SearchBar.css'
 import '@/styles/SearchBar.css'
 
 interface SearchBarProps {
@@ -11,11 +12,11 @@ interface SearchBarProps {
 /**
  * Barra de búsqueda reutilizable
  */
-export function SearchBar({ 
-  value, 
-  onChange, 
-  placeholder = 'Buscar...', 
-  className = '' 
+export function SearchBar({
+  value,
+  onChange,
+  placeholder = 'Buscar...',
+  className = ''
 }: SearchBarProps) {
   return (
     <div className={`search-container ${className}`}>

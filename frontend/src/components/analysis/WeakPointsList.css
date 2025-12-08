@@ -1,22 +1,22 @@
-.weak-points-container {
+.weak-points-list {
   margin-top: 1.5rem;
 }
 
-.weak-points-header {
+.subsection-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.weak-points-header h4 {
+.subsection-header h4 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.btn-add-weak-point {
+.btn-add-point {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -26,21 +26,22 @@
   border: none;
   border-radius: 8px;
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.btn-add-weak-point:hover:not(:disabled) {
-  background: var(--primary-hover);
+.btn-add-point:hover:not(:disabled) {
+  background: #0d9488;
   transform: translateY(-1px);
 }
 
-.btn-add-weak-point:disabled {
+.btn-add-point:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.weak-points-list {
+.weak-points-items {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -62,7 +63,7 @@
   border-color: var(--primary-color);
 }
 
-.weak-point-number {
+.point-number {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -92,7 +93,7 @@
   cursor: not-allowed;
 }
 
-.btn-delete-weak-point {
+.btn-remove-point {
   padding: 0.5rem;
   background: transparent;
   color: var(--error-color);
@@ -103,14 +104,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.1rem;
 }
 
-.btn-delete-weak-point:hover:not(:disabled) {
+.btn-remove-point:hover:not(:disabled) {
   background: var(--error-color);
   color: white;
 }
 
-.btn-delete-weak-point:disabled {
+.btn-remove-point:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

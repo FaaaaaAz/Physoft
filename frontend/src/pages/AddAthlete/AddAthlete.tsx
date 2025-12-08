@@ -16,6 +16,7 @@ import PageTemplate from '@/components/templates/PageTemplate'
 import { ImageUpload } from '@/components/common/forms/ImageUpload'
 import { Form } from '@/components/common/forms/Form'
 import { useForm, useAthletes, useFormMessage } from '../../hooks'
+import { CreateAthleteDTO } from '../../services/api'
 import type { AthleteFormData } from '../../types/athlete.types'
 import type { ValidationSchema } from '../../types/form.types'
 import './AddAthlete.css'
@@ -30,8 +31,8 @@ const initialValues: AthleteFormData = {
     club: '',
     position: '',
     bodyType: 'Mesomorph',
-    height: 0,
-    weight: 0,
+    height: '' as any, // Empty string for better UX
+    weight: '' as any, // Empty string for better UX
     email: '',
     phone: ''
 }
@@ -111,18 +112,19 @@ function AddAthlete() {
         clearMessage()
 
         try {
-            const response = await createAthlete(values)
+            // Include photo in the athlete data
+            const athleteData: CreateAthleteDTO = {
+                ...values,
+                photo: photoFile
+            }
+
+            const response = await createAthlete(athleteData)
 
             if (response?.success) {
                 showMessage(
                     'success',
                     `✅ Athlete ${values.name} created successfully with code ${response.data.accessCode}`
                 )
-
-                // Upload photo if selected
-                if (photoFile && response.data.id) {
-                    // TODO: Upload photo using athleteAPI.uploadPhoto
-                }
 
                 // Reset form
                 form.reset()

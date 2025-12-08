@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { IoClose, IoFootball } from 'react-icons/io5'
 import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../../hooks/usePentagonChart'
 import type { AthleteDisplay } from '../../types/athlete.types'
+import { translateBodyType } from '../../utils/translation.utils'
 import './AthleteModal.css'
 
 interface AthleteModalProps {
@@ -55,7 +56,7 @@ function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
                         <h2 className="modal-name">{athlete.name}</h2>
                         <p className="modal-club">{athlete.club}</p>
                         <div className="modal-overall">
-                            <span className="overall-label">Overall</span>
+                            <span className="overall-label">General</span>
                             <span className="overall-value">{average}</span>
                         </div>
                     </div>
@@ -63,39 +64,39 @@ function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
 
                 <div className="modal-body">
                     <div className="modal-section">
-                        <h3 className="section-title">Personal Information</h3>
+                        <h3 className="section-title">Información Personal</h3>
                         <div className="info-grid">
                             {athlete.accessCode && (
                                 <div className="info-item">
-                                    <span className="info-label">Access Code</span>
+                                    <span className="info-label">Código de Acceso</span>
                                     <span className="info-value access-code">{athlete.accessCode}</span>
                                 </div>
                             )}
                             <div className="info-item">
-                                <span className="info-label">Age</span>
-                                <span className="info-value">{athlete.age} years</span>
+                                <span className="info-label">Edad</span>
+                                <span className="info-value">{athlete.age} años</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Nationality</span>
-                                <span className="info-value">{athlete.nationality || 'Not specified'}</span>
+                                <span className="info-label">Nacionalidad</span>
+                                <span className="info-value">{athlete.nationality || 'No especificado'}</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Height</span>
+                                <span className="info-label">Altura</span>
                                 <span className="info-value">{athlete.height || 'N/A'} cm</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Weight</span>
+                                <span className="info-label">Peso</span>
                                 <span className="info-value">{athlete.weight || 'N/A'} kg</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Body Type</span>
-                                <span className="info-value">{athlete.bodyType || 'Not specified'}</span>
+                                <span className="info-label">Tipo de Cuerpo</span>
+                                <span className="info-value">{translateBodyType(athlete.bodyType)}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="modal-section">
-                        <h3 className="section-title">Physical Capacities</h3>
+                        <h3 className="section-title">Capacidades Físicas</h3>
                         <div className="chart-container">
                             <svg width="340" height="340" viewBox="0 0 340 340">
                                 {/* Guide lines (20%, 40%, 60%, 80%, 100%) */}
@@ -177,7 +178,7 @@ function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
                             className="btn-delete"
                             onClick={() => onDelete(athlete.id)}
                         >
-                            Delete Athlete
+                            Eliminar Atleta
                         </button>
                     </div>
                 )}

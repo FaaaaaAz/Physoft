@@ -1,137 +1,101 @@
-.image-uploader-container {
-  margin: 1.5rem 0;
+.image-uploader {
+  margin-bottom: 2rem;
 }
 
-.upload-area {
-  margin-bottom: 1.5rem;
-}
-
-.upload-label {
+.image-uploader label {
   display: block;
-  cursor: pointer;
-  transition: all 0.2s;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
-.upload-label.disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.upload-input {
-  display: none;
-}
-
-.upload-content {
-  padding: 3rem 2rem;
+.upload-zone {
   border: 2px dashed var(--border-color);
   border-radius: 12px;
-  background: var(--surface-color);
+  padding: 2rem;
   text-align: center;
-  transition: all 0.2s;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--surface-color);
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.upload-label:not(.disabled):hover .upload-content {
+.upload-zone:hover {
   border-color: var(--primary-color);
   background: rgba(20, 184, 166, 0.05);
 }
 
-.upload-icon {
+.upload-label {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.upload-label svg {
   font-size: 3rem;
   color: var(--primary-color);
-  margin-bottom: 1rem;
 }
 
-.upload-text {
-  margin: 0 0 0.5rem 0;
+.upload-label span {
   font-size: 1rem;
-  font-weight: 600;
   color: var(--text-primary);
+  font-weight: 500;
 }
 
-.upload-subtext {
-  margin: 0;
-  font-size: 0.85rem;
+.upload-label p {
+  font-size: 0.875rem;
   color: var(--text-secondary);
+  margin: 0;
 }
 
-.images-preview-grid {
+.images-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .image-preview-item {
   position: relative;
+  width: 100%;
   aspect-ratio: 1;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--surface-color);
   border: 1px solid var(--border-color);
 }
 
-.preview-image {
+.image-preview-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.btn-delete-image {
+.btn-remove-image {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(239, 68, 68, 0.9);
+  background: var(--error-color);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  transition: all 0.2s;
-  z-index: 2;
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.image-preview-item:hover .btn-delete-image {
-  opacity: 1;
-}
-
-.btn-delete-image:hover:not(:disabled) {
+.btn-remove-image:hover {
   background: #dc2626;
   transform: scale(1.1);
-}
-
-.btn-delete-image:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.image-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.75rem 0.5rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.image-preview-item:hover .image-overlay {
-  opacity: 1;
-}
-
-.image-name {
-  font-size: 0.75rem;
-  color: white;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.images-count {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  text-align: center;
 }

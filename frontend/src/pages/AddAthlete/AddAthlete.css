@@ -1,19 +1,19 @@
 /* ============================================
-   ESTILOS: Página Agregar Atleta
+   AddAthlete Page - Original Styles
    ============================================ */
 
-.agregar-atleta-page {
+.add-athlete-page {
   min-height: 100vh;
   background: var(--color-bg-primary, #0a0a0a);
 }
 
-.agregar-atleta-content {
+.add-athlete-content {
   padding: 2rem;
   max-width: 900px;
   margin: 0 auto;
 }
 
-.agregar-atleta-container {
+.add-athlete-container {
   background: var(--color-bg-secondary, #1a1a1a);
   border-radius: 16px;
   padding: 2.5rem;
@@ -21,30 +21,8 @@
   border: 1px solid var(--color-border, #404040);
 }
 
-.agregar-atleta-header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.agregar-atleta-header .header-icon {
-  font-size: 4rem;
-  color: var(--color-primary, #14b8a6);
-  margin-bottom: 1rem;
-}
-
-.agregar-atleta-header h1 {
-  font-size: 2rem;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
-}
-
-.agregar-atleta-header p {
-  color: #718096;
-  font-size: 1rem;
-}
-
-/* Mensajes */
-.mensaje {
+/* Messages */
+.message {
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -52,20 +30,20 @@
   text-align: center;
 }
 
-.mensaje.success {
+.message.success {
   background: #c6f6d5;
   color: #22543d;
   border: 1px solid #9ae6b4;
 }
 
-.mensaje.error {
+.message.error {
   background: #fed7d7;
   color: #742a2a;
   border: 1px solid #fc8181;
 }
 
-/* Formulario */
-.atleta-form {
+/* Form */
+.athlete-form {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -162,111 +140,7 @@
   margin: 0;
 }
 
-/* Código de Acceso */
-.access-code-group {
-  margin-bottom: 1.5rem;
-}
-
-.access-code-input {
-  width: 100%;
-  font-size: 1.5rem !important;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-align: center;
-  color: var(--color-primary, #14b8a6);
-  background: rgba(20, 184, 166, 0.1) !important;
-  border: 2px solid var(--color-primary, #14b8a6) !important;
-  cursor: not-allowed;
-}
-
-.field-hint {
-  font-size: 0.85rem;
-  color: var(--color-text-muted, #666666);
-  margin-top: 0.5rem;
-  font-style: italic;
-}
-
-/* Foto del Atleta */
-.photo-group {
-  margin-bottom: 1.5rem;
-}
-
-.photo-upload-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.photo-preview {
-  position: relative;
-  width: 150px;
-  height: 150px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 3px solid var(--color-primary, #14b8a6);
-}
-
-.photo-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.btn-remove-photo {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.9);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.btn-remove-photo:hover {
-  background: rgb(220, 38, 38);
-  transform: scale(1.1);
-}
-
-.photo-upload-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 150px;
-  height: 150px;
-  border: 2px dashed var(--color-border, #404040);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.photo-upload-label:hover {
-  border-color: var(--color-primary, #14b8a6);
-  background: rgba(20, 184, 166, 0.1);
-}
-
-.photo-upload-label svg {
-  font-size: 3rem;
-  color: var(--color-text-muted, #666666);
-  margin-bottom: 0.5rem;
-}
-
-.photo-upload-label span {
-  color: var(--color-text-secondary, #a3a3a3);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-/* Botones de acción */
+/* Action Buttons */
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -315,36 +189,20 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .agregar-atleta-content {
+  .add-athlete-content {
     max-width: 100%;
     padding: 1.5rem;
-  }
-
-  .agregar-atleta-container {
-    margin-top: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
-  .agregar-atleta-content {
+  .add-athlete-content {
     padding: 1rem;
   }
 
-  .agregar-atleta-container {
+  .add-athlete-container {
     padding: 1.5rem;
     border-radius: 12px;
-  }
-
-  .agregar-atleta-header .header-icon {
-    font-size: 3rem;
-  }
-
-  .agregar-atleta-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .agregar-atleta-header p {
-    font-size: 0.9rem;
   }
 
   .form-section {
@@ -374,27 +232,14 @@
 }
 
 @media (max-width: 480px) {
-  .agregar-atleta-content {
+  .add-athlete-content {
     padding: 0.5rem;
   }
 
-  .agregar-atleta-container {
+  .add-athlete-container {
     padding: 1rem;
     border-radius: 8px;
     margin-top: 1rem;
-  }
-
-  .agregar-atleta-header .header-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .agregar-atleta-header h1 {
-    font-size: 1.25rem;
-  }
-
-  .agregar-atleta-header p {
-    font-size: 0.85rem;
   }
 
   .form-section {
@@ -423,7 +268,7 @@
     padding: 0.875rem 1.25rem;
   }
 
-  .mensaje {
+  .message {
     padding: 0.875rem;
     font-size: 0.9rem;
   }
