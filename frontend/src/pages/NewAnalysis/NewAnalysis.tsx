@@ -7,7 +7,8 @@ import './NewAnalysis.css'
 
 interface PuntoDebil {
   id: number
-  texto: string
+  area: string
+  descripcion: string
 }
 
 interface CapacidadesFisicas {
@@ -231,12 +232,35 @@ function NuevoAnalisis() {
 
       // Mapear nombres de campos del backend (inglés) al frontend (español)
       const mappedData: any = {}
+
+      // Análisis textuales
       if (response.data.flexibilityAnalysis) mappedData.analisisFlexibilidad = response.data.flexibilityAnalysis
       if (response.data.biobitAnalysis) mappedData.analisisBiobit = response.data.biobitAnalysis
       if (response.data.muscularAsymmetry) mappedData.asimetriaMuscular = response.data.muscularAsymmetry
       if (response.data.activeMotorControl) mappedData.controlMotorActivo = response.data.activeMotorControl
       if (response.data.functionalMuscleFatigue) mappedData.fatigaMuscular = response.data.functionalMuscleFatigue
       if (response.data.inertiaForceControl) mappedData.controlFuerzaInercia = response.data.inertiaForceControl
+
+      // Conclusiones
+      if (response.data.weakPoints) {
+        mappedData.puntosDebiles = response.data.weakPoints.map((wp: any, index: number) => ({
+          id: Date.now() + index, // Generar ID único
+          area: wp.area,
+          descripcion: wp.descripcion
+        }))
+      }
+      if (response.data.physicalCapacities) {
+        mappedData.capacidadesFisicas = {
+          potencia: response.data.physicalCapacities.potencia || 0,
+          resistencia: response.data.physicalCapacities.resistencia || 0,
+          fuerza: response.data.physicalCapacities.fuerza || 0,
+          flexibilidad: response.data.physicalCapacities.flexibilidad || 0,
+          velocidad: response.data.physicalCapacities.velocidad || 0
+        }
+      }
+      if (response.data.cohortClassification) {
+        mappedData.clasificacionCohorte = response.data.cohortClassification
+      }
 
       // Actualizar formData con los resultados mapeados
       setFormData(prev => ({ ...prev, ...mappedData }))
@@ -255,7 +279,8 @@ function NuevoAnalisis() {
   const handleAgregarPuntoDebil = () => {
     const nuevoPunto: PuntoDebil = {
       id: proximoIdPuntoDebil,
-      texto: ''
+      area: '',
+      descripcion: ''
     }
     setFormData(prev => ({
       ...prev,
@@ -271,11 +296,11 @@ function NuevoAnalisis() {
     }))
   }
 
-  const handlePuntoDebilChange = (id: number, valor: string) => {
+  const handlePuntoDebilChange = (id: number, field: 'area' | 'descripcion', value: string) => {
     setFormData(prev => ({
       ...prev,
       puntosDebiles: prev.puntosDebiles.map(p =>
-        p.id === id ? { ...p, texto: valor } : p
+        p.id === id ? { ...p, [field]: value } : p
       )
     }))
   }
@@ -310,10 +335,11 @@ function NuevoAnalisis() {
       if (formData.fatigaMuscular) submitData.functionalMuscleFatigue = formData.fatigaMuscular
       if (formData.controlFuerzaInercia) submitData.inertiaForceControl = formData.controlFuerzaInercia
 
-      // Puntos débiles
+      // Preparar puntos débiles para envío
       const puntosDebilesTexto = formData.puntosDebiles
-        .filter(p => p.texto.trim())
-        .map(p => p.texto)
+        .filter(p => p.area.trim() !== '') // Solo enviar puntos con área definida
+        .map(p => ({ area: p.area, descripcion: p.descripcion }))
+
       if (puntosDebilesTexto.length > 0) {
         submitData.weakPoints = JSON.stringify(puntosDebilesTexto)
       }
@@ -770,13 +796,23 @@ function NuevoAnalisis() {
                   {formData.puntosDebiles.map((punto, index) => (
                     <div key={punto.id} className="punto-debil-item">
                       <span className="punto-numero">Punto débil {index + 1}</span>
-                      <input
-                        type="text"
-                        value={punto.texto}
-                        onChange={(e) => handlePuntoDebilChange(punto.id, e.target.value)}
-                        placeholder="Describa el punto débil..."
-                        className="punto-debil-input"
-                      />
+                      <div className="punto-debil-fields">
+                        <input
+                          type="text"
+                          value={punto.area}
+                          onChange={(e) => handlePuntoDebilChange(punto.id, 'area', e.target.value)}
+                          placeholder="Área problemática (ej: Fatiga muscular)"
+                          className="punto-debil-input area"
+                          required
+                        />
+                        <input
+                          type="text"
+                          value={punto.descripcion}
+                          onChange={(e) => handlePuntoDebilChange(punto.id, 'descripcion', e.target.value)}
+                          placeholder="Descripción (opcional)"
+                          className="punto-debil-input descripcion"
+                        />
+                      </div>
                       <button
                         type="button"
                         className="btn-eliminar-punto"
@@ -920,22 +956,25 @@ function NuevoAnalisis() {
               </div>
             </div>
 
-            {/* Clasificación Global */}
+            {/* Clasificación Cohorte */}
             <div className="subsection">
-              <h4>Clasificación global vs cohorte</h4>
+              <h4>Clasificación Cohorte</h4>
               <p className="subsection-description">
                 La IA determinará la clasificación basándose en las capacidades físicas evaluadas.
               </p>
               <select
+                className="form-select"
                 name="clasificacionCohorte"
                 value={formData.clasificacionCohorte}
                 onChange={handleChange}
-                className="form-select"
+                required
               >
-                <option value="">Seleccionar clasificación</option>
-                <option value="low">Por debajo del promedio (Bajo)</option>
-                <option value="medium">En el promedio (Medio)</option>
-                <option value="high">Por encima del promedio (Alto)</option>
+                <option value="">Selecciona una clasificación</option>
+                <option value="ELITE">Elite</option>
+                <option value="AVANZADO">Avanzado</option>
+                <option value="INTERMEDIO">Intermedio</option>
+                <option value="PRINCIPIANTE">Principiante</option>
+                <option value="ATENCION_REQUERIDA">Atención Requerida</option>
               </select>
             </div>
 

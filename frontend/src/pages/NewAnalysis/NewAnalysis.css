@@ -611,37 +611,54 @@
 }
 
 .punto-debil-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
+  display: flex;
+  align-items: flex-start;
   gap: 1rem;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
   border: 1px solid var(--color-border, #404040);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
 }
 
 .punto-numero {
-  color: var(--color-text-secondary, #a3a3a3);
   font-weight: 600;
-  font-size: 0.9rem;
-  white-space: nowrap;
+  color: var(--color-primary, #14b8a6);
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.punto-debil-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
 }
 
 .punto-debil-input {
-  padding: 0.5rem 1rem;
-  border: 2px solid var(--color-border, #404040);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-text-primary, #ffffff);
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border, #404040);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--color-text, #e5e5e5);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.punto-debil-input.area {
+  font-weight: 500;
+}
+
+.punto-debil-input.descripcion {
+  font-size: 0.9rem;
+  opacity: 0.9;
 }
 
 .punto-debil-input:focus {
   outline: none;
   border-color: var(--color-primary, #14b8a6);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(20, 184, 166, 0.05);
 }
 
 .btn-eliminar-punto {

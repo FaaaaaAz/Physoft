@@ -10,12 +10,24 @@ interface AnalysisTypes {
 }
 
 interface AnalysisResults {
+    // Análisis textuales
     flexibilityAnalysis?: string
     biobitAnalysis?: string
     muscularAsymmetry?: string
     activeMotorControl?: string
     functionalMuscleFatigue?: string
     inertiaForceControl?: string
+
+    // Conclusiones
+    weakPoints?: Array<{ area: string; descripcion: string }>
+    physicalCapacities?: {
+        potencia: number
+        resistencia: number
+        fuerza: number
+        flexibilidad: number
+        velocidad: number
+    }
+    cohortClassification?: string
 }
 
 class AIService {
@@ -206,8 +218,52 @@ class AIService {
             },`;
         }
 
-        // Cierre
+        // CONCLUSIONES - Basadas en TODOS los análisis anteriores
         prompt += `
+        "conclusiones": {
+            "puntos_debiles": [
+                {
+                    "area": "Nombre específico del área problemática",
+                    "descripcion": "Descripción concreta del problema detectado"
+                }
+            ],
+            "capacidades_fisicas": {
+                "potencia": 0-100,
+                "resistencia": 0-100,
+                "fuerza": 0-100,
+                "flexibilidad": 0-100,
+                "velocidad": 0-100
+            },
+            "clasificacion_cohorte": "ELITE | AVANZADO | INTERMEDIO | PRINCIPIANTE | ATENCION_REQUERIDA"
+        },
+
+        INSTRUCCIONES PARA CONCLUSIONES:
+        
+        1. PUNTOS DÉBILES (máximo 5, ordenados por severidad):
+           - Identifica áreas problemáticas ESPECÍFICAS basadas en estados CRITICO y ATENCION
+           - Ejemplo BUENO: "Asimetría bilateral en cuádriceps (15% mayor izquierdo)"
+           - Ejemplo MALO: "Problemas musculares generales"
+           - Prioriza: CRITICO > ATENCION
+        
+        2. CAPACIDADES FÍSICAS (scores 0-100):
+           - Potencia: Basado en fuerza_inercia (generación explosiva)
+           - Resistencia: Basado en fatiga (capacidad de mantener esfuerzo)
+           - Fuerza: Basado en fuerza_inercia (generación de fuerza)
+           - Flexibilidad: Basado en flexibilidad (rangos de movimiento/relajación)
+           - Velocidad: Basado en biobit y control_motor (rapidez de activación)
+           
+           Mapeo de estados a scores:
+           - OPTIMO: 75-95
+           - ATENCION: 45-74
+           - CRITICO: 15-44
+        
+        3. CLASIFICACIÓN COHORTE:
+           - ELITE: 4-5 capacidades >75, sin puntos críticos
+           - AVANZADO: 3+ capacidades >65, máx 1 punto crítico
+           - INTERMEDIO: 2+ capacidades >55, máx 2 puntos críticos
+           - PRINCIPIANTE: <2 capacidades >55
+           - ATENCION_REQUERIDA: 2+ puntos críticos o múltiples asimetrías severas
+        
         "resumen_global": "Resumen ejecutivo en 1-2 frases completas.",
         "advertencia": null
         }
@@ -311,6 +367,35 @@ class AIService {
                 ].filter(Boolean)
                 results.inertiaForceControl = parts.join(' ').trim()
                 console.log('✓ Fuerza Inercia mapped from JSON')
+            }
+
+            // Mapear conclusiones
+            if (jsonResponse.conclusiones) {
+                const conclusiones = jsonResponse.conclusiones
+
+                // Puntos débiles
+                if (conclusiones.puntos_debiles && Array.isArray(conclusiones.puntos_debiles)) {
+                    results.weakPoints = conclusiones.puntos_debiles
+                    console.log('✓ Puntos débiles mapped from JSON:', results.weakPoints?.length, 'items')
+                }
+
+                // Capacidades físicas
+                if (conclusiones.capacidades_fisicas) {
+                    results.physicalCapacities = {
+                        potencia: conclusiones.capacidades_fisicas.potencia || 0,
+                        resistencia: conclusiones.capacidades_fisicas.resistencia || 0,
+                        fuerza: conclusiones.capacidades_fisicas.fuerza || 0,
+                        flexibilidad: conclusiones.capacidades_fisicas.flexibilidad || 0,
+                        velocidad: conclusiones.capacidades_fisicas.velocidad || 0
+                    }
+                    console.log('✓ Capacidades físicas mapped from JSON')
+                }
+
+                // Clasificación cohorte
+                if (conclusiones.clasificacion_cohorte) {
+                    results.cohortClassification = conclusiones.clasificacion_cohorte
+                    console.log('✓ Clasificación cohorte mapped from JSON:', results.cohortClassification)
+                }
             }
 
         } catch (jsonError) {
