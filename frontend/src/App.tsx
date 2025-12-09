@@ -9,6 +9,7 @@ import AddAthlete from './pages/AddAthlete/AddAthlete'
 import NewAnalysis from './pages/NewAnalysis/NewAnalysis'
 import AnalysisView from './pages/AnalysisView/AnalysisView'
 import Settings from './pages/Settings/Settings'
+import Profile from './pages/Profile/Profile'
 import './styles/index.css'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/new-analysis" element={<NewAnalysis />} />
         <Route path="/analysis-view/:id" element={<AnalysisView />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/profile" element={<Profile />} />
 
         {/* Legacy redirects */}
         <Route path="/all-analysis" element={<Navigate to="/all-analyses" replace />} />

@@ -105,14 +105,13 @@ function Navbar({
           >
             <IoSettings />
           </button>
-          {/* Perfil deshabilitado temporalmente - ruta no implementada */}
-          {/* <button
+          <button
             className="navbar-icon-btn"
             title="Perfil"
             onClick={() => navigate('/profile')}
           >
             <IoPerson />
-          </button> */}
+          </button>
         </div>
       </div>
     </nav>

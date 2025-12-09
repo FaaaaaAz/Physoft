@@ -125,7 +125,7 @@ function Dashboard() {
 
     return (
         <PageTemplate
-            title="Dashboard"
+            title="Gestión de Atletas"
             subtitle="Gestiona tus atletas y análisis kinesiológicos"
             className="dashboard"
         >
