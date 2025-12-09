@@ -210,6 +210,7 @@ function AddAthlete() {
                                 label="Fecha de Nacimiento"
                                 type="date"
                                 icon={<IoCalendar />}
+                                max={new Date().toISOString().split('T')[0]}
                             />
                             <Form.Field
                                 name="nationality"
