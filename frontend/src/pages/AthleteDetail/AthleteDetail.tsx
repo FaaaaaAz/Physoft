@@ -104,7 +104,7 @@ function AthleteDetail() {
     }
 
     const handleViewAnalysis = (analysisId: number) => {
-        navigate(`/analysis-view/${analysisId}`)
+        navigate(`/analysis-view/${analysisId}`, { state: { athleteId: athlete.id } })
     }
 
     const age = calculateAge(athlete.birthDate)
@@ -113,12 +113,12 @@ function AthleteDetail() {
     // Dynamic breadcrumb based on origin
     const breadcrumbItems: BreadcrumbItem[] = from === 'all-analyses'
         ? [
-            { label: 'Analysis', path: '/analysis' },
-            { label: 'All Analyses', path: '/all-analyses' },
+            { label: 'Análisis', path: '/analysis' },
+            { label: 'Todos los Análisis', path: '/all-analyses' },
             { label: athlete.name }
         ]
         : [
-            { label: 'Analysis', path: '/analysis' },
+            { label: 'Análisis', path: '/analysis' },
             { label: athlete.name }
         ]
 

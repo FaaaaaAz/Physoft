@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { IoArrowBack, IoDocument, IoPerson } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
@@ -9,8 +9,12 @@ import './AnalysisView.css'
 function AnalysisView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(true)
+  
+  // Get the athleteId from location state or from the loaded analysis
+  const athleteIdFromState = location.state?.athleteId
 
   useEffect(() => {
     if (id) {
@@ -94,6 +98,7 @@ function AnalysisView() {
 
   const weakPoints = parseWeakPoints(analysis.weakPoints)
   const graphImages = parseGraphImages(analysis.graphImages)
+  const athleteId = athleteIdFromState || analysis.athleteId
 
   return (
     <PageTemplate
@@ -103,7 +108,10 @@ function AnalysisView() {
       )}`}
       className="analysis-view-page"
     >
-      <button onClick={() => navigate('/analysis')} className="btn-back">
+      <button 
+        onClick={() => navigate(`/athlete-detail/${athleteId}`, { state: { from: 'analysis-view' } })} 
+        className="btn-back"
+      >
         <IoArrowBack /> Volver
       </button>
 
