@@ -55,9 +55,19 @@ function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
                     <div className="modal-info">
                         <h2 className="modal-name">{athlete.name}</h2>
                         <p className="modal-club">{athlete.club}</p>
-                        <div className="modal-overall">
-                            <span className="overall-label">General</span>
-                            <span className="overall-value">{average}</span>
+                        <div className="modal-overall-row">
+                            <div className="modal-overall">
+                                <span className="overall-label">General</span>
+                                <span className="overall-value">{average}</span>
+                            </div>
+                            {onDelete && (
+                                <button
+                                    className="btn-delete-inline"
+                                    onClick={() => onDelete(athlete.id)}
+                                >
+                                    Eliminar Atleta
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -145,23 +155,36 @@ function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
                                 {/* Labels and values */}
                                 {pentagonData.points.map((point, idx) => (
                                     <g key={`label-${idx}`}>
+                                        {/* Label background */}
+                                        <rect
+                                            x={point.labelX - 40}
+                                            y={point.labelY - 22}
+                                            width="80"
+                                            height="36"
+                                            fill="rgba(0, 0, 0, 0.75)"
+                                            rx="6"
+                                            stroke="rgba(20, 184, 166, 0.3)"
+                                            strokeWidth="1"
+                                        />
+                                        {/* Label text */}
                                         <text
                                             x={point.labelX}
-                                            y={point.labelY - 10}
+                                            y={point.labelY - 6}
                                             textAnchor="middle"
-                                            fill="rgba(255, 255, 255, 0.7)"
-                                            fontSize="12"
-                                            fontWeight="bold"
+                                            fill="white"
+                                            fontSize="13"
+                                            fontWeight="700"
                                         >
                                             {point.nombre}
                                         </text>
+                                        {/* Value text */}
                                         <text
                                             x={point.labelX}
-                                            y={point.labelY + 10}
+                                            y={point.labelY + 12}
                                             textAnchor="middle"
                                             fill="#14b8a6"
-                                            fontSize="14"
-                                            fontWeight="bold"
+                                            fontSize="15"
+                                            fontWeight="700"
                                         >
                                             {point.valor}
                                         </text>
@@ -171,17 +194,6 @@ function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
                         </div>
                     </div>
                 </div>
-
-                {onDelete && (
-                    <div className="modal-footer">
-                        <button
-                            className="btn-delete"
-                            onClick={() => onDelete(athlete.id)}
-                        >
-                            Eliminar Atleta
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
     )

@@ -4,7 +4,7 @@ import { BreadcrumbItem } from '../../components/Breadcrumb'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { athleteAPI, analysisAPI, Athlete, Analysis } from '../../services/api'
-import { usePentagonChart, usePentagonRadialLines } from '../../hooks/usePentagonChart'
+import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../../hooks/usePentagonChart'
 import { calculateAge } from '../../utils/date.utils'
 import { translateBodyType, translateClassification, getClassificationBadgeClass } from '../../utils/translation.utils'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
@@ -73,7 +73,7 @@ function AthleteDetail() {
     // Pentagon chart using custom hook - MUST be called before any conditional returns
     const chartConfig = { centerX: 250, centerY: 250, maxRadius: 100, labelOffset: 60 }
     const pentagonData = usePentagonChart(capacities, chartConfig)
-    // const guideLines = usePentagonGuideLines(chartConfig) // Not used currently
+    const guideLines = usePentagonGuideLines(chartConfig)
     const radialLines = usePentagonRadialLines(chartConfig)
 
     // Early returns AFTER all hooks
@@ -104,7 +104,7 @@ function AthleteDetail() {
     }
 
     const handleViewAnalysis = (analysisId: number) => {
-        navigate(`/analysis-view/${analysisId}`)
+        navigate(`/analysis-view/${analysisId}`, { state: { athleteId: athlete.id } })
     }
 
     const age = calculateAge(athlete.birthDate)
@@ -113,12 +113,12 @@ function AthleteDetail() {
     // Dynamic breadcrumb based on origin
     const breadcrumbItems: BreadcrumbItem[] = from === 'all-analyses'
         ? [
-            { label: 'Analysis', path: '/analysis' },
-            { label: 'All Analyses', path: '/all-analyses' },
+            { label: 'Análisis', path: '/analysis' },
+            { label: 'Todos los Análisis', path: '/all-analyses' },
             { label: athlete.name }
         ]
         : [
-            { label: 'Analysis', path: '/analysis' },
+            { label: 'Análisis', path: '/analysis' },
             { label: athlete.name }
         ]
 
@@ -201,6 +201,18 @@ function AthleteDetail() {
                             </span>
                         </div>
                     </div>
+
+                    {latestAnalysis?.cohortClassification && (
+                        <div className="detail-info-card">
+                            <IoTrendingUp className="card-icon" />
+                            <div className="card-content">
+                                <span className="card-label">CLASIFICACIÓN COHORTE</span>
+                                <span className={`badge cohort-${latestAnalysis.cohortClassification.toLowerCase()}`}>
+                                    {latestAnalysis.cohortClassification}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div >
 
                 {/* Current Physical Capacities */}
@@ -213,78 +225,21 @@ function AthleteDetail() {
                             </h2>
                             <div className="pentagon-chart-container">
                                 <svg width="100%" height="100%" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
-                                    {/* Pentagon guides */}
-                                    <polygon
-                                        points={pentagonData.backgroundPath}
-                                        fill="none"
-                                        stroke="rgba(255, 255, 255, 0.1)"
-                                        strokeWidth="1"
-                                    />
-
-                                    {/* Capacities pentagon */}
-                                    <polygon
-                                        points={pentagonData.pointsPath}
-                                        fill="rgba(20, 184, 166, 0.3)"
-                                        stroke="var(--primary-color)"
-                                        strokeWidth="3"
-                                        strokeLinejoin="round"
-                                    />
-
-                                    {/* Points and labels */}
-                                    {pentagonData.points.map((point, i) => (
-                                        <g key={i}>
-                                            {/* Point */}
-                                            <circle
-                                                cx={point.x}
-                                                cy={point.y}
-                                                r="6"
-                                                fill="var(--primary-color)"
-                                                stroke="#0a0a0a"
-                                                strokeWidth="2"
-                                            />
-
-                                            {/* Label background */}
-                                            <rect
-                                                x={point.labelX - 45}
-                                                y={point.labelY - 25}
-                                                width="90"
-                                                height="40"
-                                                fill="rgba(0, 0, 0, 0.7)"
-                                                rx="6"
-                                                stroke="rgba(20, 184, 166, 0.3)"
-                                                strokeWidth="1"
-                                            />
-
-                                            {/* Label */}
-                                            <text
-                                                x={point.labelX}
-                                                y={point.labelY - 8}
-                                                textAnchor="middle"
-                                                fill="white"
-                                                fontSize="15"
-                                                fontWeight="700"
-                                            >
-                                                {point.nombre}
-                                            </text>
-
-                                            {/* Value */}
-                                            <text
-                                                x={point.labelX}
-                                                y={point.labelY + 10}
-                                                textAnchor="middle"
-                                                fill="var(--primary-color)"
-                                                fontSize="16"
-                                                fontWeight="700"
-                                            >
-                                                {point.valor}
-                                            </text>
-                                        </g>
+                                    {/* Guide lines (20%, 40%, 60%, 80%, 100%) */}
+                                    {guideLines.map((path, idx) => (
+                                        <polygon
+                                            key={`guide-${idx}`}
+                                            points={path}
+                                            fill="none"
+                                            stroke="rgba(255, 255, 255, 0.1)"
+                                            strokeWidth="1"
+                                        />
                                     ))}
 
-                                    {/* Lines from center to each vertex */}
+                                    {/* Radial lines from center to vertices */}
                                     {radialLines.map((line, i) => (
                                         <line
-                                            key={`line-${i}`}
+                                            key={`radial-${i}`}
                                             x1={line.x1}
                                             y1={line.y1}
                                             x2={line.x2}
@@ -292,6 +247,67 @@ function AthleteDetail() {
                                             stroke="rgba(255, 255, 255, 0.1)"
                                             strokeWidth="1"
                                         />
+                                    ))}
+
+                                    {/* Athlete data polygon */}
+                                    <polygon
+                                        points={pentagonData.pointsPath}
+                                        fill="rgba(20, 184, 166, 0.3)"
+                                        stroke="#14b8a6"
+                                        strokeWidth="3"
+                                        strokeLinejoin="round"
+                                    />
+
+                                    {/* Points at vertices */}
+                                    {pentagonData.points.map((point, idx) => (
+                                        <circle
+                                            key={`point-${idx}`}
+                                            cx={point.x}
+                                            cy={point.y}
+                                            r="5"
+                                            fill="#14b8a6"
+                                            stroke="#0a0a0a"
+                                            strokeWidth="2"
+                                        />
+                                    ))}
+
+                                    {/* Labels and values with backgrounds */}
+                                    {pentagonData.points.map((point, idx) => (
+                                        <g key={`label-${idx}`}>
+                                            {/* Label background */}
+                                            <rect
+                                                x={point.labelX - 45}
+                                                y={point.labelY - 24}
+                                                width="90"
+                                                height="42"
+                                                fill="rgba(0, 0, 0, 0.85)"
+                                                rx="8"
+                                                stroke="rgba(20, 184, 166, 0.4)"
+                                                strokeWidth="1.5"
+                                            />
+                                            {/* Label text */}
+                                            <text
+                                                x={point.labelX}
+                                                y={point.labelY - 6}
+                                                textAnchor="middle"
+                                                fill="white"
+                                                fontSize="14"
+                                                fontWeight="700"
+                                            >
+                                                {point.nombre}
+                                            </text>
+                                            {/* Value text */}
+                                            <text
+                                                x={point.labelX}
+                                                y={point.labelY + 12}
+                                                textAnchor="middle"
+                                                fill="#14b8a6"
+                                                fontSize="17"
+                                                fontWeight="700"
+                                            >
+                                                {point.valor}
+                                            </text>
+                                        </g>
                                     ))}
                                 </svg>
                             </div>

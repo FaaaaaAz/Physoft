@@ -16,7 +16,8 @@ function Analysis() {
     const { athletes, loading: loadingAthletes } = useAthletes()
 
     const loading = loadingAnalyses || loadingAthletes
-    const recentAnalyses = analyses.slice(0, 10)
+    // Limit recent analyses to 5
+    const recentAnalyses = analyses.slice(0, 5)
 
     // Calculate stats from loaded data
     const stats = {

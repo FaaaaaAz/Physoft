@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoFootball } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
@@ -9,7 +9,7 @@ import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import EmptyState from '@/components/common/feedback/EmptyState'
 import { useAthletes, useDebounce } from '../../hooks'
 import { calculateAge } from '../../utils/date.utils'
-import { getPhotoUrl } from '../../services/api'
+import { getPhotoUrl, analysisAPI, Analysis } from '../../services/api'
 import { ROUTES, MESSAGES } from '../../constants'
 import type { AthleteDisplay } from '../../types/athlete.types'
 import './Dashboard.css'
@@ -22,34 +22,72 @@ function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('')
     const [sportFilter, setSportFilter] = useState('All')
     const [selectedAthlete, setSelectedAthlete] = useState<AthleteDisplay | null>(null)
+    const [athleteAnalyses, setAthleteAnalyses] = useState<Record<string, Analysis[]>>({})
+    const [loadingAnalyses, setLoadingAnalyses] = useState(false)
 
     // Debounce search for better performance
     const debouncedSearch = useDebounce(searchTerm, 300)
 
+    // Load all analyses for all athletes
+    useEffect(() => {
+        const loadAnalyses = async () => {
+            if (athletes.length === 0) return
+            
+            try {
+                setLoadingAnalyses(true)
+                const analysesPromises = athletes.map(athlete => 
+                    analysisAPI.getAll({ athleteId: athlete.id })
+                )
+                const analysesResponses = await Promise.all(analysesPromises)
+                
+                const analysesMap: Record<string, Analysis[]> = {}
+                athletes.forEach((athlete, index) => {
+                    const athleteAnalysesList = analysesResponses[index].data
+                    // Sort by date descending to get latest first
+                    analysesMap[athlete.id] = athleteAnalysesList.sort((a, b) => 
+                        new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
+                    )
+                })
+                
+                setAthleteAnalyses(analysesMap)
+            } catch (err) {
+                console.error('Error loading analyses:', err)
+            } finally {
+                setLoadingAnalyses(false)
+            }
+        }
+
+        loadAnalyses()
+    }, [athletes])
+
     // Transform athletes for display - memoized to avoid recalculation
     const athletesDisplay = useMemo((): AthleteDisplay[] => {
-        return athletes.map(athlete => ({
-            id: athlete.id,
-            name: athlete.name,
-            photo: getPhotoUrl(athlete.photo),
-            sport: athlete.sport,
-            age: calculateAge(athlete.birthDate),
-            nationality: athlete.nationality || 'Not specified',
-            height: athlete.height,
-            weight: athlete.weight,
-            club: athlete.club || athlete.position || 'No team',
-            bodyType: athlete.bodyType,
-            accessCode: athlete.accessCode,
-            capacities: {
-                // Default values - will be populated from analyses in the future
-                power: 75,
-                strength: 75,
-                speed: 75,
-                flexibility: 75,
-                endurance: 75
+        return athletes.map(athlete => {
+            // Get latest analysis for this athlete
+            const latestAnalysis = athleteAnalyses[athlete.id]?.[0]
+            
+            return {
+                id: athlete.id,
+                name: athlete.name,
+                photo: getPhotoUrl(athlete.photo),
+                sport: athlete.sport,
+                age: calculateAge(athlete.birthDate),
+                nationality: athlete.nationality || 'Not specified',
+                height: athlete.height,
+                weight: athlete.weight,
+                club: athlete.club || athlete.position || 'No team',
+                bodyType: athlete.bodyType,
+                accessCode: athlete.accessCode,
+                capacities: {
+                    power: latestAnalysis?.power || 0,
+                    strength: latestAnalysis?.strength || 0,
+                    speed: latestAnalysis?.speed || 0,
+                    flexibility: latestAnalysis?.flexibility || 0,
+                    endurance: latestAnalysis?.endurance || 0
+                }
             }
-        }))
-    }, [athletes])
+        })
+    }, [athletes, athleteAnalyses])
 
     // Filter athletes - memoized
     const filteredAthletes = useMemo(() => {
@@ -87,7 +125,7 @@ function Dashboard() {
 
     return (
         <PageTemplate
-            title="Dashboard"
+            title="Gestión de Atletas"
             subtitle="Gestiona tus atletas y análisis kinesiológicos"
             className="dashboard"
         >

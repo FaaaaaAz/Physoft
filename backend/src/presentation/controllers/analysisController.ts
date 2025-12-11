@@ -7,6 +7,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '../../infrastructure/prismaClient'
 import { UploadService } from '../../application/services/uploadService'
+import { ComparisonService } from '../../application/services/ComparisonService'
 
 export class AnalysisController {
   /**
@@ -218,6 +219,26 @@ export class AnalysisController {
         graphImagesArray = await Promise.all(uploadPromises)
       }
 
+      // Calculate global classification based on capacities average and cohort comparison
+      let calculatedGlobalClassification = globalClassification || 'medium'
+      
+      if (power !== undefined || endurance !== undefined || strength !== undefined || 
+          flexibility !== undefined || speed !== undefined) {
+        const capacitiesAverage = ComparisonService.calculateCapacitiesAverage({
+          power: validateCapacity(power, 'Power'),
+          endurance: validateCapacity(endurance, 'Endurance'),
+          strength: validateCapacity(strength, 'Strength'),
+          flexibility: validateCapacity(flexibility, 'Flexibility'),
+          speed: validateCapacity(speed, 'Speed')
+        })
+        
+        // Calculate classification based on comparison with same sport/bodyType
+        calculatedGlobalClassification = await ComparisonService.calculateGlobalClassification(
+          athleteId,
+          capacitiesAverage
+        )
+      }
+
       const newAnalysis = await prisma.analysis.create({
         data: {
           athleteId,
@@ -235,7 +256,8 @@ export class AnalysisController {
           strength: validateCapacity(strength, 'Strength'),
           flexibility: validateCapacity(flexibility, 'Flexibility'),
           speed: validateCapacity(speed, 'Speed'),
-          globalClassification: globalClassification || null,
+          globalClassification: calculatedGlobalClassification,
+          cohortClassification: globalClassification || null, // Store the cohort classification separately
           coachRecommendations: coachRecommendations || null,
         },
         include: {

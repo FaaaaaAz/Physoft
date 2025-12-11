@@ -392,7 +392,7 @@ function NuevoAnalisis() {
       className="nuevo-analisis-page"
       breadcrumbItems={[
         { label: 'Inicio', path: '/dashboard' },
-        { label: 'Análisis', path: '/analisis' },
+        { label: 'Análisis', path: '/analysis' },
         { label: 'Nuevo Análisis' }
       ]}
     >
