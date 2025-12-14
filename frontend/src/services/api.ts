@@ -209,9 +209,9 @@ export const athleteAPI = {
 
 // Helper function to get full photo URL
 export function getPhotoUrl(photo: string | null | undefined): string {
-  // If no photo, return default placeholder
-  if (!photo || photo === 'default-avatar.png') {
-    return '/default-avatar.png'  // This will be handled by the component
+  // If no photo, return default placeholder (relative path for Electron)
+  if (!photo || photo === 'default-avatar.png' || photo === '/default-avatar.png') {
+    return './default-avatar.png'  // Relative path for Electron
   }
 
   // If it's a full URL (Cloudinary), return as is
