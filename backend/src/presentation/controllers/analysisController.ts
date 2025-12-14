@@ -57,14 +57,14 @@ export class AnalysisController {
         },
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: analyses,
         total: analyses.length,
       })
     } catch (error) {
       console.error('Error fetching analyses:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error fetching analyses',
       })
@@ -92,13 +92,13 @@ export class AnalysisController {
         })
       }
 
-      res.json({
+      return res.json({
         success: true,
         data: analysis,
       })
     } catch (error) {
       console.error('Error fetching analysis:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error fetching analysis',
       })
@@ -132,14 +132,14 @@ export class AnalysisController {
         },
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: analyses,
         total: analyses.length,
       })
     } catch (error) {
       console.error('Error fetching athlete analyses:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error fetching athlete analyses',
       })
@@ -221,9 +221,9 @@ export class AnalysisController {
 
       // Calculate global classification based on capacities average and cohort comparison
       let calculatedGlobalClassification = globalClassification || 'medium'
-      
-      if (power !== undefined || endurance !== undefined || strength !== undefined || 
-          flexibility !== undefined || speed !== undefined) {
+
+      if (power !== undefined || endurance !== undefined || strength !== undefined ||
+        flexibility !== undefined || speed !== undefined) {
         const capacitiesAverage = ComparisonService.calculateCapacitiesAverage({
           power: validateCapacity(power, 'Power'),
           endurance: validateCapacity(endurance, 'Endurance'),
@@ -231,7 +231,7 @@ export class AnalysisController {
           flexibility: validateCapacity(flexibility, 'Flexibility'),
           speed: validateCapacity(speed, 'Speed')
         })
-        
+
         // Calculate classification based on comparison with same sport/bodyType
         calculatedGlobalClassification = await ComparisonService.calculateGlobalClassification(
           athleteId,
@@ -272,14 +272,14 @@ export class AnalysisController {
         }
       })
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: newAnalysis,
         message: 'Analysis created successfully',
       })
     } catch (error: any) {
       console.error('Error creating analysis:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: error.message || 'Error creating analysis',
       })
@@ -366,14 +366,14 @@ export class AnalysisController {
         }
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: updatedAnalysis,
         message: 'Analysis updated successfully',
       })
     } catch (error: any) {
       console.error('Error updating analysis:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: error.message || 'Error updating analysis',
       })
@@ -438,14 +438,14 @@ export class AnalysisController {
         }
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: updatedAnalysis,
         message: `${newGraphUrls.length} graph images uploaded successfully`,
       })
     } catch (error) {
       console.error('Error uploading graphs:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error uploading graphs',
       })
@@ -489,13 +489,13 @@ export class AnalysisController {
         where: { id: parseInt(id) }
       })
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Analysis deleted successfully',
       })
     } catch (error) {
       console.error('Error deleting analysis:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error deleting analysis',
       })
@@ -546,14 +546,14 @@ export class AnalysisController {
       // Call AI service
       const results = await aiService.analyzeImages(imageBuffers, parsedAnalysisTypes)
 
-      res.json({
+      return res.json({
         success: true,
         data: results,
         message: 'AI analysis completed successfully',
       })
     } catch (error: any) {
       console.error('Error in AI analysis:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: error.message || 'Error processing AI analysis',
       })
@@ -600,7 +600,7 @@ export class AnalysisController {
         }
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: {
           total,
@@ -617,7 +617,7 @@ export class AnalysisController {
       })
     } catch (error) {
       console.error('Error fetching statistics:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error fetching statistics'
       })

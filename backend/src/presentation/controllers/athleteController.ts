@@ -57,14 +57,14 @@ export class AthleteController {
         },
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: athletes,
         total: athletes.length,
       })
     } catch (error) {
       console.error('Error fetching athletes:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error fetching athletes',
       })
@@ -92,13 +92,13 @@ export class AthleteController {
         })
       }
 
-      res.json({
+      return res.json({
         success: true,
         data: athlete,
       })
     } catch (error) {
       console.error('Error fetching athlete:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error fetching athlete',
       })
@@ -136,7 +136,7 @@ export class AthleteController {
 
       if (req.file) {
         const uploadResult = await UploadService.uploadPhoto(
-          req.file, 
+          req.file,
           id,
           `physoft/athletes/${id}`
         )
@@ -166,14 +166,14 @@ export class AthleteController {
         },
       })
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: newAthlete,
         message: 'Athlete created successfully',
       })
     } catch (error) {
       console.error('Error creating athlete:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error creating athlete',
       })
@@ -219,14 +219,14 @@ export class AthleteController {
         },
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: updatedAthlete,
         message: 'Athlete updated successfully',
       })
     } catch (error) {
       console.error('Error updating athlete:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error updating athlete',
       })
@@ -267,7 +267,7 @@ export class AthleteController {
 
       // Upload new photo
       const uploadResult = await UploadService.uploadPhoto(
-        req.file, 
+        req.file,
         id,
         `physoft/athletes/${id}`
       )
@@ -281,14 +281,14 @@ export class AthleteController {
         }
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: updatedAthlete,
         message: 'Photo uploaded successfully',
       })
     } catch (error) {
       console.error('Error uploading photo:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error uploading photo',
       })
@@ -326,13 +326,13 @@ export class AthleteController {
         data: { deletedAt: new Date() }
       })
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Athlete deleted successfully',
       })
     } catch (error) {
       console.error('Error deleting athlete:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error deleting athlete',
       })
@@ -348,13 +348,13 @@ export class AthleteController {
       const { id } = req.params
       const result = await ComparisonService.compareWithCohort(id)
 
-      res.json({
+      return res.json({
         success: true,
         data: result,
       })
     } catch (error) {
       console.error('Error comparing athlete:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error comparing athlete',
       })
@@ -398,7 +398,7 @@ export class AthleteController {
         }
       })
 
-      res.json({
+      return res.json({
         success: true,
         data: {
           total,
@@ -413,7 +413,7 @@ export class AthleteController {
       })
     } catch (error) {
       console.error('Error fetching statistics:', error)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Error fetching statistics'
       })

@@ -1,0 +1,58 @@
+{
+    "name": "physoft",
+    "version": "1.0.0",
+    "description": "Aplicación de análisis deportivo kinesiológico",
+    "main": "electron/main.js",
+    "scripts": {
+        "start": "electron .",
+        "dev": "electron .",
+        "build:frontend": "cd frontend && npm run build && cd ..",
+        "build:backend": "cd backend && npm run build && cd ..",
+        "build:all": "npm run build:frontend && npm run build:backend",
+        "dist": "electron-builder",
+        "dist:win": "electron-builder --win",
+        "postinstall": "cd frontend && npm install && cd ../backend && npm install && cd .."
+    },
+    "keywords": [
+        "electron",
+        "sports",
+        "analysis",
+        "kinesiology"
+    ],
+    "author": "Physoft Team",
+    "license": "MIT",
+    "devDependencies": {
+        "electron": "^28.0.0",
+        "electron-builder": "^26.0.12"
+    },
+    "dependencies": {
+        "electron-squirrel-startup": "^1.0.0"
+    },
+    "build": {
+        "appId": "com.physoft.app",
+        "productName": "Physoft",
+        "asar": false,
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "electron/**/*",
+            "frontend/dist/**/*",
+            "backend/dist/**/*",
+            "backend/node_modules/**/*",
+            "backend/.env",
+            "package.json"
+        ],
+        "win": {
+            "target": "nsis",
+            "icon": "electron/assets/icon.png",
+            "signAndEditExecutable": false
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true
+        }
+    }
+}

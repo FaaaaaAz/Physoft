@@ -1,7 +1,6 @@
 import path from 'path'
 import fs from 'fs'
 import cloudinary from '../../infrastructure/cloudinaryConfig'
-import streamifier from 'streamifier'
 
 interface UploadResult {
     url: string

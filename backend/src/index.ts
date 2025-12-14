@@ -10,7 +10,6 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import dotenv from 'dotenv'
-import path from 'path'
 import athleteRoutes from './presentation/routes/athleteRoutes'
 import analysisRoutes from './presentation/routes/analysisRoutes'
 
@@ -26,13 +25,18 @@ const PORT = process.env.PORT || 3000
 
 // CORS - MUST be before other middleware
 const corsOptions = {
-  origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173'],
+  origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:4173', 'file://'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Content-Length', 'Content-Type'],
 }
 app.use(cors(corsOptions))
+
+// Health check endpoint (for Electron)
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', message: 'Backend is running' })
+})
 
 // HTTP headers security (after CORS)
 app.use(helmet({
