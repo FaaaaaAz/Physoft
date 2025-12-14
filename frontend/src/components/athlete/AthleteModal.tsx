@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { IoClose, IoFootball } from 'react-icons/io5'
+import { IoClose, IoFootball, IoEye, IoCreate } from 'react-icons/io5'
 import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../../hooks/usePentagonChart'
 import type { AthleteDisplay } from '../../types/athlete.types'
 import { translateBodyType } from '../../utils/translation.utils'
@@ -9,9 +9,11 @@ interface AthleteModalProps {
     athlete: AthleteDisplay | null
     onClose: () => void
     onDelete?: (id: string) => void
+    onViewDetails?: (id: string) => void
+    onEdit?: (id: string) => void
 }
 
-function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
+function AthleteModal({ athlete, onClose, onDelete, onViewDetails, onEdit }: AthleteModalProps) {
     // Pentagon chart configuration
     const chartConfig = { centerX: 170, centerY: 170, maxRadius: 100, labelOffset: 30 }
 
@@ -60,12 +62,30 @@ function AthleteModal({ athlete, onClose, onDelete }: AthleteModalProps) {
                                 <span className="overall-label">General</span>
                                 <span className="overall-value">{average}</span>
                             </div>
+                        </div>
+                        <div className="modal-actions">
+                            {onViewDetails && (
+                                <button
+                                    className="btn-view-details"
+                                    onClick={() => onViewDetails(athlete.id)}
+                                >
+                                    <IoEye /> Ver Detalles
+                                </button>
+                            )}
+                            {onEdit && (
+                                <button
+                                    className="btn-edit-modal"
+                                    onClick={() => onEdit(athlete.id)}
+                                >
+                                    <IoCreate /> Editar
+                                </button>
+                            )}
                             {onDelete && (
                                 <button
                                     className="btn-delete-inline"
                                     onClick={() => onDelete(athlete.id)}
                                 >
-                                    Eliminar Atleta
+                                    Eliminar
                                 </button>
                             )}
                         </div>

@@ -6,7 +6,9 @@ import Analysis from './pages/Analysis/Analysis'
 import AllAnalyses from './pages/AllAnalyses/AllAnalyses'
 import AthleteDetail from './pages/AthleteDetail/AthleteDetail'
 import AddAthlete from './pages/AddAthlete/AddAthlete'
+import EditAthlete from './pages/EditAthlete/EditAthlete'
 import NewAnalysis from './pages/NewAnalysis/NewAnalysis'
+import EditAnalysis from './pages/EditAnalysis/EditAnalysis'
 import AnalysisView from './pages/AnalysisView/AnalysisView'
 import Settings from './pages/Settings/Settings'
 import Profile from './pages/Profile/Profile'
@@ -24,7 +26,9 @@ function App() {
         <Route path="/all-analyses" element={<AllAnalyses />} />
         <Route path="/athlete-detail/:id" element={<AthleteDetail />} />
         <Route path="/add-athlete" element={<AddAthlete />} />
+        <Route path="/athletes/edit/:id" element={<EditAthlete />} />
         <Route path="/new-analysis" element={<NewAnalysis />} />
+        <Route path="/analysis/edit/:id" element={<EditAnalysis />} />
         <Route path="/analysis-view/:id" element={<AnalysisView />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />

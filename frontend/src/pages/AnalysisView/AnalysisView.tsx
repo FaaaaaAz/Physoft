@@ -1,39 +1,57 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { IoArrowBack, IoDocument, IoPerson } from 'react-icons/io5'
+import { IoDocument, IoPerson } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import { analysisAPI, Analysis } from '../../services/api'
+import { useAnalysisStore } from '@/store/analysisStore'
 import './AnalysisView.css'
 
 function AnalysisView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  const { analyses, fetchAnalyses, getAnalysisById } = useAnalysisStore()
+
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(true)
-  
+
   // Get the athleteId from location state or from the loaded analysis
   const athleteIdFromState = location.state?.athleteId
+  const fromPage = location.state?.fromPage
 
   useEffect(() => {
-    if (id) {
-      loadAnalysis(parseInt(id))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+    const loadAnalysis = async () => {
+      if (!id) return
 
-  const loadAnalysis = async (analysisId: number) => {
-    try {
-      setLoading(true)
-      const response = await analysisAPI.getById(analysisId)
-      setAnalysis(response.data)
-    } catch (error) {
-      console.error('Error loading analysis:', error)
-    } finally {
-      setLoading(false)
+      try {
+        setLoading(true)
+
+        // Try to get from store first
+        let analysisData = getAnalysisById(parseInt(id))
+
+        // If not in store and store is empty, fetch all analyses
+        if (!analysisData && analyses.length === 0) {
+          await fetchAnalyses()
+          analysisData = getAnalysisById(parseInt(id))
+        }
+
+        // If still not found, fetch directly
+        if (!analysisData) {
+          const response = await analysisAPI.getById(parseInt(id))
+          analysisData = response.data
+        }
+
+        setAnalysis(analysisData)
+      } catch (error) {
+        console.error('Error loading analysis:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    loadAnalysis()
+  }, [id])
 
   const parseWeakPoints = (weakPoints: string | null | undefined): string[] => {
     if (!weakPoints) return []
@@ -107,13 +125,12 @@ function AnalysisView() {
         'es-ES'
       )}`}
       className="analysis-view-page"
+      showBackButton={true}
+      backTo={fromPage === 'analysis' ? '/analysis' : `/athlete-detail/${athleteId}`}
+      showAddButton={true}
+      onAddClick={() => navigate(`/analysis/edit/${id}`)}
+      addButtonText="Editar Análisis"
     >
-      <button 
-        onClick={() => navigate(`/athlete-detail/${athleteId}`, { state: { from: 'analysis-view' } })} 
-        className="btn-back"
-      >
-        <IoArrowBack /> Volver
-      </button>
 
       <div className="analysis-view-container">
         {/* Athlete Information */}
@@ -278,7 +295,7 @@ function AnalysisView() {
         {(analysis.globalClassification || analysis.cohortClassification) && (
           <section className="analysis-section">
             <h2>Clasificaciones</h2>
-            
+
             {/* Global Classification - Based on comparison with same sport/bodyType */}
             {analysis.globalClassification && (
               <div className="classification-item">

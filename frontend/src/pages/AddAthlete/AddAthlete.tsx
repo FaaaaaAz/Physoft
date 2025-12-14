@@ -15,8 +15,9 @@ import {
 import PageTemplate from '@/components/templates/PageTemplate'
 import { ImageUpload } from '@/components/common/forms/ImageUpload'
 import { Form } from '@/components/common/forms/Form'
-import { useForm, useAthletes, useFormMessage } from '../../hooks'
-import { CreateAthleteDTO } from '../../services/api'
+import { useForm, useFormMessage } from '../../hooks'
+import { CreateAthleteDTO, athleteAPI } from '../../services/api'
+import { useAthleteStore } from '@/store/athleteStore'
 import type { AthleteFormData } from '../../types/athlete.types'
 import type { ValidationSchema } from '../../types/form.types'
 import './AddAthlete.css'
@@ -97,7 +98,7 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
 
 function AddAthlete() {
     const navigate = useNavigate()
-    const { createAthlete } = useAthletes()
+    const { addAthlete } = useAthleteStore()
     const { message, showMessage, clearMessage } = useFormMessage()
     const [photoFile, setPhotoFile] = useState<File | null>(null)
 
@@ -118,9 +119,13 @@ function AddAthlete() {
                 photo: photoFile
             }
 
-            const response = await createAthlete(athleteData)
+            // Create athlete via API
+            const response = await athleteAPI.create(athleteData)
 
             if (response?.success) {
+                // Update store with new athlete
+                addAthlete(response.data)
+
                 showMessage(
                     'success',
                     `✅ Athlete ${values.name} created successfully with code ${response.data.accessCode}`

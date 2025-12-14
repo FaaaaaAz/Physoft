@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { IoAdd, IoTrash, IoCloudUpload, IoSearch, IoCheckmark } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
 import { athleteAPI, analysisAPI, Athlete } from '@/services/api'
+import { useAnalysisStore } from '@/store/analysisStore'
 import './NewAnalysis.css'
 
 interface PuntoDebil {
@@ -36,6 +37,7 @@ function NuevoAnalisis() {
   const [selectedAthlete, setSelectedAthlete] = useState<Athlete | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAthleteDropdown, setShowAthleteDropdown] = useState(false)
+  const { addAnalysis } = useAnalysisStore()
 
   // Estados para el flujo de IA
   const [aiProcessing, setAiProcessing] = useState(false)
@@ -356,6 +358,9 @@ function NuevoAnalisis() {
       if (formData.recomendaciones) submitData.coachRecommendations = formData.recomendaciones
 
       const response = await analysisAPI.create(submitData)
+
+      // Update store with new analysis
+      addAnalysis(response.data)
 
       setMensaje({ tipo: 'success', texto: '✅ Análisis guardado exitosamente' })
 

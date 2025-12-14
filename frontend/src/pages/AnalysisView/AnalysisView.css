@@ -3,23 +3,45 @@
   margin: 0 auto;
 }
 
-.btn-back {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
+.analysis-view-actions {
   display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn-back,
+.btn-edit {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 2rem;
-  transition: all 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border, #404040);
+  color: var(--color-text, #e5e5e5);
 }
 
 .btn-back:hover {
-  background: var(--primary-dark);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-primary, #14b8a6);
+}
+
+.btn-edit {
+  background: var(--color-primary, #14b8a6);
+  color: white;
+}
+
+.btn-edit:hover {
+  background: var(--color-primary-dark, #0d9488);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
 }
@@ -240,6 +262,16 @@
 }
 
 @media (max-width: 768px) {
+  .analysis-view-actions {
+    flex-direction: column;
+  }
+
+  .btn-back,
+  .btn-edit {
+    width: 100%;
+    justify-content: center;
+  }
+
   .athlete-info-grid {
     grid-template-columns: 1fr;
   }

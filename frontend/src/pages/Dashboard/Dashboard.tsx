@@ -7,65 +7,71 @@ import AthleteModal from '../../components/athlete/AthleteModal'
 import { SearchBar } from '@/components/common/data-display/SearchBar'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import EmptyState from '@/components/common/feedback/EmptyState'
-import { useAthletes, useDebounce } from '../../hooks'
+import { useDebounce } from '../../hooks'
 import { calculateAge } from '../../utils/date.utils'
-import { getPhotoUrl, analysisAPI, Analysis } from '../../services/api'
+import { getPhotoUrl, Analysis } from '../../services/api'
+import { useAthleteStore } from '@/store/athleteStore'
+import { useAnalysisStore } from '@/store/analysisStore'
 import { ROUTES, MESSAGES } from '../../constants'
 import type { AthleteDisplay } from '../../types/athlete.types'
 import './Dashboard.css'
 
 function Dashboard() {
     const navigate = useNavigate()
-    const { athletes, loading, error, deleteAthlete } = useAthletes()
+    const { athletes, loading, fetchAthletes, deleteAthlete } = useAthleteStore()
+    const { analyses: allAnalyses, fetchAnalyses } = useAnalysisStore()
 
     // Local state
     const [searchTerm, setSearchTerm] = useState('')
     const [sportFilter, setSportFilter] = useState('All')
     const [selectedAthlete, setSelectedAthlete] = useState<AthleteDisplay | null>(null)
     const [athleteAnalyses, setAthleteAnalyses] = useState<Record<string, Analysis[]>>({})
-    const [loadingAnalyses, setLoadingAnalyses] = useState(false)
+    const [error, setError] = useState('')
 
     // Debounce search for better performance
     const debouncedSearch = useDebounce(searchTerm, 300)
 
-    // Load all analyses for all athletes
+    // Fetch athletes and analyses on mount ONLY if store is empty
     useEffect(() => {
-        const loadAnalyses = async () => {
-            if (athletes.length === 0) return
-            
+        const loadData = async () => {
             try {
-                setLoadingAnalyses(true)
-                const analysesPromises = athletes.map(athlete => 
-                    analysisAPI.getAll({ athleteId: athlete.id })
-                )
-                const analysesResponses = await Promise.all(analysesPromises)
-                
-                const analysesMap: Record<string, Analysis[]> = {}
-                athletes.forEach((athlete, index) => {
-                    const athleteAnalysesList = analysesResponses[index].data
-                    // Sort by date descending to get latest first
-                    analysesMap[athlete.id] = athleteAnalysesList.sort((a, b) => 
-                        new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
-                    )
-                })
-                
-                setAthleteAnalyses(analysesMap)
+                // Only fetch if stores are empty
+                if (athletes.length === 0) {
+                    await fetchAthletes()
+                }
+                if (allAnalyses.length === 0) {
+                    await fetchAnalyses()
+                }
             } catch (err) {
-                console.error('Error loading analyses:', err)
-            } finally {
-                setLoadingAnalyses(false)
+                console.error('Error loading data:', err)
+                setError('Error loading data')
             }
         }
 
-        loadAnalyses()
-    }, [athletes])
+        loadData()
+    }, []) // Only run once on mount
+
+    // Map analyses to athletes
+    useEffect(() => {
+        if (athletes.length === 0 || allAnalyses.length === 0) return
+
+        const analysesMap: Record<string, Analysis[]> = {}
+        athletes.forEach((athlete) => {
+            const athleteAnalysesList = allAnalyses.filter(a => a.athleteId === athlete.id)
+            analysesMap[athlete.id] = athleteAnalysesList.sort((a, b) =>
+                new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
+            )
+        })
+
+        setAthleteAnalyses(analysesMap)
+    }, [athletes, allAnalyses])
 
     // Transform athletes for display - memoized to avoid recalculation
     const athletesDisplay = useMemo((): AthleteDisplay[] => {
         return athletes.map(athlete => {
             // Get latest analysis for this athlete
             const latestAnalysis = athleteAnalyses[athlete.id]?.[0]
-            
+
             return {
                 id: athlete.id,
                 name: athlete.name,
@@ -194,6 +200,8 @@ function Dashboard() {
                 athlete={selectedAthlete}
                 onClose={() => setSelectedAthlete(null)}
                 onDelete={handleDeleteAthlete}
+                onViewDetails={(id) => navigate(`/athlete-detail/${id}`)}
+                onEdit={(id) => navigate(`/athletes/edit/${id}`)}
             />
         </PageTemplate>
     )

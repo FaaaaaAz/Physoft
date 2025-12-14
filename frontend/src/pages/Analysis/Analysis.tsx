@@ -3,17 +3,26 @@ import { useNavigate } from 'react-router-dom'
 import { IoSearch, IoFitness, IoTrendingUp, IoDocument } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import type { Analysis as AnalysisType } from '../../services/api'
-import { useAthletes } from '../../hooks/useAthletes'
-import { useAnalyses } from '../../hooks/useAnalyses'
+import { useAthleteStore } from '@/store/athleteStore'
+import { useAnalysisStore } from '@/store/analysisStore'
+import { useEffect } from 'react'
 import './Analysis.css'
 
 function Analysis() {
     const navigate = useNavigate()
     const [busqueda, setBusqueda] = useState('')
 
-    // Use custom hooks for data fetching
-    const { analyses, loading: loadingAnalyses } = useAnalyses()
-    const { athletes, loading: loadingAthletes } = useAthletes()
+    const { athletes, loading: loadingAthletes, fetchAthletes } = useAthleteStore()
+    const { analyses, loading: loadingAnalyses, fetchAnalyses } = useAnalysisStore()
+
+    // Fetch data only if stores are empty
+    useEffect(() => {
+        const loadData = async () => {
+            if (athletes.length === 0) await fetchAthletes()
+            if (analyses.length === 0) await fetchAnalyses()
+        }
+        loadData()
+    }, [])
 
     const loading = loadingAnalyses || loadingAthletes
     // Limit recent analyses to 5

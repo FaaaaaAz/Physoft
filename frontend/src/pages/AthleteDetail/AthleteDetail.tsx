@@ -1,9 +1,11 @@
-import { IoCalendar, IoBody, IoTrophy, IoResize, IoBarbell, IoMan, IoEye, IoTrendingUp } from 'react-icons/io5'
+import { IoCalendar, IoTrendingUp, IoBody, IoCreate, IoMan, IoResize, IoBarbell, IoTrophy } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import { BreadcrumbItem } from '../../components/Breadcrumb'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { athleteAPI, analysisAPI, Athlete, Analysis } from '../../services/api'
+import { athleteAPI, Athlete, Analysis } from '../../services/api'
+import { useAthleteStore } from '@/store/athleteStore'
+import { useAnalysisStore } from '@/store/analysisStore'
 import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../../hooks/usePentagonChart'
 import { calculateAge } from '../../utils/date.utils'
 import { translateBodyType, translateClassification, getClassificationBadgeClass } from '../../utils/translation.utils'
@@ -15,6 +17,9 @@ function AthleteDetail() {
     const location = useLocation()
     const { id } = useParams<{ id: string }>()
     const from = location.state?.from || 'all-analysis'
+
+    const { athletes, fetchAthletes, getAthleteById } = useAthleteStore()
+    const { analyses: allAnalyses, fetchAnalysesByAthlete } = useAnalysisStore()
 
     const [athlete, setAthlete] = useState<Athlete | null>(null)
     const [analyses, setAnalyses] = useState<Analysis[]>([])
@@ -37,13 +42,35 @@ function AthleteDetail() {
             setIsLoading(true)
             setError('')
 
-            const [athleteResponse, analysesResponse] = await Promise.all([
-                athleteAPI.getById(athleteId),
-                analysisAPI.getAll({ athleteId })
-            ])
+            // Try to get from store first
+            let athleteData = getAthleteById(athleteId)
 
-            setAthlete(athleteResponse.data)
-            setAnalyses(analysesResponse.data.sort((a, b) =>
+            // If not in store, fetch all athletes ONLY if store is empty
+            if (!athleteData && athletes.length === 0) {
+                await fetchAthletes()
+                athleteData = getAthleteById(athleteId)
+            } else if (!athleteData) {
+                // Store has data but not this athlete, fetch directly
+                const athleteResponse = await athleteAPI.getById(athleteId)
+                athleteData = athleteResponse.data
+            }
+
+            if (!athleteData) {
+                setError('Athlete not found')
+                setIsLoading(false)
+                return
+            }
+
+            setAthlete(athleteData)
+
+            // Fetch analyses for this athlete ONLY if not in store
+            const existingAnalyses = allAnalyses.filter(a => a.athleteId === athleteId)
+            if (existingAnalyses.length === 0) {
+                await fetchAnalysesByAthlete(athleteId)
+            }
+
+            const athleteAnalyses = allAnalyses.filter(a => a.athleteId === athleteId)
+            setAnalyses(athleteAnalyses.sort((a, b) =>
                 new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
             ))
         } catch (err) {
@@ -104,7 +131,7 @@ function AthleteDetail() {
     }
 
     const handleViewAnalysis = (analysisId: number) => {
-        navigate(`/analysis-view/${analysisId}`, { state: { athleteId: athlete.id } })
+        navigate(`/analysis-view/${analysisId}`, { state: { fromPage: 'athlete-detail', athleteId: athlete.id } })
     }
 
     const age = calculateAge(athlete.birthDate)
@@ -148,6 +175,12 @@ function AthleteDetail() {
                             <p className="detail-code">#{athlete.accessCode}</p>
                         </div>
                     </div>
+                    <button
+                        onClick={() => navigate(`/ athletes / edit / ${athlete.id} `)}
+                        className="btn-edit-athlete"
+                    >
+                        <IoCreate /> Editar Atleta
+                    </button>
                 </div>
 
                 {/* Information cards */}
@@ -196,7 +229,7 @@ function AthleteDetail() {
                         <IoTrophy className="card-icon" />
                         <div className="card-content">
                             <span className="card-label">CLASIFICACIÓN RECIENTE</span>
-                            <span className={`badge ${getBadgeClass(latestClassification)}`}>
+                            <span className={`badge ${getBadgeClass(latestClassification)} `}>
                                 {getClassificationLabel(latestClassification)}
                             </span>
                         </div>
@@ -207,7 +240,7 @@ function AthleteDetail() {
                             <IoTrendingUp className="card-icon" />
                             <div className="card-content">
                                 <span className="card-label">CLASIFICACIÓN COHORTE</span>
-                                <span className={`badge cohort-${latestAnalysis.cohortClassification.toLowerCase()}`}>
+                                <span className={`badge cohort - ${latestAnalysis.cohortClassification.toLowerCase()} `}>
                                     {latestAnalysis.cohortClassification}
                                 </span>
                             </div>
@@ -228,7 +261,7 @@ function AthleteDetail() {
                                     {/* Guide lines (20%, 40%, 60%, 80%, 100%) */}
                                     {guideLines.map((path, idx) => (
                                         <polygon
-                                            key={`guide-${idx}`}
+                                            key={`guide - ${idx} `}
                                             points={path}
                                             fill="none"
                                             stroke="rgba(255, 255, 255, 0.1)"
@@ -239,7 +272,7 @@ function AthleteDetail() {
                                     {/* Radial lines from center to vertices */}
                                     {radialLines.map((line, i) => (
                                         <line
-                                            key={`radial-${i}`}
+                                            key={`radial - ${i} `}
                                             x1={line.x1}
                                             y1={line.y1}
                                             x2={line.x2}
@@ -261,7 +294,7 @@ function AthleteDetail() {
                                     {/* Points at vertices */}
                                     {pentagonData.points.map((point, idx) => (
                                         <circle
-                                            key={`point-${idx}`}
+                                            key={`point - ${idx} `}
                                             cx={point.x}
                                             cy={point.y}
                                             r="5"
@@ -273,7 +306,7 @@ function AthleteDetail() {
 
                                     {/* Labels and values with backgrounds */}
                                     {pentagonData.points.map((point, idx) => (
-                                        <g key={`label-${idx}`}>
+                                        <g key={`label - ${idx} `}>
                                             {/* Label background */}
                                             <rect
                                                 x={point.labelX - 45}
@@ -327,7 +360,7 @@ function AthleteDetail() {
                                 {/* Grid horizontal lines */}
                                 {[0, 25, 50, 75, 100].map((y) => (
                                     <line
-                                        key={`grid-${y}`}
+                                        key={`grid - ${y} `}
                                         x1="60"
                                         y1={260 - (y * 2)}
                                         x2="840"
@@ -341,7 +374,7 @@ function AthleteDetail() {
                                 {/* Y-axis labels */}
                                 {[0, 25, 50, 75, 100].map((value) => (
                                     <text
-                                        key={`y-label-${value}`}
+                                        key={`y - label - ${value} `}
                                         x="45"
                                         y={265 - (value * 2)}
                                         fill="rgba(255, 255, 255, 0.5)"
@@ -360,7 +393,7 @@ function AthleteDetail() {
                                             <>
                                                 <polyline
                                                     points={analyses.slice(0, 5).reverse().map((a, i) =>
-                                                        `${60 + (i * 195)},${260 - ((a.strength || 0) * 2)}`
+                                                        `${60 + (i * 195)},${260 - ((a.strength || 0) * 2)} `
                                                     ).join(' ')}
                                                     fill="none"
                                                     stroke="#ef4444"
@@ -370,7 +403,7 @@ function AthleteDetail() {
                                                 />
                                                 {analyses.slice(0, 5).reverse().map((a, i) => (
                                                     <circle
-                                                        key={`fuerza-${i}`}
+                                                        key={`fuerza - ${i} `}
                                                         cx={60 + (i * 195)}
                                                         cy={260 - ((a.strength || 0) * 2)}
                                                         r="5"
@@ -387,7 +420,7 @@ function AthleteDetail() {
                                             <>
                                                 <polyline
                                                     points={analyses.slice(0, 5).reverse().map((a, i) =>
-                                                        `${60 + (i * 195)},${260 - ((a.speed || 0) * 2)}`
+                                                        `${60 + (i * 195)},${260 - ((a.speed || 0) * 2)} `
                                                     ).join(' ')}
                                                     fill="none"
                                                     stroke="#06b6d4"
@@ -397,7 +430,7 @@ function AthleteDetail() {
                                                 />
                                                 {analyses.slice(0, 5).reverse().map((a, i) => (
                                                     <circle
-                                                        key={`velocidad-${i}`}
+                                                        key={`velocidad - ${i} `}
                                                         cx={60 + (i * 195)}
                                                         cy={260 - ((a.speed || 0) * 2)}
                                                         r="5"
@@ -414,7 +447,7 @@ function AthleteDetail() {
                                             <>
                                                 <polyline
                                                     points={analyses.slice(0, 5).reverse().map((a, i) =>
-                                                        `${60 + (i * 195)},${260 - ((a.endurance || 0) * 2)}`
+                                                        `${60 + (i * 195)},${260 - ((a.endurance || 0) * 2)} `
                                                     ).join(' ')}
                                                     fill="none"
                                                     stroke="#10b981"
@@ -424,7 +457,7 @@ function AthleteDetail() {
                                                 />
                                                 {analyses.slice(0, 5).reverse().map((a, i) => (
                                                     <circle
-                                                        key={`resistencia-${i}`}
+                                                        key={`resistencia - ${i} `}
                                                         cx={60 + (i * 195)}
                                                         cy={260 - ((a.endurance || 0) * 2)}
                                                         r="5"
@@ -441,7 +474,7 @@ function AthleteDetail() {
                                             <>
                                                 <polyline
                                                     points={analyses.slice(0, 5).reverse().map((a, i) =>
-                                                        `${60 + (i * 195)},${260 - ((a.flexibility || 0) * 2)}`
+                                                        `${60 + (i * 195)},${260 - ((a.flexibility || 0) * 2)} `
                                                     ).join(' ')}
                                                     fill="none"
                                                     stroke="#f59e0b"
@@ -451,7 +484,7 @@ function AthleteDetail() {
                                                 />
                                                 {analyses.slice(0, 5).reverse().map((a, i) => (
                                                     <circle
-                                                        key={`flexibilidad-${i}`}
+                                                        key={`flexibilidad - ${i} `}
                                                         cx={60 + (i * 195)}
                                                         cy={260 - ((a.flexibility || 0) * 2)}
                                                         r="5"
@@ -468,7 +501,7 @@ function AthleteDetail() {
                                             <>
                                                 <polyline
                                                     points={analyses.slice(0, 5).reverse().map((a, i) =>
-                                                        `${60 + (i * 195)},${260 - ((a.power || 0) * 2)}`
+                                                        `${60 + (i * 195)},${260 - ((a.power || 0) * 2)} `
                                                     ).join(' ')}
                                                     fill="none"
                                                     stroke="#a855f7"
@@ -478,7 +511,7 @@ function AthleteDetail() {
                                                 />
                                                 {analyses.slice(0, 5).reverse().map((a, i) => (
                                                     <circle
-                                                        key={`potencia-${i}`}
+                                                        key={`potencia - ${i} `}
                                                         cx={60 + (i * 195)}
                                                         cy={260 - ((a.power || 0) * 2)}
                                                         r="5"
@@ -532,28 +565,20 @@ function AthleteDetail() {
                                 <tr>
                                     <th>Fecha</th>
                                     <th>Clasificación</th>
-                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {analyses.map((analysis) => (
-                                    <tr key={analysis.id}>
+                                    <tr
+                                        key={analysis.id}
+                                        className="clickable-row"
+                                        onClick={() => handleViewAnalysis(analysis.id)}
+                                    >
                                         <td>{new Date(analysis.evaluationDate).toLocaleDateString('es-ES')}</td>
                                         <td>
-                                            <span className={`badge ${getBadgeClass(analysis.globalClassification)}`}>
+                                            <span className={`badge ${getBadgeClass(analysis.globalClassification)} `}>
                                                 {getClassificationLabel(analysis.globalClassification)}
                                             </span>
-                                        </td>
-                                        <td>
-                                            <div className="historial-actions">
-                                                <button
-                                                    className="action-btn action-btn-view"
-                                                    onClick={() => handleViewAnalysis(analysis.id)}
-                                                    title="Ver detalles"
-                                                >
-                                                    <IoEye />
-                                                </button>
-                                            </div>
                                         </td>
                                     </tr>
                                 ))}
