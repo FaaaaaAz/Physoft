@@ -134,33 +134,51 @@ function createWindow() {
     // Load frontend
     const isDev = !app.isPackaged;
 
-    const possibleFrontendPaths = [
-        path.join(__dirname, '../frontend/dist/index.html'),
-        path.join(process.resourcesPath, 'app/frontend/dist/index.html'),
-        path.join(process.resourcesPath, 'frontend/dist/index.html'),
-        path.join(__dirname, '..', 'app', 'frontend', 'dist', 'index.html')
-    ];
+    if (isDev) {
+        // In development, load from Vite dev server
+        log('Loading frontend from development server...');
+        mainWindow.loadURL('http://localhost:5173').catch(err => {
+            log(`Failed to load dev server: ${err.message}`);
+            dialog.showErrorBox('Error', 'No se pudo conectar con el servidor de desarrollo.\nAsegúrate de que el frontend esté corriendo en http://localhost:5173');
+        });
+    } else {
+        // In production, load from built files
+        const possibleFrontendPaths = [
+            path.join(__dirname, '../frontend/dist/index.html'),
+            path.join(process.resourcesPath, 'app/frontend/dist/index.html'),
+            path.join(process.resourcesPath, 'frontend/dist/index.html'),
+            path.join(__dirname, '..', 'app', 'frontend', 'dist', 'index.html'),
+            path.join(process.resourcesPath, 'app.asar.unpacked/frontend/dist/index.html')
+        ];
 
-    let frontendPath = null;
-    for (const p of possibleFrontendPaths) {
-        if (fs.existsSync(p)) {
-            frontendPath = p;
-            log(`Found frontend at: ${p}`);
-            break;
+        let frontendPath = null;
+        for (const p of possibleFrontendPaths) {
+            log(`Checking frontend path: ${p}`);
+            if (fs.existsSync(p)) {
+                frontendPath = p;
+                log(`Found frontend at: ${p}`);
+                break;
+            }
         }
-    }
 
-    if (!frontendPath) {
-        log('ERROR: Frontend not found!');
-        dialog.showErrorBox(
-            'Error de Inicio',
-            'No se pudo encontrar el frontend de la aplicación.\n\nLog: ' + logFile
-        );
-        app.quit();
-        return;
-    }
+        if (!frontendPath) {
+            log('ERROR: Frontend not found!');
+            log(`Searched paths: ${JSON.stringify(possibleFrontendPaths, null, 2)}`);
+            dialog.showErrorBox(
+                'Error de Inicio',
+                'No se pudo encontrar el frontend de la aplicación.\n\nLog: ' + logFile
+            );
+            app.quit();
+            return;
+        }
 
-    mainWindow.loadFile(frontendPath);
+        log(`Loading frontend from: ${frontendPath}`);
+        const frontendUrl = `file://${frontendPath.replace(/\\/g, '/')}`;
+        log(`Frontend URL: ${frontendUrl}`);
+        mainWindow.loadURL(frontendUrl).catch(err => {
+            log(`Failed to load frontend: ${err.message}`);
+        });
+    }
 
     // Always open DevTools to see frontend errors
     mainWindow.webContents.openDevTools();

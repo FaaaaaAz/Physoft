@@ -9,7 +9,7 @@ import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import EmptyState from '@/components/common/feedback/EmptyState'
 import { useDebounce } from '../../hooks'
 import { calculateAge } from '../../utils/date.utils'
-import { getPhotoUrl, Analysis } from '../../services/api'
+import { getPhotoUrl, Analysis, Athlete } from '../../services/api'
 import { useAthleteStore } from '@/store/athleteStore'
 import { useAnalysisStore } from '@/store/analysisStore'
 import { ROUTES, MESSAGES } from '../../constants'
@@ -56,9 +56,9 @@ function Dashboard() {
         if (athletes.length === 0 || allAnalyses.length === 0) return
 
         const analysesMap: Record<string, Analysis[]> = {}
-        athletes.forEach((athlete) => {
-            const athleteAnalysesList = allAnalyses.filter(a => a.athleteId === athlete.id)
-            analysesMap[athlete.id] = athleteAnalysesList.sort((a, b) =>
+        athletes.forEach((athlete: Athlete) => {
+            const athleteAnalysesList = allAnalyses.filter((a: Analysis) => a.athleteId === athlete.id)
+            analysesMap[athlete.id] = athleteAnalysesList.sort((a: Analysis, b: Analysis) =>
                 new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
             )
         })
@@ -68,7 +68,7 @@ function Dashboard() {
 
     // Transform athletes for display - memoized to avoid recalculation
     const athletesDisplay = useMemo((): AthleteDisplay[] => {
-        return athletes.map(athlete => {
+        return athletes.map((athlete: Athlete) => {
             // Get latest analysis for this athlete
             const latestAnalysis = athleteAnalyses[athlete.id]?.[0]
 

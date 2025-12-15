@@ -64,13 +64,13 @@ function AthleteDetail() {
             setAthlete(athleteData)
 
             // Fetch analyses for this athlete ONLY if not in store
-            const existingAnalyses = allAnalyses.filter(a => a.athleteId === athleteId)
+            const existingAnalyses = allAnalyses.filter((a: Analysis) => a.athleteId === athleteId)
             if (existingAnalyses.length === 0) {
                 await fetchAnalysesByAthlete(athleteId)
             }
 
-            const athleteAnalyses = allAnalyses.filter(a => a.athleteId === athleteId)
-            setAnalyses(athleteAnalyses.sort((a, b) =>
+            const athleteAnalyses = allAnalyses.filter((a: Analysis) => a.athleteId === athleteId)
+            setAnalyses(athleteAnalyses.sort((a: Analysis, b: Analysis) =>
                 new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
             ))
         } catch (err) {

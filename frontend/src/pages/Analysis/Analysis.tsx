@@ -49,7 +49,7 @@ function Analysis() {
         return 'Promedio'
     }
 
-    const filteredAnalyses = recentAnalyses.filter(analysis =>
+    const filteredAnalyses = recentAnalyses.filter((analysis: AnalysisType) =>
         analysis.athlete?.name.toLowerCase().includes(busqueda.toLowerCase()) ||
         analysis.athlete?.accessCode.includes(busqueda)
     )
@@ -140,7 +140,7 @@ function Analysis() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredAnalyses.map(analysis => (
+                                    {filteredAnalyses.map((analysis: AnalysisType) => (
                                         <tr
                                             key={analysis.id}
                                             className="clickable-row"

@@ -33,19 +33,34 @@
         "productName": "Physoft",
         "asar": false,
         "directories": {
-            "output": "dist"
+            "output": "dist",
+            "buildResources": "electron/assets"
         },
         "files": [
             "electron/**/*",
             "frontend/dist/**/*",
             "backend/dist/**/*",
             "backend/node_modules/**/*",
+            "backend/package.json",
             "backend/.env",
+            "backend/prisma/**/*",
             "package.json"
+        ],
+        "extraResources": [
+            {
+                "from": "backend",
+                "to": "backend",
+                "filter": [
+                    "**/*"
+                ]
+            },
+            {
+                "from": "frontend/dist",
+                "to": "frontend/dist"
+            }
         ],
         "win": {
             "target": "nsis",
-            "icon": "electron/assets/icon.png",
             "signAndEditExecutable": false
         },
         "nsis": {
