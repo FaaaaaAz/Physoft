@@ -92,14 +92,18 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 // INICIAR SERVIDOR
 // ============================================
 
-app.listen(PORT, () => {
-  console.log('========================================')
-  console.log('   🚀 Physoft Backend API')
-  console.log('========================================')
-  console.log(`✓ Servidor corriendo en http://localhost:${PORT}`)
-  console.log(`✓ Entorno: ${process.env.NODE_ENV || 'development'}`)
-  console.log(`✓ Base de datos: ${process.env.DATABASE_URL}`)
-  console.log('========================================')
-})
+// Solo iniciar el servidor si no está en modo serverless (Vercel)
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log('========================================')
+    console.log('   🚀 Physoft Backend API')
+    console.log('========================================')
+    console.log(`✓ Servidor corriendo en http://localhost:${PORT}`)
+    console.log(`✓ Entorno: ${process.env.NODE_ENV || 'development'}`)
+    console.log(`✓ Base de datos: ${process.env.DATABASE_URL}`)
+    console.log('========================================')
+  })
+}
 
+// Export para Vercel Serverless
 export default app
