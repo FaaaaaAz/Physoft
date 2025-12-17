@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { IoDocument, IoPerson } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
@@ -10,14 +10,10 @@ import './AnalysisView.css'
 function AnalysisView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const location = useLocation()
   const { analyses, fetchAnalyses, getAnalysisById } = useAnalysisStore()
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(true)
-
-  // Get the athleteId from location state or from the loaded analysis
-  const athleteIdFromState = location.state?.athleteId
 
   useEffect(() => {
     const loadAnalysis = async () => {
