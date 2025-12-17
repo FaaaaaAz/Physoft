@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { IoDocument, IoPerson, IoTrash } from 'react-icons/io5'
+import { IoDocument, IoPerson, IoTrash, IoCreate } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import { analysisAPI, Analysis } from '../../services/api'
@@ -137,34 +137,46 @@ function AnalysisView() {
       )}`}
       className="analysis-view-page"
       showBackButton={true}
-      showAddButton={true}
-      onAddClick={() => navigate(`/analysis/edit/${id}`)}
-      addButtonText="Editar Análisis"
+      showAddButton={false}
     >
-      {/* Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem', gap: '1rem' }}>
-        <button
-          onClick={handleDelete}
-          className="btn-delete"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#ef4444',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '0.95rem',
-            fontWeight: '600',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
-        >
-          <IoTrash /> Eliminar Análisis
-        </button>
+      {/* Custom Action Buttons */}
+      <div className="page-header">
+        <div className="page-title-section">
+          <div className="page-actions" style={{ display: 'flex', gap: '1rem', marginLeft: 'auto' }}>
+            <button
+              className="btn-primary btn-primary-large"
+              onClick={() => navigate(`/analysis/edit/${id}`)}
+            >
+              <IoCreate /> Editar Análisis
+            </button>
+            <button
+              onClick={handleDelete}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '0.75rem 1.5rem',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#dc2626'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#ef4444'
+              }}
+            >
+              <IoTrash /> Eliminar Análisis
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="analysis-view-container">
