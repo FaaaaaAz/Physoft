@@ -59,20 +59,36 @@ class AIService {
         analysisTypes: AnalysisTypes
     ): Promise<AnalysisResults> {
         try {
+            // LOG: Verify we received images
+            console.log('=== AI SERVICE: ANALYZE IMAGES ===')
+            console.log('Number of image buffers received:', imageBuffers.length)
+            console.log('Buffer sizes:', imageBuffers.map(b => `${(b.length / 1024).toFixed(2)}KB`))
+            console.log('Analysis types requested:', analysisTypes)
+
+            if (!imageBuffers || imageBuffers.length === 0) {
+                throw new Error('No image buffers provided to AI service')
+            }
+
             // Convertir buffers a base64 para Gemini
-            const imageParts = imageBuffers.map(buffer => ({
-                inlineData: {
-                    data: buffer.toString('base64'),
-                    mimeType: 'image/jpeg'
+            const imageParts = imageBuffers.map((buffer, index) => {
+                const base64 = buffer.toString('base64')
+                console.log(`Image ${index + 1}: Base64 length = ${base64.length} characters`)
+                return {
+                    inlineData: {
+                        data: base64,
+                        mimeType: 'image/jpeg'
+                    }
                 }
-            }))
+            })
 
             // Construir el prompt basado en los tipos seleccionados
             const prompt = this.buildPrompt(analysisTypes)
 
             // Llamar a Gemini con las imágenes y el prompt
+            console.log('Calling Gemini API with', imageParts.length, 'images...')
             const result = await this.model.generateContent([prompt, ...imageParts])
             const response = await result.response
+            console.log('Gemini API call completed')
 
             // DEBUG: Log response structure
             console.log('=== RESPONSE DEBUG ===')
@@ -134,15 +150,41 @@ class AIService {
     private buildPrompt(analysisTypes: AnalysisTypes): string {
         let prompt = `Eres un kinesiólogo deportivo generando un reporte técnico.
 
-    REGLAS ABSOLUTAS:
-    1. Escribe SOLO afirmaciones directas. NUNCA uses: "Sí", "No", "Hay", como inicio de frase.
-    2. NUNCA escribas palabras sueltas como "GRÁFICO" o "EMG" al inicio. Integra en la frase.
-    3. Ejemplo PROHIBIDO: "Sí, se dispone de datos..." → CORRECTO: "Los datos bilaterales muestran..."
-    4. Ejemplo PROHIBIDO: "GRÁFICO Se observan..." → CORRECTO: "El gráfico EMG muestra..."
-    5. NO expliques conceptos. Reporta hallazgos.
-    6. JSON válido sin markdown.
+🚨 VALIDACIÓN CRÍTICA DE IMÁGENES - LEE ESTO PRIMERO:
 
-    JSON a generar:
+1. ANTES de analizar, verifica si las imágenes contienen datos biomecánicos REALES
+2. Imágenes VÁLIDAS incluyen:
+   - Gráficos EMG (electromiografía) con señales musculares
+   - Fotografías posturales de atletas
+   - Análisis de movimiento deportivo
+   - Datos de fuerza, ángulos articulares, o mediciones biomecánicas
+   - Análisis de fisioterapia en general
+   - Otros análisis y imágenes relevantes
+
+3. Imágenes INVÁLIDAS incluyen:
+   - Memes, capturas de pantalla aleatorias
+   - Fotos sin contenido deportivo/médico
+   - Imágenes de texto sin datos
+   - Cualquier contenido NO relacionado con análisis biomecánico
+
+4. SI LAS IMÁGENES NO SON VÁLIDAS, responde EXACTAMENTE con este JSON:
+   {
+     "advertencia": "Las imágenes proporcionadas no contienen datos biomecánicos válidos para análisis. Se requieren gráficos EMG, fotografías posturales o datos de movimiento deportivo. Por favor, sube imágenes relevantes."
+   }
+
+5. ⚠️ NUNCA INVENTES DATOS si las imágenes no son relevantes
+6. ⚠️ NUNCA generes análisis basado en imaginación
+7. ⚠️ Si tienes CUALQUIER duda sobre la validez, usa la respuesta de advertencia
+
+REGLAS ABSOLUTAS (solo si imágenes son válidas):
+1. Escribe SOLO afirmaciones directas. NUNCA uses: "Sí", "No", "Hay", como inicio de frase.
+2. NUNCA escribas palabras sueltas como "GRÁFICO" o "EMG" al inicio. Integra en la frase.
+3. Ejemplo PROHIBIDO: "Sí, se dispone de datos..." → CORRECTO: "Los datos bilaterales muestran..."
+4. Ejemplo PROHIBIDO: "GRÁFICO Se observan..." → CORRECTO: "El gráfico EMG muestra..."
+5. NO expliques conceptos. Reporta hallazgos.
+6. JSON válido sin markdown.
+
+JSON a generar:
     {`;
 
         // 1. FLEXIBILIDAD
@@ -295,6 +337,14 @@ class AIService {
             const jsonResponse = JSON.parse(cleanText)
             console.log('✓ Parsed as JSON successfully')
 
+            // CHECK FOR IMAGE VALIDATION WARNING FIRST
+            if (jsonResponse.advertencia && !jsonResponse.flexibilidad && !jsonResponse.biobit &&
+                !jsonResponse.asimetria && !jsonResponse.control_motor && !jsonResponse.fatiga &&
+                !jsonResponse.fuerza_inercia) {
+                console.log('⚠️ AI detected invalid images')
+                throw new Error(jsonResponse.advertencia)
+            }
+
             // Mapear campos del JSON a los resultados
             if (analysisTypes.flexibilidad && jsonResponse.flexibilidad) {
                 const flex = jsonResponse.flexibilidad
@@ -398,7 +448,12 @@ class AIService {
                 }
             }
 
-        } catch (jsonError) {
+        } catch (jsonError: any) {
+            // If it's a validation error (invalid images), re-throw it
+            if (jsonError.message && jsonError.message.includes('imágenes proporcionadas no contienen datos biomecánicos')) {
+                throw jsonError
+            }
+
             console.log('⚠ Not JSON format, trying text format...')
 
             // Fallback: Intentar extraer cada sección usando regex (formato antiguo)

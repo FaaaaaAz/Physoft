@@ -354,7 +354,7 @@ function NuevoAnalisis() {
       if (formData.capacidadesFisicas.velocidad > 0) submitData.speed = formData.capacidadesFisicas.velocidad
 
       // Clasificación y recomendaciones
-      if (formData.clasificacionCohorte) submitData.globalClassification = formData.clasificacionCohorte
+      if (formData.clasificacionCohorte) submitData.cohortClassification = formData.clasificacionCohorte
       if (formData.recomendaciones) submitData.coachRecommendations = formData.recomendaciones
 
       const response = await analysisAPI.create(submitData)

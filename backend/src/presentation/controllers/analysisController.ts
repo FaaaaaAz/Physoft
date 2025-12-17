@@ -168,6 +168,7 @@ export class AnalysisController {
         flexibility,
         speed,
         globalClassification,
+        cohortClassification, // AI-generated cohort classification
         coachRecommendations
       } = req.body
 
@@ -257,6 +258,7 @@ export class AnalysisController {
           flexibility: validateCapacity(flexibility, 'Flexibility'),
           speed: validateCapacity(speed, 'Speed'),
           globalClassification: calculatedGlobalClassification,
+          cohortClassification: cohortClassification || null, // From AI or manual input
           coachRecommendations: coachRecommendations || null,
         },
         include: {
@@ -551,7 +553,18 @@ export class AnalysisController {
       }
 
       // Convert uploaded files to buffers
+      console.log('=== ANALYSIS CONTROLLER: AI ANALYZE ===')
+      console.log('Number of files received:', (req.files as Express.Multer.File[]).length)
+      console.log('File details:', (req.files as Express.Multer.File[]).map(f => ({
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+        size: `${(f.size / 1024).toFixed(2)}KB`,
+        hasBuffer: !!f.buffer
+      })))
+
       const imageBuffers = (req.files as Express.Multer.File[]).map(file => file.buffer)
+      console.log('Converted to buffers:', imageBuffers.length)
 
       // Call AI service
       const results = await aiService.analyzeImages(imageBuffers, parsedAnalysisTypes)
