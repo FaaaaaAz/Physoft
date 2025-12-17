@@ -1,0 +1,15 @@
+node_modules
+.git
+.vscode
+*.log
+.env.local
+.env
+dist
+build
+electron
+*.md
+!README.md
+run-dev.bat
+run-dev.sh
+build-and-package.ps1
+forge.config.js

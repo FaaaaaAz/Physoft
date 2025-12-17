@@ -4,12 +4,13 @@
   "installCommand": "echo 'Using custom build command'",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/backend/src/index.ts"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/frontend/dist/index.html"
+      "source": "/api/:path*",
+      "destination": "/api"
     }
-  ]
+  ],
+  "functions": {
+    "api/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
