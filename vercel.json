@@ -7,22 +7,20 @@
       "config": {
         "distDir": "frontend/dist"
       }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "backend/src/index.ts",
+      "use": "@vercel/node"
     }
   ],
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/backend/src/index.ts"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/frontend/dist/index.html"
     }
   ]
 }
