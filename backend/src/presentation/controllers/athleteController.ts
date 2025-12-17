@@ -5,6 +5,7 @@
 // ============================================
 
 import { Request, Response } from 'express'
+import { randomUUID } from 'crypto'
 import { prisma } from '../../infrastructure/prismaClient'
 import { ComparisonService } from '../../application/services/ComparisonService'
 import { UploadService } from '../../application/services/uploadService'
@@ -128,7 +129,7 @@ export class AthleteController {
       const accessCode = await generateAccessCode()
 
       // Generate UUID for athlete
-      const id = crypto.randomUUID()
+      const id = randomUUID()
 
       // Handle photo upload if present
       let photoUrl: string | null = null
