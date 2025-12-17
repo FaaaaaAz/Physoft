@@ -18,7 +18,6 @@ function AnalysisView() {
 
   // Get the athleteId from location state or from the loaded analysis
   const athleteIdFromState = location.state?.athleteId
-  const fromPage = location.state?.fromPage
 
   useEffect(() => {
     const loadAnalysis = async () => {
@@ -116,7 +115,6 @@ function AnalysisView() {
 
   const weakPoints = parseWeakPoints(analysis.weakPoints)
   const graphImages = parseGraphImages(analysis.graphImages)
-  const athleteId = athleteIdFromState || analysis.athleteId
 
   return (
     <PageTemplate
