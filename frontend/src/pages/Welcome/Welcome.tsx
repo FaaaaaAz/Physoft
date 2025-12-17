@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoArrowForward } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
+import physoftLogo from '@/assets/physoft.png'
 import './Welcome.css'
 
 function Welcome() {
@@ -21,7 +22,7 @@ function Welcome() {
                 <div className="welcome-content">
                     <div className="logo-container">
                         <img
-                            src="/assets/physoft.png"
+                            src={physoftLogo}
                             alt="Physoft Logo"
                             className="welcome-logo"
                         />

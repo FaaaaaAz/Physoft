@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { IoSettings, IoPerson, IoAdd, IoArrowBack } from 'react-icons/io5'
+import physoftLogo from '@/assets/physoft.png'
 import '../styles/Navbar.css'
 
 interface NavbarProps {
@@ -47,7 +48,7 @@ function Navbar({
             navigate('/dashboard')
           }}
         >
-          <img src="/assets/physoft.png" alt="Physoft" className="navbar-logo" />
+          <img src={physoftLogo} alt="Physoft" className="navbar-logo" />
         </a>
 
         {/* Menú de Navegación */}
