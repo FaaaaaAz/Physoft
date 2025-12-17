@@ -10,7 +10,7 @@ interface AthleteStore {
     fetchAthletes: () => Promise<void>
     addAthlete: (athlete: Athlete) => void
     updateAthlete: (id: string, athlete: Athlete) => void
-    deleteAthlete: (id: string) => void
+    deleteAthlete: (id: string) => Promise<void>
     getAthleteById: (id: string) => Athlete | undefined
 }
 
@@ -43,10 +43,17 @@ export const useAthleteStore = create<AthleteStore>((set, get) => ({
         }))
     },
 
-    deleteAthlete: (id: string) => {
-        set((state) => ({
-            athletes: state.athletes.filter((a) => a.id !== id)
-        }))
+    deleteAthlete: async (id: string) => {
+        set({ error: null })
+        try {
+            await athleteAPI.delete(id)
+            set((state) => ({
+                athletes: state.athletes.filter((a) => a.id !== id)
+            }))
+        } catch (error: any) {
+            set({ error: error.message })
+            throw error
+        }
     },
 
     getAthleteById: (id: string) => {
