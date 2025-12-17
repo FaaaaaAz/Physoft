@@ -32,8 +32,8 @@ const initialValues: AthleteFormData = {
     club: '',
     position: '',
     bodyType: 'Mesomorph',
-    height: '' as any, // Empty string for better UX
-    weight: '' as any, // Empty string for better UX
+    height: undefined as any,
+    weight: undefined as any,
     email: '',
     phone: ''
 }
@@ -70,21 +70,41 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
     ],
     height: [
         {
-            validate: (value) => value > 0,
+            validate: (value) => value !== undefined && value !== null && value !== '' && !isNaN(Number(value)),
+            message: 'La altura es requerida'
+        },
+        {
+            validate: (value) => {
+                const num = Number(value)
+                return num > 0
+            },
             message: 'La altura debe ser mayor a 0'
         },
         {
-            validate: (value) => value >= 50 && value <= 250,
+            validate: (value) => {
+                const num = Number(value)
+                return num >= 50 && num <= 250
+            },
             message: 'La altura debe estar entre 50 y 250 cm'
         }
     ],
     weight: [
         {
-            validate: (value) => value > 0,
+            validate: (value) => value !== undefined && value !== null && value !== '' && !isNaN(Number(value)),
+            message: 'El peso es requerido'
+        },
+        {
+            validate: (value) => {
+                const num = Number(value)
+                return num > 0
+            },
             message: 'El peso debe ser mayor a 0'
         },
         {
-            validate: (value) => value >= 20 && value <= 300,
+            validate: (value) => {
+                const num = Number(value)
+                return num >= 20 && num <= 300
+            },
             message: 'El peso debe estar entre 20 y 300 kg'
         }
     ],
