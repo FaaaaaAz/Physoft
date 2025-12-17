@@ -309,6 +309,7 @@ export class AnalysisController {
         flexibility,
         speed,
         globalClassification,
+        cohortClassification,
         coachRecommendations
       } = req.body
 
@@ -353,6 +354,7 @@ export class AnalysisController {
           ...(flexibility !== undefined && { flexibility: validateCapacity(flexibility, 'Flexibility') }),
           ...(speed !== undefined && { speed: validateCapacity(speed, 'Speed') }),
           ...(globalClassification !== undefined && { globalClassification }),
+          ...(cohortClassification !== undefined && { cohortClassification }),
           ...(coachRecommendations !== undefined && { coachRecommendations }),
         },
         include: {
