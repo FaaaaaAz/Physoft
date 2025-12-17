@@ -47,7 +47,7 @@ function Navbar({
             navigate('/dashboard')
           }}
         >
-          <img src="/src/assets/physoft.png" alt="Physoft" className="navbar-logo" />
+          <img src="/assets/physoft.png" alt="Physoft" className="navbar-logo" />
         </a>
 
         {/* Menú de Navegación */}

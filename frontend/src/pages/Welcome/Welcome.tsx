@@ -21,7 +21,7 @@ function Welcome() {
                 <div className="welcome-content">
                     <div className="logo-container">
                         <img
-                            src="/src/assets/physoft.png"
+                            src="/assets/physoft.png"
                             alt="Physoft Logo"
                             className="welcome-logo"
                         />
