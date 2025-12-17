@@ -126,7 +126,6 @@ function AnalysisView() {
       )}`}
       className="analysis-view-page"
       showBackButton={true}
-      backTo={fromPage === 'analysis' ? '/analysis' : `/athlete-detail/${athleteId}`}
       showAddButton={true}
       onAddClick={() => navigate(`/analysis/edit/${id}`)}
       addButtonText="Editar Análisis"

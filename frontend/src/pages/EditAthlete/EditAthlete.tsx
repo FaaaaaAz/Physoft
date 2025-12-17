@@ -138,7 +138,6 @@ function EditAthlete() {
             subtitle="Actualiza la información del atleta"
             className="edit-athlete-page"
             showBackButton={true}
-            backTo={`/athlete-detail/${id}`}
             breadcrumbItems={[
                 { label: 'Inicio', path: '/dashboard' },
                 { label: 'Atleta', path: `/athlete-detail/${id}` },

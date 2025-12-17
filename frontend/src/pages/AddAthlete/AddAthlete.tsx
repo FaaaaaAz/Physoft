@@ -155,7 +155,6 @@ function AddAthlete() {
             title="Agregar Nuevo Atleta"
             subtitle="Completa la información del atleta para agregarlo a la base de datos"
             showBackButton={true}
-            backTo="/dashboard"
             className="add-athlete-page"
             showNavbar={true}
             breadcrumbItems={[

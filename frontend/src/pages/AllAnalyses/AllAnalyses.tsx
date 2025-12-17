@@ -176,7 +176,6 @@ function AllAnalyses() {
             title="Todos los Análisis"
             className="all-analyses-page"
             showBackButton={true}
-            backTo='/analysis'
             breadcrumbItems={[
                 { label: 'Análisis', path: '/analysis' },
                 { label: 'Todos los Análisis' }

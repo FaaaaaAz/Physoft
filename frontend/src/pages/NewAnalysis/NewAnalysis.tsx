@@ -393,7 +393,6 @@ function NuevoAnalisis() {
       title="Nuevo Análisis Deportivo"
       subtitle="Evaluación kinesiológica completa con asistencia de IA"
       showBackButton={true}
-      backTo="/analysis"
       className="nuevo-analisis-page"
       breadcrumbItems={[
         { label: 'Inicio', path: '/dashboard' },

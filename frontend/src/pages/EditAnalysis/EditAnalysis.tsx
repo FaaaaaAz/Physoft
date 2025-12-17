@@ -229,7 +229,6 @@ function EditAnalysis() {
             subtitle="Actualiza la información del análisis deportivo"
             className="edit-analysis-page"
             showBackButton={true}
-            backTo={`/analysis-view/${id}`}
             breadcrumbItems={[
                 { label: 'Inicio', path: '/dashboard' },
                 { label: 'Análisis', path: '/analysis' },

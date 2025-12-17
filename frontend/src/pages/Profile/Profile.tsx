@@ -15,7 +15,6 @@ function Profile() {
             title="Perfil del Administrador"
             subtitle="Información del usuario principal de Physoft"
             showBackButton={true}
-            backTo="/dashboard"
             breadcrumbItems={[
                 { label: 'Inicio', path: '/dashboard' },
                 { label: 'Perfil' }
