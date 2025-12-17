@@ -106,7 +106,7 @@ function AthleteDetail() {
     // Early returns AFTER all hooks
     if (isLoading) {
         return (
-            <PageTemplate title="Loading..." showBackButton={true} backTo="/all-analysis">
+            <PageTemplate title="Loading..." showBackButton={true}>
                 <LoadingSpinner message="Loading athlete data..." />
             </PageTemplate>
         )
@@ -114,7 +114,7 @@ function AthleteDetail() {
 
     if (error || !athlete) {
         return (
-            <PageTemplate title="Error" showBackButton={true} backTo="/all-analysis">
+            <PageTemplate title="Error" showBackButton={true}>
                 <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-primary)' }}>
                     <p>{error || 'Athlete not found'}</p>
                 </div>
@@ -154,7 +154,6 @@ function AthleteDetail() {
             title={athlete.name}
             breadcrumbItems={breadcrumbItems}
             showBackButton={true}
-            backTo={from === 'all-analyses' ? '/all-analyses' : '/analysis'}
         >
             <div className="detail-container">
                 {/* Athlete Header */}
