@@ -70,7 +70,7 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
     ],
     height: [
         {
-            validate: (value) => value !== undefined && value !== null && value !== '' && !isNaN(Number(value)),
+            validate: (value) => value !== undefined && value !== null && String(value).trim() !== '' && !isNaN(Number(value)),
             message: 'La altura es requerida'
         },
         {
@@ -90,7 +90,7 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
     ],
     weight: [
         {
-            validate: (value) => value !== undefined && value !== null && value !== '' && !isNaN(Number(value)),
+            validate: (value) => value !== undefined && value !== null && String(value).trim() !== '' && !isNaN(Number(value)),
             message: 'El peso es requerido'
         },
         {
