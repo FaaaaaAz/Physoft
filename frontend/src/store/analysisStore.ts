@@ -11,7 +11,7 @@ interface AnalysisStore {
     fetchAnalysesByAthlete: (athleteId: string) => Promise<void>
     addAnalysis: (analysis: Analysis) => void
     updateAnalysis: (id: number, analysis: Analysis) => void
-    deleteAnalysis: (id: number) => void
+    deleteAnalysis: (id: number) => Promise<void>
     getAnalysisById: (id: number) => Analysis | undefined
 }
 
@@ -54,10 +54,17 @@ export const useAnalysisStore = create<AnalysisStore>((set, get) => ({
         }))
     },
 
-    deleteAnalysis: (id: number) => {
-        set((state) => ({
-            analyses: state.analyses.filter((a) => a.id !== id)
-        }))
+    deleteAnalysis: async (id: number) => {
+        set({ error: null })
+        try {
+            await analysisAPI.delete(id)
+            set((state) => ({
+                analyses: state.analyses.filter((a) => a.id !== id)
+            }))
+        } catch (error: any) {
+            set({ error: error.message })
+            throw error
+        }
     },
 
     getAnalysisById: (id: number) => {

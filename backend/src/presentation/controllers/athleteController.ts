@@ -316,7 +316,36 @@ export class AthleteController {
         })
       }
 
-      // Delete photo if exists
+      // Get all analyses for this athlete to delete their images
+      const analyses = await prisma.analysis.findMany({
+        where: { athleteId: id }
+      })
+
+      // Delete graph images from Cloudinary for each analysis
+      for (const analysis of analyses) {
+        if (analysis.graphImages) {
+          try {
+            const imageUrls = JSON.parse(analysis.graphImages)
+            for (const url of imageUrls) {
+              // Extract public_id from Cloudinary URL
+              const matches = url.match(/\/v\d+\/(.+)\.\w+$/)
+              if (matches && matches[1]) {
+                const publicId = matches[1]
+                await UploadService.deletePhoto(publicId)
+              }
+            }
+          } catch (err) {
+            console.warn('Error deleting analysis images:', err)
+          }
+        }
+      }
+
+      // Delete all analyses for this athlete
+      await prisma.analysis.deleteMany({
+        where: { athleteId: id }
+      })
+
+      // Delete athlete photo if exists
       if (athlete.photo) {
         await UploadService.deletePhoto(athlete.cloudinaryPublicId)
       }

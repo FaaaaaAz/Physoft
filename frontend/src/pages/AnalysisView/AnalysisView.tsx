@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { IoDocument, IoPerson } from 'react-icons/io5'
+import { IoDocument, IoPerson, IoTrash } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import { analysisAPI, Analysis } from '../../services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
+import { MESSAGES } from '@/constants'
 import './AnalysisView.css'
 
 function AnalysisView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { analyses, fetchAnalyses, getAnalysisById } = useAnalysisStore()
+  const { analyses, fetchAnalyses, getAnalysisById, deleteAnalysis } = useAnalysisStore()
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(true)
@@ -84,6 +85,22 @@ function AnalysisView() {
     return labels[cohort] || cohort
   }
 
+  const handleDelete = async () => {
+    if (!id || !analysis) return
+
+    if (!window.confirm(MESSAGES.CONFIRM.DELETE_ANALYSIS)) {
+      return
+    }
+
+    try {
+      await deleteAnalysis(parseInt(id))
+      navigate('/analysis')
+    } catch (error) {
+      console.error('Error deleting analysis:', error)
+      alert(MESSAGES.ERROR.DELETING_ANALYSIS)
+    }
+  }
+
   if (loading) {
     return (
       <PageTemplate title="Cargando..." subtitle="">
@@ -124,6 +141,31 @@ function AnalysisView() {
       onAddClick={() => navigate(`/analysis/edit/${id}`)}
       addButtonText="Editar Análisis"
     >
+      {/* Action Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem', gap: '1rem' }}>
+        <button
+          onClick={handleDelete}
+          className="btn-delete"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '0.95rem',
+            fontWeight: '600',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+        >
+          <IoTrash /> Eliminar Análisis
+        </button>
+      </div>
 
       <div className="analysis-view-container">
         {/* Athlete Information */}

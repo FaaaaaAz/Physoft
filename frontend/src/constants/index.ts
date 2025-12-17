@@ -75,6 +75,7 @@ export const MESSAGES = {
         CREATING_ATHLETE: 'Error creating athlete',
         UPDATING_ATHLETE: 'Error updating athlete',
         DELETING_ATHLETE: 'Error deleting athlete',
+        DELETING_ANALYSIS: 'Error deleting analysis',
     },
     CONFIRM: {
         DELETE_ATHLETE: 'Are you sure you want to delete this athlete?',
