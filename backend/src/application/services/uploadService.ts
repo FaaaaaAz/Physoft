@@ -1,5 +1,3 @@
-import path from 'path'
-import fs from 'fs'
 import cloudinary from '../../infrastructure/cloudinaryConfig'
 
 interface UploadResult {
@@ -9,91 +7,73 @@ interface UploadResult {
 
 export class UploadService {
     /**
-     * Upload photo - Dual Strategy (Local + Cloudinary)
-     * Always saves locally first for offline support.
-     * Attempts to upload to Cloudinary if credentials exist.
-     * @param file - The file to upload
+     * Upload photo to Cloudinary
+     * Uses in-memory buffer for serverless environments (Vercel)
+     * @param file - The file to upload (from multer memory storage)
      * @param resourceId - The ID of the resource (athlete ID or analysis ID)
      * @param folder - The Cloudinary folder path (e.g., 'physoft/athletes/ATHLETE_ID' or 'physoft/analysis/ANALYSIS_ID')
      */
     static async uploadPhoto(file: Express.Multer.File, resourceId: string, folder?: string): Promise<UploadResult> {
-        // 1. Always save locally first (Multer already did this to disk)
-        const filename = file.filename
-        const localUrl = `/uploads/athletes/${filename}`
-        let cloudinaryUrl: string | null = null
-        let publicId: string | null = null
-
-        // 2. Determine Cloudinary folder
+        // Determine Cloudinary folder
         const cloudinaryFolder = folder || `physoft/athletes/${resourceId}`
 
-        // 3. Try to upload to Cloudinary if configured
+        // Check if Cloudinary is configured
         const useCloudinary = process.env.UPLOAD_STRATEGY === 'cloudinary' ||
             (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY)
 
-        if (useCloudinary) {
-            try {
-                const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
-                    const uploadStream = cloudinary.uploader.upload_stream(
-                        {
-                            folder: cloudinaryFolder,
-                            public_id: `${resourceId}_${Date.now()}`,
-                            resource_type: 'image',
-                            overwrite: true,
-                            invalidate: true,
-                        },
-                        (error, result) => {
-                            if (error) reject(error)
-                            else if (result) resolve(result)
-                            else reject(new Error('Unknown Cloudinary error'))
-                        }
-                    )
-
-                    // Read from the local file that Multer saved
-                    const filePath = path.join(__dirname, '../../../public/uploads/athletes', filename)
-                    fs.createReadStream(filePath).pipe(uploadStream)
-                })
-
-                cloudinaryUrl = result.secure_url
-                publicId = result.public_id
-                console.log('✅ Uploaded to Cloudinary:', cloudinaryUrl)
-            } catch (error) {
-                console.warn('⚠️ Cloudinary upload failed (using local file only):', error)
-                // Continue without Cloudinary - offline mode fallback
-            }
+        if (!useCloudinary) {
+            throw new Error('Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in environment variables.')
         }
 
-        // 4. Return Cloudinary URL if available, otherwise local URL
-        return {
-            url: cloudinaryUrl || localUrl,
-            publicId: publicId
+        try {
+            // Upload to Cloudinary using the in-memory buffer
+            const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: cloudinaryFolder,
+                        public_id: `${resourceId}_${Date.now()}`,
+                        resource_type: 'image',
+                        overwrite: true,
+                        invalidate: true,
+                    },
+                    (error, result) => {
+                        if (error) reject(error)
+                        else if (result) resolve(result)
+                        else reject(new Error('Unknown Cloudinary error'))
+                    }
+                )
+
+                // Use the buffer from memory storage (no file system access needed)
+                const bufferStream = require('stream').Readable.from(file.buffer)
+                bufferStream.pipe(uploadStream)
+            })
+
+            console.log('✅ Uploaded to Cloudinary:', result.secure_url)
+
+            return {
+                url: result.secure_url,
+                publicId: result.public_id
+            }
+        } catch (error) {
+            console.error('❌ Cloudinary upload failed:', error)
+            throw new Error(`Failed to upload image to Cloudinary: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
     }
 
     /**
-     * Delete photo - Try to delete from both sources
+     * Delete photo from Cloudinary
      */
-    static async deletePhoto(photoUrl: string, cloudinaryPublicId?: string | null): Promise<void> {
-        // 1. Try to delete from Cloudinary if ID exists
+    static async deletePhoto(cloudinaryPublicId?: string | null): Promise<void> {
+        // Delete from Cloudinary if ID exists
         if (cloudinaryPublicId) {
             try {
                 await cloudinary.uploader.destroy(cloudinaryPublicId)
+                console.log('✅ Deleted from Cloudinary:', cloudinaryPublicId)
             } catch (error) {
-                console.warn('Failed to delete from Cloudinary:', error)
+                console.warn('⚠️ Failed to delete from Cloudinary:', error)
             }
-        }
-
-        // 2. Always try to delete local file if it looks like a local path
-        // Or if it was a Cloudinary URL, we might still have the local file (if we kept the filename consistent)
-        // For now, we only delete local if the URL stored points to local
-        if (photoUrl && photoUrl.startsWith('/uploads/')) {
-            const filePath = path.join(__dirname, '../../../public', photoUrl)
-            if (fs.existsSync(filePath)) {
-                try {
-                    fs.unlinkSync(filePath)
-                } catch (error) {
-                    console.warn('Failed to delete local file:', error)
-                }
-            }
+        } else {
+            console.warn('⚠️ No Cloudinary public ID provided for deletion')
         }
     }
 

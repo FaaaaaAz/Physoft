@@ -8,6 +8,7 @@ import multer from 'multer'
 import path from 'path'
 
 // Use memory storage for Vercel (filesystem is read-only in serverless)
+// Files are stored in req.file.buffer and uploaded directly to Cloudinary
 const storage = multer.memoryStorage()
 
 // File filter - only accept images

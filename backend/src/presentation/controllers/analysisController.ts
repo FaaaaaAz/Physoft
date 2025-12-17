@@ -257,7 +257,6 @@ export class AnalysisController {
           flexibility: validateCapacity(flexibility, 'Flexibility'),
           speed: validateCapacity(speed, 'Speed'),
           globalClassification: calculatedGlobalClassification,
-          cohortClassification: globalClassification || null, // Store the cohort classification separately
           coachRecommendations: coachRecommendations || null,
         },
         include: {
@@ -472,12 +471,23 @@ export class AnalysisController {
         })
       }
 
-      // Delete associated graph images
+      // Delete associated graph images from Cloudinary
       if (analysis.graphImages) {
         try {
           const graphUrls: string[] = JSON.parse(analysis.graphImages)
           for (const url of graphUrls) {
-            await UploadService.deletePhoto(url, null)
+            // Extract public_id from Cloudinary URL
+            // Format: https://res.cloudinary.com/CLOUD_NAME/image/upload/VERSION/FOLDER/PUBLIC_ID.ext
+            if (url.includes('cloudinary.com')) {
+              const urlParts = url.split('/')
+              const uploadIndex = urlParts.indexOf('upload')
+              if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+                // Get everything after 'upload/VERSION/' and remove file extension
+                const pathAfterUpload = urlParts.slice(uploadIndex + 2).join('/')
+                const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '') // Remove extension
+                await UploadService.deletePhoto(publicId)
+              }
+            }
           }
         } catch (e) {
           console.error('Error deleting graph images:', e)

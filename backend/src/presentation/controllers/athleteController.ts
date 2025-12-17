@@ -263,7 +263,7 @@ export class AthleteController {
 
       // Delete old photo if exists
       if (athlete.photo) {
-        await UploadService.deletePhoto(athlete.photo, athlete.cloudinaryPublicId)
+        await UploadService.deletePhoto(athlete.cloudinaryPublicId)
       }
 
       // Upload new photo
@@ -318,7 +318,7 @@ export class AthleteController {
 
       // Delete photo if exists
       if (athlete.photo) {
-        await UploadService.deletePhoto(athlete.photo, athlete.cloudinaryPublicId)
+        await UploadService.deletePhoto(athlete.cloudinaryPublicId)
       }
 
       // Soft delete by setting deletedAt
