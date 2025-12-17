@@ -194,7 +194,7 @@ function EditAnalysis() {
             if (formData.capacidadesFisicas.velocidad > 0) updateData.speed = formData.capacidadesFisicas.velocidad
 
             // Clasificación y recomendaciones
-            if (formData.clasificacionCohorte) updateData.globalClassification = formData.clasificacionCohorte
+            if (formData.clasificacionCohorte) updateData.cohortClassification = formData.clasificacionCohorte
             if (formData.recomendaciones) updateData.coachRecommendations = formData.recomendaciones
 
             const response = await analysisAPI.update(parseInt(id), updateData)
