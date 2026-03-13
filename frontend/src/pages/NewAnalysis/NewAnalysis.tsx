@@ -4,6 +4,7 @@ import { IoAdd, IoTrash, IoCloudUpload, IoSearch, IoCheckmark } from 'react-icon
 import PageTemplate from '@/components/templates/PageTemplate'
 import { athleteAPI, analysisAPI, Athlete } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
+import BodyVisualization, { BodyMark } from '@/components/analysis/BodyVisualization'
 import './NewAnalysis.css'
 
 interface PuntoDebil {
@@ -58,6 +59,7 @@ function NuevoAnalisis() {
     athleteId: '',
     fechaEvaluacion: '',
     imagenes: [] as File[],
+    bodyMarks: [] as BodyMark[], // Marcas corporales de zonas afectadas
 
     // Análisis Textual
     analisisFlexibilidad: '',
@@ -307,6 +309,14 @@ function NuevoAnalisis() {
     }))
   }
 
+  // Manejar cambios en las marcas corporales
+  const handleBodyMarksChange = (marks: BodyMark[]) => {
+    setFormData(prev => ({
+      ...prev,
+      bodyMarks: marks
+    }))
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
@@ -356,6 +366,11 @@ function NuevoAnalisis() {
       // Clasificación y recomendaciones
       if (formData.clasificacionCohorte) submitData.cohortClassification = formData.clasificacionCohorte
       if (formData.recomendaciones) submitData.coachRecommendations = formData.recomendaciones
+
+      // Marcas corporales de zonas afectadas
+      if (formData.bodyMarks.length > 0) {
+        submitData.bodyMarks = JSON.stringify(formData.bodyMarks)
+      }
 
       const response = await analysisAPI.create(submitData)
 
@@ -512,6 +527,12 @@ function NuevoAnalisis() {
                 </div>
               )}
             </div>
+
+            {/* Visualización Corporal - Zonas Afectadas */}
+            <BodyVisualization
+              marks={formData.bodyMarks}
+              onChange={handleBodyMarksChange}
+            />
           </div>
 
           {/* SECCIÓN 2 - Análisis Textual con IA */}

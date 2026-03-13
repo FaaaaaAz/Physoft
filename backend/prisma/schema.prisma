@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -52,6 +52,9 @@ model Analysis {
   
   // Weak Points
   weakPoints              String?  // JSON array of strings
+  
+  // Body Marks - Zonas corporales afectadas
+  bodyMarks               String?  // JSON array of body marks with positions
   
   // Physical Capacities (0-100)
   power                   Int?
