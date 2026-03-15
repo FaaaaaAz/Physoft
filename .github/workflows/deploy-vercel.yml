@@ -25,17 +25,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install deps
-        run: npm ci
-
       - name: Pull Vercel env
         run: npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
-      - name: Build with Vercel
-        run: npx vercel build --prod --token="$VERCEL_TOKEN"
-
       - name: Deploy Backend to Production
-        run: npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        run: npx vercel deploy --prod --yes --token="$VERCEL_TOKEN"
 
   deploy-frontend:
     name: Deploy Frontend
@@ -55,14 +49,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install deps
-        run: npm ci
-
       - name: Pull Vercel env
         run: npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
-      - name: Build with Vercel
-        run: npx vercel build --prod --token="$VERCEL_TOKEN"
-
       - name: Deploy Frontend to Production
-        run: npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        run: npx vercel deploy --prod --yes --token="$VERCEL_TOKEN"
