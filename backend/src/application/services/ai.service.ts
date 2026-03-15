@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import OpenAI from 'openai'
 
 interface AnalysisTypes {
     flexibilidad: boolean
@@ -30,29 +31,157 @@ interface AnalysisResults {
     cohortClassification?: string
 }
 
-class AIService {
+type AIProviderName = 'gemini' | 'openai'
+
+interface AIProvider {
+    providerName: AIProviderName
+    generateText(prompt: string, imageBuffers: Buffer[]): Promise<string>
+}
+
+class GeminiProvider implements AIProvider {
+    providerName: AIProviderName = 'gemini'
     private genAI: GoogleGenerativeAI
     private model: any
 
+    constructor(apiKey: string, modelName: string) {
+        this.genAI = new GoogleGenerativeAI(apiKey)
+        this.model = this.genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: {
+                maxOutputTokens: 8192,
+                temperature: 0.7,
+            }
+        })
+    }
+
+    async generateText(prompt: string, imageBuffers: Buffer[]): Promise<string> {
+        const imageParts = imageBuffers.map((buffer, index) => {
+            const base64 = buffer.toString('base64')
+            console.log(`Image ${index + 1}: Base64 length = ${base64.length} characters`)
+            return {
+                inlineData: {
+                    data: base64,
+                    mimeType: 'image/jpeg'
+                }
+            }
+        })
+
+        console.log('Calling Gemini API with', imageParts.length, 'images...')
+        const result = await this.model.generateContent([prompt, ...imageParts])
+        const response = await result.response
+        console.log('Gemini API call completed')
+
+        const finishReason = response.candidates?.[0]?.finishReason
+        if (finishReason === 'MAX_TOKENS') {
+            throw new Error('La respuesta fue truncada por límite de tokens. Por favor, selecciona MENOS tipos de análisis (máximo 3-4) o reduce el número de imágenes.')
+        }
+        if (finishReason === 'SAFETY') {
+            throw new Error('Contenido bloqueado por filtros de seguridad. Las imágenes pueden contener contenido inapropiado.')
+        }
+        if (finishReason === 'RECITATION') {
+            throw new Error('Respuesta bloqueada por detección de contenido duplicado.')
+        }
+
+        const text = typeof response?.text === 'function' ? response.text() : ''
+        if (!text || text.trim().length === 0) {
+            throw new Error('La IA devolvió una respuesta vacía. Por favor, intenta de nuevo.')
+        }
+
+        return text
+    }
+}
+
+class OpenAIProvider implements AIProvider {
+    providerName: AIProviderName = 'openai'
+    private client: OpenAI
+    private modelName: string
+    private requestTimeoutMs: number
+
+    constructor(apiKey: string, modelName: string) {
+        const timeoutFromEnv = Number(process.env.OPENAI_TIMEOUT_MS || 60000)
+        this.requestTimeoutMs = Number.isFinite(timeoutFromEnv) && timeoutFromEnv > 0
+            ? timeoutFromEnv
+            : 60000
+
+        this.client = new OpenAI({
+            apiKey,
+            timeout: this.requestTimeoutMs,
+        })
+        this.modelName = modelName
+    }
+
+    async generateText(prompt: string, imageBuffers: Buffer[]): Promise<string> {
+        const content: any[] = [
+            { type: 'text', text: prompt },
+            ...imageBuffers.map((buffer) => ({
+                type: 'image_url',
+                image_url: {
+                    url: `data:image/jpeg;base64,${buffer.toString('base64')}`
+                }
+            }))
+        ]
+
+        console.log('Calling OpenAI API with', imageBuffers.length, 'images...')
+        const completion = await this.client.chat.completions.create({
+            model: this.modelName,
+            temperature: 0.7,
+            max_tokens: 4096,
+            messages: [
+                {
+                    role: 'user',
+                    content
+                }
+            ]
+        }, {
+            timeout: this.requestTimeoutMs,
+        })
+        console.log('OpenAI API call completed')
+
+        const rawContent: any = completion.choices?.[0]?.message?.content
+        const text = Array.isArray(rawContent)
+            ? rawContent
+                .map((part: any) => typeof part === 'string' ? part : (part?.text || ''))
+                .join('\n')
+            : rawContent
+
+        if (typeof text !== 'string' || text.trim().length === 0) {
+            throw new Error('La IA devolvió una respuesta vacía. Por favor, intenta de nuevo.')
+        }
+
+        return text
+    }
+}
+
+class AIService {
+    private provider: AIProvider
+
     constructor() {
+        const provider = (process.env.AI_PROVIDER || 'gemini').toLowerCase()
+
+        if (provider === 'openai') {
+            const apiKey = process.env.OPENAI_API_KEY
+            if (!apiKey) {
+                throw new Error('OPENAI_API_KEY no está configurada en las variables de entorno')
+            }
+
+            const modelName = process.env.OPENAI_MODEL || 'gpt-4.1-mini'
+            this.provider = new OpenAIProvider(apiKey, modelName)
+            console.log(`[AI] Provider initialized: openai (${modelName})`)
+            return
+        }
+
         const apiKey = process.env.GEMINI_API_KEY
         if (!apiKey) {
             throw new Error('GEMINI_API_KEY no está configurada en las variables de entorno')
         }
 
-        this.genAI = new GoogleGenerativeAI(apiKey)
         const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
-        this.model = this.genAI.getGenerativeModel({
-            model: modelName,
-            generationConfig: {
-                maxOutputTokens: 8192, // Máximo del modelo para respuestas completas
-                temperature: 0.7, // Balance entre creatividad y precisión
-            }
-        })
+        this.provider = new GeminiProvider(apiKey, modelName)
+        console.log(`[AI] Provider initialized: gemini (${modelName})`)
     }
 
     /**
-     * Analiza imágenes deportivas usando Gemini AI
+     * Analiza imágenes deportivas usando el proveedor de IA configurado
      */
     async analyzeImages(
         imageBuffers: Buffer[],
@@ -69,64 +198,14 @@ class AIService {
                 throw new Error('No image buffers provided to AI service')
             }
 
-            // Convertir buffers a base64 para Gemini
-            const imageParts = imageBuffers.map((buffer, index) => {
-                const base64 = buffer.toString('base64')
-                console.log(`Image ${index + 1}: Base64 length = ${base64.length} characters`)
-                return {
-                    inlineData: {
-                        data: base64,
-                        mimeType: 'image/jpeg'
-                    }
-                }
-            })
-
             // Construir el prompt basado en los tipos seleccionados
             const prompt = this.buildPrompt(analysisTypes)
 
-            // Llamar a Gemini con las imágenes y el prompt
-            console.log('Calling Gemini API with', imageParts.length, 'images...')
-            const result = await this.model.generateContent([prompt, ...imageParts])
-            const response = await result.response
-            console.log('Gemini API call completed')
-
-            // DEBUG: Log response structure
-            console.log('=== RESPONSE DEBUG ===')
-            console.log('Candidates:', response.candidates?.length)
-            console.log('Finish reason:', response.candidates?.[0]?.finishReason)
-            console.log('=== END DEBUG ===')
-
-            // Verificar finish reason ANTES de intentar obtener el texto
-            const finishReason = response.candidates?.[0]?.finishReason
-            if (finishReason === 'MAX_TOKENS') {
-                throw new Error('La respuesta fue truncada por límite de tokens. Por favor, selecciona MENOS tipos de análisis (máximo 3-4) o reduce el número de imágenes.')
-            }
-            if (finishReason === 'SAFETY') {
-                throw new Error('Contenido bloqueado por filtros de seguridad. Las imágenes pueden contener contenido inapropiado.')
-            }
-            if (finishReason === 'RECITATION') {
-                throw new Error('Respuesta bloqueada por detección de contenido duplicado.')
-            }
-
-            // Verificar si la respuesta fue bloqueada por safety filters
-            if (!response || !response.text) {
-                console.error('⚠️ Gemini response blocked or empty')
-                console.error('Candidates:', result.response?.candidates)
-                console.error('Prompt feedback:', result.response?.promptFeedback)
-
-                throw new Error('La IA no pudo generar una respuesta. Esto puede deberse a: 1) Imágenes inapropiadas, 2) Contenido bloqueado por filtros de seguridad, o 3) Error temporal de la API. Por favor, intenta con otras imágenes.')
-            }
-
-            const text = response.text()
-
-            // Verificar que la respuesta no esté vacía
-            if (!text || text.trim().length === 0) {
-                console.error('⚠️ Gemini returned empty text')
-                throw new Error('La IA devolvió una respuesta vacía. Por favor, intenta de nuevo.')
-            }
+            // Llamar al provider configurado
+            const text = await this.provider.generateText(prompt, imageBuffers)
 
             // DEBUG: Log the raw response
-            console.log('=== GEMINI RAW RESPONSE ===')
+            console.log('=== AI RAW RESPONSE ===')
             console.log(text)
             console.log('=== END RESPONSE ===')
 
@@ -136,11 +215,11 @@ class AIService {
             console.error('Error en análisis de IA:', error)
 
             // Proporcionar mensaje de error más específico
-            if (error.message.includes('SAFETY') || error.message.includes('blocked')) {
-                throw new Error('Contenido bloqueado por filtros de seguridad de Gemini. Verifica que las imágenes sean apropiadas.')
+            if (error.message.includes('SAFETY') || error.message.includes('blocked') || error.message.includes('seguridad')) {
+                throw new Error('Contenido bloqueado por filtros de seguridad del proveedor de IA. Verifica que las imágenes sean apropiadas.')
             }
 
-            throw new Error(`Error al analizar imágenes con IA: ${error.message}`)
+            throw new Error(`Error al analizar imágenes con IA (${this.provider.providerName}): ${error.message}`)
         }
     }
 
@@ -148,7 +227,9 @@ class AIService {
      * Construye el prompt especializado según los tipos de análisis seleccionados
      */
     private buildPrompt(analysisTypes: AnalysisTypes): string {
-        let prompt = `Eres un kinesiólogo deportivo generando un reporte técnico.
+        let prompt = `Responde ÚNICAMENTE con el JSON solicitado. Sin texto introductorio, sin explicaciones, sin markdown. El primer carácter de tu respuesta debe ser '{' y el último '}'.
+
+Eres un kinesiólogo deportivo generando un reporte técnico.
 
 🚨 VALIDACIÓN CRÍTICA DE IMÁGENES - LEE ESTO PRIMERO:
 
@@ -183,6 +264,10 @@ REGLAS ABSOLUTAS (solo si imágenes son válidas):
 4. Ejemplo PROHIBIDO: "GRÁFICO Se observan..." → CORRECTO: "El gráfico EMG muestra..."
 5. NO expliques conceptos. Reporta hallazgos.
 6. JSON válido sin markdown.
+7. PROHIBIDO inventar lateralidad bilateral (izquierdo vs derecho) si no hay canales/mediciones de ambos lados.
+8. PROHIBIDO inventar porcentajes o magnitudes si no existe medición explícita.
+9. Si no hay evidencia suficiente para una sección, usa "NO_EVALUABLE" y explica limitación.
+10. AMPLITUD EMG: La amplitud de la señal EMG de superficie está normalizada y NO es directamente comparable entre músculos ni entre lados sin normalización MVC explícita. NUNCA afirmes dominancia lateral basándote solo en amplitud visual.
 
 JSON a generar:
     {`;
@@ -191,10 +276,9 @@ JSON a generar:
         if (analysisTypes.flexibilidad) {
             prompt += `
             "flexibilidad": {
-                "estado": "OPTIMO | ATENCION | CRITICO",
-                "tipo_imagen": "Escribe 'Gráfico EMG' o 'Fotografía postural' integrado en frase",
-                "hallazgos": "FOTO: Describe amplitudes articulares observadas. GRÁFICO: Describe capacidad de relajación muscular entre activaciones.",
-                "interpretacion": "Evalúa rigidez articular (foto) o tono residual (gráfico).",
+                "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
+                "hallazgos": "Si la evidencia es EMG: describe EXCLUSIVAMENTE la capacidad de relajación muscular en los valles de la señal y la persistencia de actividad entre activaciones. Si la evidencia es fotografía postural: describe amplitudes articulares observadas. NUNCA digas que falta una foto si ya hay un gráfico EMG válido.",
+                "interpretacion": "En EMG: evalúa tono residual o capacidad de relajación muscular. En fotografía: evalúa rigidez articular o restricción de rango. Si no existe evidencia suficiente para ninguna de las dos, usa NO_EVALUABLE.",
                 "recomendacion": "Acción concreta."
             },`;
         }
@@ -204,7 +288,6 @@ JSON a generar:
             prompt += `
             "biobit": {
                 "estado": "OPTIMO | ATENCION | CRITICO",
-                "tipo_dato": "Escribe 'Señal EMG de superficie' integrado en frase, no suelto",
                 "patron_temporal": "Describe secuencia de activación muscular observada.",
                 "sincronizacion": "Evalúa coordinación entre músculos/lados.",
                 "hallazgo_clave": "Destaca hallazgo principal."
@@ -215,12 +298,12 @@ JSON a generar:
         if (analysisTypes.asimetria) {
             prompt += `
             "asimetria": {
-                "estado": "OPTIMO | ATENCION | CRITICO",
-                "datos_disponibles": "Escribe 'Los datos bilaterales muestran...' NO 'Sí, hay datos...'",
-                "comparacion": "Describe diferencias entre lado izquierdo y derecho.",
-                "lado_dominante": "Escribe 'Lado izquierdo' o 'Lado derecho' o 'Patrón simétrico'",
-                "magnitud": "Estima diferencia porcentual.",
-                "relevancia": "Evalúa significancia clínica."
+                "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
+                "datos_disponibles": "Si hay bilateral real: 'Los datos bilaterales muestran...'. Si NO hay bilateral: 'No hay datos bilaterales suficientes para comparar lados'.",
+                "comparacion": "Solo comparar izquierdo vs derecho si existen datos de ambos lados. Si no, indicar limitación.",
+                "lado_dominante": "Escribe SIEMPRE una oración completa. Ejemplos: 'El lado derecho presenta mayor activación.' / 'El patrón es simétrico entre ambos lados.' / 'No es posible determinar dominancia sin datos bilaterales.' NUNCA escribas solo 'Lado derecho' o 'Lado izquierdo' solos.",
+                "magnitud": "Escribe SIEMPRE una oración completa. Ejemplos: 'La diferencia estimada es de aproximadamente un 15%.' / 'La magnitud de la asimetría no es cuantificable con los datos disponibles.' NUNCA escribas solo 'No cuantificable'.",
+                "relevancia": "Evalúa significancia clínica solo cuando la asimetría esté demostrada. Si no, explicar que no es concluible."
             },`;
         }
 
@@ -240,11 +323,11 @@ JSON a generar:
         if (analysisTypes.fatiga) {
             prompt += `
             "fatiga": {
-                "estado": "OPTIMO | ATENCION | CRITICO",
-                "evolucion_temporal": "Escribe 'El registro temporal muestra...' NO preguntes si hay datos",
-                "comparacion": "Compara inicio vs final del test.",
-                "signos": "Describe signos de fatiga observados.",
-                "nivel": "Escribe 'Sin fatiga evidente' o 'Fatiga moderada' o 'Fatiga significativa'"
+                "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
+                "evolucion_temporal": "Describe el comportamiento de la señal a lo largo del tiempo. Si la señal es estática o no muestra progresión temporal demostrable, escribe: 'El registro no muestra una progresión temporal suficiente para evaluar fatiga.'.",
+                "comparacion": "Compara el inicio vs el final del registro SOLO si hay duración suficiente. Para diagnosticar fatiga se requiere degradación progresiva y sostenida (aumento de amplitud + disminución de frecuencia, o densidad creciente a lo largo del tiempo). Si el registro es corto o estático, escribe: 'No hay suficiente contexto temporal para comparar inicio y final.'.",
+                "signos": "Lista únicamente signos OBJETIVOS de fatiga presentes en la señal: incremento progresivo de amplitud, disminución progresiva de frecuencia, aumento de densidad hacia el final. Si no se observan estos signos claramente, escribe: 'No se observan signos objetivos de fatiga en el registro.'.",
+                "nivel": "SOLO si hay evidencia temporal objetiva clara: 'Sin fatiga evidente' o 'Fatiga moderada' o 'Fatiga significativa'. Si la evidencia es insuficiente o el registro no es temporal, usa: 'NO_EVALUABLE: requiere registro de esfuerzo sostenido'."
             },`;
         }
 
@@ -252,16 +335,51 @@ JSON a generar:
         if (analysisTypes.fuerzaInercia) {
             prompt += `
             "fuerza_inercia": {
-                "estado": "OPTIMO | ATENCION | CRITICO",
-                "tipo_medicion": "Escribe 'La señal EMG muestra...' integrado, no 'EMG de Superficie' suelto",
-                "generacion": "Analiza pendiente de subida (explosividad).",
-                "control": "Analiza pendiente de bajada (frenado).",
-                "interpretacion": "Conclusión sobre eficiencia mecánica."
+                "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
+                "tipo_medicion": "Especifica QUÉ datos están disponibles: 'La señal EMG muestra...' y si hay o no datos de fuerza, velocidad, aceleración o cinemática articular.",
+                "generacion": "ADVERTENCIA CRÍTICA: La generación de fuerza y explosividad SOLO puede evaluarse con datos de fuerza (dinamómetro, plataforma de fuerza) o velocidad/aceleración. El EMG de superficie NO mide fuerza directamente. Si SOLO hay EMG, escribe: 'No evaluable con EMG únicamente: se requieren datos de fuerza o cinemática.' Si hay datos de fuerza o velocidad, analiza la pendiente de subida.",
+                "control": "ADVERTENCIA CRÍTICA: La fase de frenado y control inercial SOLO puede evaluarse con datos de fuerza o cinemática. Si SOLO hay EMG, escribe: 'No evaluable con EMG únicamente: se requieren datos de fuerza o cinemática.' Si hay datos complementarios, analiza la pendiente de bajada.",
+                "interpretacion": "Si solo hay EMG disponible: 'La eficiencia mecánica y el control de fuerza no son evaluables a partir de EMG de superficie únicamente. Se requiere dinamometría o análisis cinemático para esta valoración.' Solo si hay datos de fuerza/cinemática: resume eficiencia mecánica."
             },`;
         }
 
         // CONCLUSIONES - Basadas en TODOS los análisis anteriores
         prompt += `
+        INSTRUCCIONES PARA CONCLUSIONES (aplica al bloque conclusiones a continuación):
+
+        1. PUNTOS DÉBILES — REGLA FUNDAMENTAL: Solo reporta problemas que REALMENTE existen.
+           - "puntos_debiles": [] es una respuesta VÁLIDA y CORRECTA si todos los estados son OPTIMO.
+           - Si hay estados ATENCION: máximo 2 puntos débiles.
+           - Si hay estados CRITICO: máximo 4 puntos débiles.
+           - NUNCA inventes o exageres problemas para "completar" la lista.
+           - Identifica áreas problemáticas ESPECÍFICAS basadas en estados CRITICO y ATENCION.
+           - Ejemplo BUENO: "Tono residual en cuádriceps durante fases de reposo"
+           - Ejemplo MALO: "Problemas musculares generales"
+           - Prioriza: CRITICO > ATENCION
+           - NO incluir asimetría bilateral si la sección asimetria está en NO_EVALUABLE.
+           - NO incluir fatiga si su estado es NO_EVALUABLE.
+           - NO incluir fuerza/inercia si su estado es NO_EVALUABLE.
+
+        2. CAPACIDADES FÍSICAS (scores 0-100):
+           - Potencia: Basado en fuerza_inercia (generación explosiva)
+           - Resistencia: Basado en fatiga (capacidad de mantener esfuerzo)
+           - Fuerza: Basado en fuerza_inercia (generación de fuerza)
+           - Flexibilidad: Basado en flexibilidad (rangos de movimiento/relajación)
+           - Velocidad: Basado en biobit y control_motor (rapidez de activación)
+           Mapeo de estados a scores: OPTIMO → 75-95, ATENCION → 45-74, CRITICO → 15-44, NO_EVALUABLE → 50 (neutro).
+
+        3. CLASIFICACIÓN COHORTE:
+           - ELITE: 4-5 capacidades >75, sin puntos críticos
+           - AVANZADO: 3+ capacidades >65, máx 1 punto crítico
+           - INTERMEDIO: 2+ capacidades >55, máx 2 puntos críticos
+           - PRINCIPIANTE: <2 capacidades >55
+           - ATENCION_REQUERIDA: 2+ puntos críticos o múltiples asimetrías severas
+
+        4. resumen_global: 1-2 frases ejecutivas integrando todos los hallazgos.
+        5. advertencia: null salvo que haya un problema crítico que requiera derivación urgente.
+
+        RECUERDA: Escribe como médico en reporte, NO como chatbot. Integra todo en frases completas.
+
         "conclusiones": {
             "puntos_debiles": [
                 {
@@ -276,47 +394,17 @@ JSON a generar:
                 "flexibilidad": 0-100,
                 "velocidad": 0-100
             },
-            "clasificacion_cohorte": "ELITE | AVANZADO | INTERMEDIO | PRINCIPIANTE | ATENCION_REQUERIDA"
-        },
-
-        INSTRUCCIONES PARA CONCLUSIONES:
-        
-        1. PUNTOS DÉBILES (máximo 5, ordenados por severidad):
-           - Identifica áreas problemáticas ESPECÍFICAS basadas en estados CRITICO y ATENCION
-           - Ejemplo BUENO: "Asimetría bilateral en cuádriceps (15% mayor izquierdo)"
-           - Ejemplo MALO: "Problemas musculares generales"
-           - Prioriza: CRITICO > ATENCION
-        
-        2. CAPACIDADES FÍSICAS (scores 0-100):
-           - Potencia: Basado en fuerza_inercia (generación explosiva)
-           - Resistencia: Basado en fatiga (capacidad de mantener esfuerzo)
-           - Fuerza: Basado en fuerza_inercia (generación de fuerza)
-           - Flexibilidad: Basado en flexibilidad (rangos de movimiento/relajación)
-           - Velocidad: Basado en biobit y control_motor (rapidez de activación)
-           
-           Mapeo de estados a scores:
-           - OPTIMO: 75-95
-           - ATENCION: 45-74
-           - CRITICO: 15-44
-        
-        3. CLASIFICACIÓN COHORTE:
-           - ELITE: 4-5 capacidades >75, sin puntos críticos
-           - AVANZADO: 3+ capacidades >65, máx 1 punto crítico
-           - INTERMEDIO: 2+ capacidades >55, máx 2 puntos críticos
-           - PRINCIPIANTE: <2 capacidades >55
-           - ATENCION_REQUERIDA: 2+ puntos críticos o múltiples asimetrías severas
-        
-        "resumen_global": "Resumen ejecutivo en 1-2 frases completas.",
-        "advertencia": null
+            "clasificacion_cohorte": "ELITE | AVANZADO | INTERMEDIO | PRINCIPIANTE | ATENCION_REQUERIDA",
+            "resumen_global": "Resumen ejecutivo en 1-2 frases completas.",
+            "advertencia": null
         }
-        
-        RECUERDA: Escribe como médico en reporte, NO como chatbot. Integra todo en frases completas.`;
+        }`;
 
         return prompt;
     }
 
     /**
-     * Parsea la respuesta de Gemini y extrae cada análisis
+    * Parsea la respuesta de IA y extrae cada análisis
      */
     private parseAIResponse(text: string, analysisTypes: AnalysisTypes): AnalysisResults {
         const results: AnalysisResults = {}
@@ -349,7 +437,6 @@ JSON a generar:
             if (analysisTypes.flexibilidad && jsonResponse.flexibilidad) {
                 const flex = jsonResponse.flexibilidad
                 const parts = [
-                    flex.tipo_imagen,
                     flex.hallazgos,
                     flex.interpretacion,
                     flex.recomendacion
@@ -361,7 +448,6 @@ JSON a generar:
             if (analysisTypes.biobit && jsonResponse.biobit) {
                 const biobit = jsonResponse.biobit
                 const parts = [
-                    biobit.tipo_dato,
                     biobit.patron_temporal,
                     biobit.sincronizacion,
                     biobit.hallazgo_clave

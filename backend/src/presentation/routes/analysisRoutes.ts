@@ -54,7 +54,7 @@ router.post('/:id/graphs', upload.array('graphs', 10), AnalysisController.upload
 
 /**
  * POST /api/analyses/ai-analyze
- * Analyze images using Gemini AI
+ * Analyze images using configured AI provider
  * Expects: images (multipart), analysisTypes (JSON string)
  */
 router.post('/ai-analyze', uploadMemory.array('images', 10), AnalysisController.aiAnalyze)

@@ -7,6 +7,28 @@ import { athleteAPI } from '@/services/api'
 import { useAthleteStore } from '@/store/athleteStore'
 import './EditAthlete.css'
 
+const normalizeGender = (gender: string | null | undefined): string => {
+    if (!gender) return ''
+
+    const normalized = gender.trim().toLowerCase()
+    if (normalized === 'male' || normalized === 'masculino') return 'Male'
+    if (normalized === 'female' || normalized === 'femenino') return 'Female'
+    if (normalized === 'other' || normalized === 'otro') return 'Other'
+
+    return gender
+}
+
+const normalizeBodyType = (bodyType: string | null | undefined): string => {
+    if (!bodyType) return ''
+
+    const normalized = bodyType.trim().toLowerCase()
+    if (normalized === 'ectomorph' || normalized === 'ectomorfo') return 'Ectomorph'
+    if (normalized === 'mesomorph' || normalized === 'mesomorfo') return 'Mesomorph'
+    if (normalized === 'endomorph' || normalized === 'endomorfo') return 'Endomorph'
+
+    return bodyType
+}
+
 function EditAthlete() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
@@ -47,13 +69,13 @@ function EditAthlete() {
 
             setFormData({
                 name: athlete.name,
-                gender: athlete.gender,
+                gender: normalizeGender(athlete.gender),
                 birthDate: athlete.birthDate || '',
                 nationality: athlete.nationality || '',
                 sport: athlete.sport,
                 club: athlete.club || '',
                 position: athlete.position || '',
-                bodyType: athlete.bodyType,
+                bodyType: normalizeBodyType(athlete.bodyType),
                 height: athlete.height.toString(),
                 weight: athlete.weight.toString(),
                 email: athlete.email || '',
@@ -86,13 +108,13 @@ function EditAthlete() {
             // Update basic data
             const updateData = {
                 name: formData.name,
-                gender: formData.gender,
+                gender: normalizeGender(formData.gender),
                 birthDate: formData.birthDate || undefined,
                 nationality: formData.nationality || undefined,
                 sport: formData.sport,
                 club: formData.club || undefined,
                 position: formData.position || undefined,
-                bodyType: formData.bodyType,
+                bodyType: normalizeBodyType(formData.bodyType),
                 height: parseFloat(formData.height),
                 weight: parseFloat(formData.weight),
                 email: formData.email || undefined,
@@ -201,9 +223,9 @@ function EditAthlete() {
                                 required
                             >
                                 <option value="">Seleccionar...</option>
-                                <option value="Masculino">Masculino</option>
-                                <option value="Femenino">Femenino</option>
-                                <option value="Otro">Otro</option>
+                                <option value="Male">Masculino</option>
+                                <option value="Female">Femenino</option>
+                                <option value="Other">Otro</option>
                             </select>
                         </div>
 
@@ -273,9 +295,9 @@ function EditAthlete() {
                                 required
                             >
                                 <option value="">Seleccionar...</option>
-                                <option value="Ectomorfo">Ectomorfo</option>
-                                <option value="Mesomorfo">Mesomorfo</option>
-                                <option value="Endomorfo">Endomorfo</option>
+                                <option value="Ectomorph">Ectomorfo</option>
+                                <option value="Mesomorph">Mesomorfo</option>
+                                <option value="Endomorph">Endomorfo</option>
                             </select>
                         </div>
                     </div>
