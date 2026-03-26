@@ -518,7 +518,7 @@ export class AnalysisController {
 
   /**
    * POST /api/analyses/ai-analyze
-   * Analyze images using Gemini AI
+    * Analyze images using configured AI provider
    */
   static async aiAnalyze(req: Request, res: Response) {
     try {

@@ -44,8 +44,8 @@ app.use(helmet({
 }))
 
 // JSON parser
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
 // HTTP request logger
 app.use(morgan('dev'))
@@ -94,13 +94,18 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 // Solo iniciar el servidor si no está en modo serverless (Vercel)
 if (process.env.VERCEL !== '1') {
+  const databaseUrl = process.env.DATABASE_URL
+  const safeDatabaseUrl = databaseUrl
+    ? databaseUrl.replace(/(postgresql:\/\/[^:]+:)[^@]+@/, '$1****@')
+    : 'not configured'
+
   app.listen(PORT, () => {
     console.log('========================================')
     console.log('   🚀 Physoft Backend API')
     console.log('========================================')
     console.log(`✓ Servidor corriendo en http://localhost:${PORT}`)
     console.log(`✓ Entorno: ${process.env.NODE_ENV || 'development'}`)
-    console.log(`✓ Base de datos: ${process.env.DATABASE_URL}`)
+    console.log(`✓ Base de datos: ${safeDatabaseUrl}`)
     console.log('========================================')
   })
 }

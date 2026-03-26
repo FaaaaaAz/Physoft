@@ -50,12 +50,17 @@ git push origin physoft_web
    **Environment Variables (Add):**
    ```
    NODE_ENV=production
-   DATABASE_URL=postgresql://postgres.vroymaxhuhyoewfmyxbl:PhysoftSupabase2025@aws-1-us-east-1.pooler.supabase.com:5432/postgres
+   DATABASE_URL=postgresql://<DB_USER>:<DB_PASSWORD>@<HOST>:5432/postgres
    CLOUDINARY_CLOUD_NAME=tu_cloudinary_cloud_name
    CLOUDINARY_API_KEY=tu_cloudinary_api_key
    CLOUDINARY_API_SECRET=tu_cloudinary_api_secret
-   GEMINI_API_KEY=tu_gemini_api_key
-   GEMINI_MODEL=gemini-2.0-flash-exp
+   AI_PROVIDER=openai
+   OPENAI_API_KEY=tu_openai_api_key
+   OPENAI_MODEL=gpt-4.1-mini
+   # Si usas Gemini en vez de OpenAI:
+   # AI_PROVIDER=gemini
+   # GEMINI_API_KEY=tu_gemini_api_key
+   # GEMINI_MODEL=gemini-2.5-flash
    CORS_ORIGINS=*
    LOG_LEVEL=info
    VERCEL=1
