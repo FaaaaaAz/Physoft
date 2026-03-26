@@ -56,12 +56,12 @@
   cursor: pointer;
   user-select: none;
   font-size: 0.95rem;
-  color: #e0e0e0;
+  color: #333;
   font-weight: 500;
   transition: color 0.2s;
 }
 
-.view-checffff-item:hover {
+.view-checkbox-item:hover {
   color: #007bff;
 }
 
@@ -176,7 +176,7 @@
 
 .body-image-instruction {
   text-align: center;
-  color: #a0a0a0;
+  color: #555;
   font-size: 0.9rem;
   margin-top: 8px;
   font-style: italic;
