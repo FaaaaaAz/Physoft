@@ -13,7 +13,7 @@ class DatabaseService {
   
   async crearAtleta(data: CrearAtletaDTO): Promise<DBResponse<Atleta>> {
     if (!isElectron) {
-      console.warn('⚠️ No estamos en Electron, usando localStorage temporal');
+      console.warn('⚠️ Not running in Electron, using temporary localStorage');
       return this.crearAtletaLocalStorage(data);
     }
     
@@ -97,8 +97,8 @@ class DatabaseService {
   
   async crearAnalisis(data: any): Promise<DBResponse<Analisis>> {
     if (!isElectron) {
-      console.warn('⚠️ Análisis solo disponible en Electron');
-      return { success: false, error: 'No disponible en navegador' };
+      console.warn('⚠️ Analysis only available in Electron');
+      return { success: false, error: 'Not available in browser' };
     }
     
     try {
@@ -111,7 +111,7 @@ class DatabaseService {
   
   async obtenerAnalisis(atletaId: string): Promise<DBResponse<Analisis[]>> {
     if (!isElectron) {
-      return { success: false, error: 'No disponible en navegador' };
+      return { success: false, error: 'Not available in browser' };
     }
     
     try {
@@ -162,7 +162,7 @@ class DatabaseService {
     const atletas = this.getLocalStorageAtletas();
     const atleta = atletas.find(a => a.id === id);
     if (!atleta) {
-      return { success: false, error: 'Atleta no encontrado' };
+      return { success: false, error: 'Patient not found' };
     }
     return { success: true, data: atleta };
   }
@@ -171,7 +171,7 @@ class DatabaseService {
     const atletas = this.getLocalStorageAtletas();
     const index = atletas.findIndex(a => a.id === id);
     if (index === -1) {
-      return { success: false, error: 'Atleta no encontrado' };
+      return { success: false, error: 'Patient not found' };
     }
     atletas[index] = { ...atletas[index], ...data, updatedAt: new Date() };
     localStorage.setItem('atletas', JSON.stringify(atletas));
@@ -182,7 +182,7 @@ class DatabaseService {
     const atletas = this.getLocalStorageAtletas();
     const index = atletas.findIndex(a => a.id === id);
     if (index === -1) {
-      return { success: false, error: 'Atleta no encontrado' };
+      return { success: false, error: 'Patient not found' };
     }
     const atletaEliminado = atletas[index];
     atletas.splice(index, 1);

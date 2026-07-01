@@ -68,15 +68,15 @@ export const validateImageFiles = (
   const errors: string[] = []
 
   if (files.length > maxFiles) {
-    errors.push(`Máximo ${maxFiles} archivos permitidos`)
+    errors.push(`Maximum ${maxFiles} files allowed`)
   }
 
   files.forEach((file, index) => {
     if (!isValidImageFile(file)) {
-      errors.push(`Archivo ${index + 1}: Tipo de archivo no válido (solo imágenes)`)
+      errors.push(`File ${index + 1}: Invalid file type (images only)`)
     }
     if (!isValidFileSize(file, maxSizeMB)) {
-      errors.push(`Archivo ${index + 1}: Tamaño máximo ${maxSizeMB}MB excedido`)
+      errors.push(`File ${index + 1}: Maximum size ${maxSizeMB}MB exceeded`)
     }
   })
 

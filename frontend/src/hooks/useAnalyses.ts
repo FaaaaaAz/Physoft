@@ -38,7 +38,7 @@ export const useAnalyses = ({ athleteId, enabled = true }: UseAnalysesParams = {
       setAnalyses(response.data)
     } catch (err) {
       console.error('Error fetching analyses:', err)
-      setError('Error al cargar los análisis')
+      setError('Error loading analyses')
     } finally {
       setLoading(false)
     }
@@ -71,7 +71,7 @@ export const useAnalysis = (id: number | undefined, enabled = true): UseAnalysis
 
   const fetchAnalysis = useCallback(async () => {
     if (!id) {
-      setError('ID de análisis no proporcionado')
+      setError('Analysis ID not provided')
       setLoading(false)
       return
     }
@@ -83,7 +83,7 @@ export const useAnalysis = (id: number | undefined, enabled = true): UseAnalysis
       setAnalysis(response.data)
     } catch (err) {
       console.error('Error fetching analysis:', err)
-      setError('Error al cargar el análisis')
+      setError('Error loading analysis')
     } finally {
       setLoading(false)
     }

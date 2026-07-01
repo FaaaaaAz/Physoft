@@ -69,7 +69,7 @@ function AthleteModal({ athlete, onClose, onDelete, onViewDetails, onEdit }: Ath
                                     className="btn-view-details"
                                     onClick={() => onViewDetails(athlete.id)}
                                 >
-                                    <IoEye /> Ver Detalles
+                                        <IoEye /> View Details
                                 </button>
                             )}
                             {onEdit && (
@@ -77,7 +77,7 @@ function AthleteModal({ athlete, onClose, onDelete, onViewDetails, onEdit }: Ath
                                     className="btn-edit-modal"
                                     onClick={() => onEdit(athlete.id)}
                                 >
-                                    <IoCreate /> Editar
+                                    <IoCreate /> Edit
                                 </button>
                             )}
                             {onDelete && (
@@ -85,7 +85,7 @@ function AthleteModal({ athlete, onClose, onDelete, onViewDetails, onEdit }: Ath
                                     className="btn-delete-inline"
                                     onClick={() => onDelete(athlete.id)}
                                 >
-                                    Eliminar
+                                    Delete
                                 </button>
                             )}
                         </div>
@@ -94,39 +94,39 @@ function AthleteModal({ athlete, onClose, onDelete, onViewDetails, onEdit }: Ath
 
                 <div className="modal-body">
                     <div className="modal-section">
-                        <h3 className="section-title">Información Personal</h3>
+                        <h3 className="section-title">Personal Information</h3>
                         <div className="info-grid">
                             {athlete.accessCode && (
                                 <div className="info-item">
-                                    <span className="info-label">Código de Acceso</span>
+                                    <span className="info-label">Access Code</span>
                                     <span className="info-value access-code">{athlete.accessCode}</span>
                                 </div>
                             )}
                             <div className="info-item">
-                                <span className="info-label">Edad</span>
-                                <span className="info-value">{athlete.age} años</span>
+                                <span className="info-label">Age</span>
+                                <span className="info-value">{athlete.age} years</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Nacionalidad</span>
-                                <span className="info-value">{athlete.nationality || 'No especificado'}</span>
+                                <span className="info-label">Nationality</span>
+                                <span className="info-value">{athlete.nationality || 'Not specified'}</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Altura</span>
+                                <span className="info-label">Height</span>
                                 <span className="info-value">{athlete.height || 'N/A'} cm</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Peso</span>
+                                <span className="info-label">Weight</span>
                                 <span className="info-value">{athlete.weight || 'N/A'} kg</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Tipo de Cuerpo</span>
+                                <span className="info-label">Body Type</span>
                                 <span className="info-value">{translateBodyType(athlete.bodyType)}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="modal-section">
-                        <h3 className="section-title">Capacidades Físicas</h3>
+                        <h3 className="section-title">Physical Abilities</h3>
                         <div className="chart-container">
                             <svg width="340" height="340" viewBox="0 0 340 340">
                                 {/* Guide lines (20%, 40%, 60%, 80%, 100%) */}

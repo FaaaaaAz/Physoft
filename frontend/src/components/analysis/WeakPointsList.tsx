@@ -17,38 +17,38 @@ export function WeakPointsList({ puntosDebiles, onAdd, onRemove, onChange }: Wea
     return (
         <div className="subsection">
             <div className="subsection-header">
-                <h4>Puntos débiles</h4>
+                <h4>Weak Points</h4>
                 <button
                     type="button"
                     className="btn-agregar-punto"
                     onClick={onAdd}
                 >
-                    <IoAdd /> Agregar punto débil
+                    <IoAdd /> Add weak point
                 </button>
             </div>
 
             {puntosDebiles.length === 0 ? (
                 <p className="empty-message">
-                    La IA identificará los puntos débiles automáticamente. También puede agregarlos manualmente.
+                    The AI will identify weak points automatically. You can also add them manually.
                 </p>
             ) : (
                 <div className="puntos-debiles-lista">
                     {puntosDebiles.map((punto, index) => (
                         <div key={punto.id} className="punto-debil-item">
-                            <span className="punto-numero">Punto débil {index + 1}</span>
+                            <span className="punto-numero">Weak point {index + 1}</span>
                             <div className="punto-debil-fields">
                                 <input
                                     type="text"
                                     value={punto.area}
                                     onChange={(e) => onChange(punto.id, 'area', e.target.value)}
-                                    placeholder="Área problemática (ej: Fatiga muscular)"
+                                    placeholder="Problem area (e.g., Muscle fatigue)"
                                     className="punto-debil-input area"
                                 />
                                 <input
                                     type="text"
                                     value={punto.descripcion}
                                     onChange={(e) => onChange(punto.id, 'descripcion', e.target.value)}
-                                    placeholder="Descripción (opcional)"
+                                    placeholder="Description (optional)"
                                     className="punto-debil-input descripcion"
                                 />
                             </div>

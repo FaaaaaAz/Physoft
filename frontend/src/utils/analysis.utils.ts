@@ -95,32 +95,32 @@ export const generateSimulatedAIAnalysis = (checkboxes: {
 
   if (checkboxes.flexibilidad) {
     analysis.analisisFlexibilidad = 
-      'Análisis de flexibilidad generado por IA: Se observa un rango de movimiento adecuado en las principales articulaciones. Flexión de cadera: 85°, extensión de rodilla: 30°, dorsiflexión de tobillo: 20°. Recomendación: mantener rutina de estiramiento dinámico.'
+      'AI-generated flexibility analysis: Observed adequate range of motion in major joints. Hip flexion: 85°, knee extension: 30°, ankle dorsiflexion: 20°. Recommendation: maintain a dynamic stretching routine.'
   }
 
   if (checkboxes.biobit) {
     analysis.analisisBiobit = 
-      'Análisis Biobit generado por IA: Activación muscular simétrica detectada en un 92%. Patrón de disparo óptimo en cuádriceps y glúteos. Se detecta un retraso menor de 12ms en tibial anterior izquierdo.'
+      'AI-generated Biobit analysis: Muscle activation symmetry detected at 92%. Optimal firing pattern in quadriceps and glutes. Minor delay (~12ms) detected in the left tibialis anterior.'
   }
 
   if (checkboxes.asimetria) {
     analysis.asimetriaMuscular = 
-      'Análisis de asimetría muscular generado por IA: Dominancia de pierna derecha evidente con 8% mayor amplitud EMG. Complejo aductor izquierdo muestra 15% menos activación durante movimientos laterales.'
+      'AI-generated muscular asymmetry analysis: Right leg dominance evident with 8% higher EMG amplitude. Left adductor complex shows ~15% less activation during lateral movements.'
   }
 
   if (checkboxes.controlMotor) {
     analysis.controlMotorActivo = 
-      'Análisis de control motor generado por IA: Respuesta propioceptiva superior. Test de equilibrio monopodal: 45s ojos abiertos, 28s ojos cerrados. Estabilidad del core en percentil 95.'
+      'AI-generated motor control analysis: Superior proprioceptive response. Single-leg balance test: 45s eyes open, 28s eyes closed. Core stability in the 95th percentile.'
   }
 
   if (checkboxes.fatiga) {
     analysis.fatigaMuscular = 
-      'Análisis de fatiga muscular generado por IA: Índice de fatiga al 18% después del protocolo de 30min. Declive moderado en potencia explosiva (-12%) en series finales. Tiempo de recuperación recomendado: 48-52 horas.'
+      'AI-generated muscle fatigue analysis: Fatigue index at 18% after a 30-minute protocol. Moderate decline in explosive power (-12%) in final sets. Recommended recovery time: 48-52 hours.'
   }
 
   if (checkboxes.fuerzaInercia) {
     analysis.controlFuerzaInercia = 
-      'Análisis de control de fuerza e inercia generado por IA: Mecánica de desaceleración excepcional. Fuerzas de reacción del suelo bien distribuidas. Ratio de fuerza excéntrica: 1.15 (rango óptimo).'
+      'AI-generated inertial force control analysis: Excellent deceleration mechanics. Ground reaction forces well distributed. Eccentric force ratio: 1.15 (optimal range).'
   }
 
   return analysis

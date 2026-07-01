@@ -14,14 +14,14 @@ interface PhysicalCapacitiesFormProps {
 export function PhysicalCapacitiesForm({ capacidades, onChange }: PhysicalCapacitiesFormProps) {
     return (
         <div className="subsection">
-            <h4>Capacidades físicas</h4>
+            <h4>Physical Capacities</h4>
             <p className="subsection-description">
-                La IA evaluará estos valores basándose en el análisis. Puede ajustarlos manualmente.
+                AI will estimate these values based on the analysis. You can adjust them manually.
             </p>
 
             <div className="capacidades-grid">
                 <div className="capacidad-item">
-                    <label htmlFor="potencia">Potencia</label>
+                    <label htmlFor="potencia">Power</label>
                     <div className="capacidad-input-group">
                         <input
                             type="range"
@@ -44,7 +44,7 @@ export function PhysicalCapacitiesForm({ capacidades, onChange }: PhysicalCapaci
                 </div>
 
                 <div className="capacidad-item">
-                    <label htmlFor="resistencia">Resistencia</label>
+                    <label htmlFor="resistencia">Endurance</label>
                     <div className="capacidad-input-group">
                         <input
                             type="range"
@@ -67,7 +67,7 @@ export function PhysicalCapacitiesForm({ capacidades, onChange }: PhysicalCapaci
                 </div>
 
                 <div className="capacidad-item">
-                    <label htmlFor="fuerza">Fuerza</label>
+                    <label htmlFor="fuerza">Strength</label>
                     <div className="capacidad-input-group">
                         <input
                             type="range"
@@ -90,7 +90,7 @@ export function PhysicalCapacitiesForm({ capacidades, onChange }: PhysicalCapaci
                 </div>
 
                 <div className="capacidad-item">
-                    <label htmlFor="flexibilidad">Flexibilidad</label>
+                    <label htmlFor="flexibilidad">Flexibility</label>
                     <div className="capacidad-input-group">
                         <input
                             type="range"
@@ -113,7 +113,7 @@ export function PhysicalCapacitiesForm({ capacidades, onChange }: PhysicalCapaci
                 </div>
 
                 <div className="capacidad-item">
-                    <label htmlFor="velocidad">Velocidad</label>
+                    <label htmlFor="velocidad">Speed</label>
                     <div className="capacidad-input-group">
                         <input
                             type="range"

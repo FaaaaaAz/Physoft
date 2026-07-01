@@ -68,19 +68,19 @@ function AnalysisView() {
   }
 
   const getClassificationLabel = (classification: string) => {
-    if (classification === 'high') return 'Por Encima del Promedio'
-    if (classification === 'medium') return 'Promedio'
-    if (classification === 'low') return 'Por Debajo del Promedio'
+    if (classification === 'high') return 'Above Average'
+    if (classification === 'medium') return 'Average'
+    if (classification === 'low') return 'Below Average'
     return classification
   }
 
   const getCohortLabel = (cohort: string) => {
     const labels: Record<string, string> = {
       'ELITE': 'Elite',
-      'AVANZADO': 'Avanzado',
-      'INTERMEDIO': 'Intermedio',
-      'PRINCIPIANTE': 'Principiante',
-      'ATENCION_REQUERIDA': 'Atención Requerida'
+      'AVANZADO': 'Advanced',
+      'INTERMEDIO': 'Intermediate',
+      'PRINCIPIANTE': 'Beginner',
+      'ATENCION_REQUERIDA': 'Needs Attention'
     }
     return labels[cohort] || cohort
   }
@@ -103,8 +103,8 @@ function AnalysisView() {
 
   if (loading) {
     return (
-      <PageTemplate title="Cargando..." subtitle="">
-        <LoadingSpinner message="Cargando análisis..." />
+      <PageTemplate title="Loading..." subtitle="">
+        <LoadingSpinner message="Loading analysis..." />
       </PageTemplate>
     )
   }
@@ -113,13 +113,13 @@ function AnalysisView() {
     return (
       <PageTemplate title="Error" subtitle="">
         <div style={{ textAlign: 'center', padding: '4rem' }}>
-          <p>Análisis no encontrado</p>
+          <p>Analysis not found</p>
           <button
             onClick={() => navigate('/analysis')}
             className="btn-primary"
             style={{ marginTop: '1rem' }}
           >
-            Volver
+            Back
           </button>
         </div>
       </PageTemplate>
@@ -131,10 +131,8 @@ function AnalysisView() {
 
   return (
     <PageTemplate
-      title={`Análisis de ${analysis.athlete?.name || 'Atleta'}`}
-      subtitle={`Evaluación realizada el ${new Date(analysis.evaluationDate).toLocaleDateString(
-        'es-ES'
-      )}`}
+      title={`Analysis for ${analysis.athlete?.name || 'Patient'}`}
+      subtitle={`Evaluation performed on ${new Date(analysis.evaluationDate).toLocaleDateString('en-US')}`}
       className="analysis-view-page"
       showBackButton={true}
       showAddButton={false}
@@ -147,7 +145,7 @@ function AnalysisView() {
               className="btn-primary btn-primary-large"
               onClick={() => navigate(`/analysis/edit/${id}`)}
             >
-              <IoCreate /> Editar Análisis
+              <IoCreate /> Edit Analysis
             </button>
             <button
               onClick={handleDelete}
@@ -173,7 +171,7 @@ function AnalysisView() {
                 e.currentTarget.style.backgroundColor = '#ef4444'
               }}
             >
-              <IoTrash /> Eliminar Análisis
+              <IoTrash /> Delete Analysis
             </button>
           </div>
         </div>
@@ -184,17 +182,17 @@ function AnalysisView() {
         {analysis.athlete && (
           <section className="analysis-section">
             <h2>
-              <IoPerson /> Información del Atleta
+              <IoPerson /> Patient Information
             </h2>
             <div className="athlete-info-grid">
               <div>
-                <strong>Nombre:</strong> {analysis.athlete.name}
+                <strong>Name:</strong> {analysis.athlete.name}
               </div>
               <div>
-                <strong>Código:</strong> {analysis.athlete.accessCode}
+                <strong>Code:</strong> {analysis.athlete.accessCode}
               </div>
               <div>
-                <strong>Deporte:</strong> {analysis.athlete.sport}
+                <strong>Sport:</strong> {analysis.athlete.sport}
               </div>
             </div>
           </section>
@@ -204,11 +202,11 @@ function AnalysisView() {
         {graphImages.length > 0 && (
           <section className="analysis-section">
             <h2>
-              <IoDocument /> Gráficos de Evaluación
+              <IoDocument /> Assessment Graphs
             </h2>
             <div className="graphs-grid">
               {graphImages.map((url, index) => (
-                <img key={index} src={url} alt={`Gráfico ${index + 1}`} className="graph-image" />
+                <img key={index} src={url} alt={`Graph ${index + 1}`} className="graph-image" />
               ))}
             </div>
           </section>
@@ -216,46 +214,46 @@ function AnalysisView() {
 
         {/* Textual Analyses */}
         <section className="analysis-section">
-          <h2>Análisis Detallado</h2>
+          <h2>Detailed Analysis</h2>
 
           {analysis.flexibilityAnalysis && (
             <div className="analysis-item">
-              <h3>1. Análisis de Flexibilidad</h3>
+              <h3>1. Flexibility Analysis</h3>
               <p>{analysis.flexibilityAnalysis}</p>
             </div>
           )}
 
           {analysis.biobitAnalysis && (
             <div className="analysis-item">
-              <h3>2. Análisis Biobit</h3>
+              <h3>2. Biobit Analysis</h3>
               <p>{analysis.biobitAnalysis}</p>
             </div>
           )}
 
           {analysis.muscularAsymmetry && (
             <div className="analysis-item">
-              <h3>3. Asimetría Muscular en Activación</h3>
+              <h3>3. Muscular Asymmetry in Activation</h3>
               <p>{analysis.muscularAsymmetry}</p>
             </div>
           )}
 
           {analysis.activeMotorControl && (
             <div className="analysis-item">
-              <h3>4. Análisis de Control Motor Activo</h3>
+              <h3>4. Active Motor Control Analysis</h3>
               <p>{analysis.activeMotorControl}</p>
             </div>
           )}
 
           {analysis.functionalMuscleFatigue && (
             <div className="analysis-item">
-              <h3>5. Análisis de Fatiga Muscular Funcional</h3>
+              <h3>5. Functional Muscle Fatigue Analysis</h3>
               <p>{analysis.functionalMuscleFatigue}</p>
             </div>
           )}
 
           {analysis.inertiaForceControl && (
             <div className="analysis-item">
-              <h3>6. Análisis de Control de Fuerza Inercial</h3>
+              <h3>6. Inertial Force Control Analysis</h3>
               <p>{analysis.inertiaForceControl}</p>
             </div>
           )}
@@ -263,11 +261,11 @@ function AnalysisView() {
 
         {/* Physical Capacities */}
         <section className="analysis-section">
-          <h2>Capacidades Físicas</h2>
+          <h2>Physical Capacities</h2>
           <div className="capacities-grid">
             {analysis.power !== null && analysis.power !== undefined && (
               <div className="capacity-item">
-                <div className="capacity-label">Potencia</div>
+                <div className="capacity-label">Power</div>
                 <div className="capacity-bar">
                   <div className="capacity-fill" style={{ width: `${analysis.power}%` }} />
                 </div>
@@ -277,7 +275,7 @@ function AnalysisView() {
 
             {analysis.endurance !== null && analysis.endurance !== undefined && (
               <div className="capacity-item">
-                <div className="capacity-label">Resistencia</div>
+                <div className="capacity-label">Endurance</div>
                 <div className="capacity-bar">
                   <div className="capacity-fill" style={{ width: `${analysis.endurance}%` }} />
                 </div>
@@ -287,7 +285,7 @@ function AnalysisView() {
 
             {analysis.strength !== null && analysis.strength !== undefined && (
               <div className="capacity-item">
-                <div className="capacity-label">Fuerza</div>
+                <div className="capacity-label">Strength</div>
                 <div className="capacity-bar">
                   <div className="capacity-fill" style={{ width: `${analysis.strength}%` }} />
                 </div>
@@ -297,7 +295,7 @@ function AnalysisView() {
 
             {analysis.flexibility !== null && analysis.flexibility !== undefined && (
               <div className="capacity-item">
-                <div className="capacity-label">Flexibilidad</div>
+                <div className="capacity-label">Flexibility</div>
                 <div className="capacity-bar">
                   <div className="capacity-fill" style={{ width: `${analysis.flexibility}%` }} />
                 </div>
@@ -307,7 +305,7 @@ function AnalysisView() {
 
             {analysis.speed !== null && analysis.speed !== undefined && (
               <div className="capacity-item">
-                <div className="capacity-label">Velocidad</div>
+                <div className="capacity-label">Speed</div>
                 <div className="capacity-bar">
                   <div className="capacity-fill" style={{ width: `${analysis.speed}%` }} />
                 </div>
@@ -320,7 +318,7 @@ function AnalysisView() {
         {/* Weak Points */}
         {weakPoints.length > 0 && (
           <section className="analysis-section">
-            <h2>Puntos Débiles Identificados</h2>
+            <h2>Identified Weak Points</h2>
             <ul className="weak-points-list">
               {weakPoints.map((point, index) => (
                 <li key={index}>
@@ -341,14 +339,14 @@ function AnalysisView() {
         {/* Classifications */}
         {(analysis.globalClassification || analysis.cohortClassification) && (
           <section className="analysis-section">
-            <h2>Clasificaciones</h2>
+            <h2>Classifications</h2>
 
             {/* Global Classification - Based on comparison with same sport/bodyType */}
             {analysis.globalClassification && (
               <div className="classification-item">
-                <h3>Clasificación Global</h3>
+                <h3>Global Classification</h3>
                 <p className="classification-description">
-                  Basada en la comparación con atletas del mismo deporte y somatotipo
+                  Based on comparison with patients of the same sport and body type
                 </p>
                 <div className={`classification-badge classification-${analysis.globalClassification}`}>
                   {getClassificationLabel(analysis.globalClassification)}
@@ -359,9 +357,9 @@ function AnalysisView() {
             {/* Cohort Classification - Elite, Avanzado, etc. */}
             {analysis.cohortClassification && (
               <div className="classification-item" style={{ marginTop: '1.5rem' }}>
-                <h3>Clasificación de Cohorte</h3>
+                <h3>Cohort Classification</h3>
                 <p className="classification-description">
-                  Nivel general del atleta según sus capacidades físicas
+                  Overall patient level based on physical capacities
                 </p>
                 <div className={`classification-badge cohort-${analysis.cohortClassification.toLowerCase()}`}>
                   {getCohortLabel(analysis.cohortClassification)}
@@ -374,7 +372,7 @@ function AnalysisView() {
         {/* Recommendations */}
         {analysis.coachRecommendations && (
           <section className="analysis-section">
-            <h2>Recomendaciones para el Entrenador</h2>
+            <h2>Coach Recommendations</h2>
             <p className="recommendations-text">{analysis.coachRecommendations}</p>
           </section>
         )}

@@ -12,7 +12,7 @@ interface LoadingSpinnerProps {
  */
 function LoadingSpinner({ 
   size = 'medium', 
-  message = 'Cargando...',
+  message = 'Loading...',
   fullScreen = false
 }: LoadingSpinnerProps) {
   const content = (

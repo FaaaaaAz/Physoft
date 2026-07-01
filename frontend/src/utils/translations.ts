@@ -1,15 +1,15 @@
-// Translation helpers for displaying data in Spanish
+// Translation helpers for displaying data (English)
 
 export const genderTranslations: Record<string, string> = {
-    'Male': 'Masculino',
-    'Female': 'Femenino',
-    'Other': 'Otro'
+    'Male': 'Male',
+    'Female': 'Female',
+    'Other': 'Other'
 }
 
 export const bodyTypeTranslations: Record<string, string> = {
-    'Mesomorph': 'Mesomorfo',
-    'Ectomorph': 'Ectomorfo',
-    'Endomorph': 'Endomorfo'
+    'Mesomorph': 'Mesomorph (Athletic)',
+    'Ectomorph': 'Ectomorph (Lean)',
+    'Endomorph': 'Endomorph (Robust)'
 }
 
 export function translateGender(gender: string): string {

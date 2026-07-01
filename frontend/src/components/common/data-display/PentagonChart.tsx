@@ -36,11 +36,11 @@ function PentagonChart({
 
   // Etiquetas en orden del pentágono
   const labels = [
-    { key: 'potencia', nombre: 'Potencia' },
-    { key: 'velocidad', nombre: 'Velocidad' },
-    { key: 'flexibilidad', nombre: 'Flexibilidad' },
-    { key: 'resistencia', nombre: 'Resistencia' },
-    { key: 'fuerza', nombre: 'Fuerza' }
+    { key: 'potencia', nombre: 'Power' },
+    { key: 'velocidad', nombre: 'Speed' },
+    { key: 'flexibilidad', nombre: 'Flexibility' },
+    { key: 'resistencia', nombre: 'Endurance' },
+    { key: 'fuerza', nombre: 'Strength' }
   ]
 
   // Calcular puntos del pentágono

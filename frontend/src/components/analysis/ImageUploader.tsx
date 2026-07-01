@@ -35,7 +35,7 @@ function ImageUploader({ images, onImagesChange, disabled = false, required = fa
 
     return (
         <div className="image-uploader">
-            <label>Adjuntar Imágenes de Gráficos {required && '*'}</label>
+            <label>Attach Graph Images {required && '*'}</label>
             <div className="upload-zone">
                 <input
                     type="file"
@@ -48,8 +48,8 @@ function ImageUploader({ images, onImagesChange, disabled = false, required = fa
                 />
                 <label htmlFor="images-input" className="upload-label">
                     <IoCloudUpload />
-                    <span>Subir Imágenes</span>
-                    <p>Haz clic para seleccionar imágenes de gráficos</p>
+                    <span>Upload Images</span>
+                    <p>Click to select graph images</p>
                 </label>
             </div>
 

@@ -36,17 +36,17 @@ function Analysis() {
     }
 
     const getClassificationBadge = (classification: string | null | undefined) => {
-        if (!classification) return 'promedio'
-        if (classification === 'high') return 'encima'
-        if (classification === 'low') return 'debajo'
-        return 'promedio'
+        if (!classification) return 'average'
+        if (classification === 'high') return 'above'
+        if (classification === 'low') return 'below'
+        return 'average'
     }
 
     const getClassificationText = (classification: string | null | undefined) => {
-        if (!classification) return 'Promedio'
-        if (classification === 'high') return 'Encima del Promedio'
-        if (classification === 'low') return 'Debajo del Promedio'
-        return 'Promedio'
+        if (!classification) return 'Average'
+        if (classification === 'high') return 'Above Average'
+        if (classification === 'low') return 'Below Average'
+        return 'Average'
     }
 
     const filteredAnalyses = recentAnalyses.filter((analysis: AnalysisType) =>
@@ -64,12 +64,12 @@ function Analysis() {
 
     return (
         <PageTemplate
-            title="Análisis Kinesiológico"
-            subtitle="Gestiona y crea evaluaciones deportivas completas"
+            title="Kinesiology Analysis"
+            subtitle="Manage and create comprehensive sports assessments"
             className="analisis-page"
             showAddButton={true}
             onAddClick={handleCrearAnalisis}
-            addButtonText="Crear Nuevo Análisis"
+            addButtonText="Create New Assessment"
         >
             {/* Stats Cards */}
             <div className="stats-grid">
@@ -79,7 +79,7 @@ function Analysis() {
                     </div>
                     <div className="stat-info">
                         <h3>{loading ? '...' : stats.total}</h3>
-                        <p>Análisis Totales</p>
+                        <p>Total Assessments</p>
                     </div>
                 </div>
 
@@ -89,7 +89,7 @@ function Analysis() {
                     </div>
                     <div className="stat-info">
                         <h3>{loading ? '...' : stats.thisWeek}</h3>
-                        <p>Esta Semana</p>
+                        <p>This Week</p>
                     </div>
                 </div>
 
@@ -99,7 +99,7 @@ function Analysis() {
                     </div>
                     <div className="stat-info">
                         <h3>{loading ? '...' : stats.athletes}</h3>
-                        <p>Atletas Evaluados</p>
+                        <p>Patients Assessed</p>
                     </div>
                 </div>
             </div>
@@ -107,12 +107,12 @@ function Analysis() {
             {/* Análisis recientes */}
             <div className="analisis-section">
                 <div className="section-header">
-                    <h2 className="section-title">Análisis Recientes</h2>
+                    <h2 className="section-title">Recent Assessments</h2>
                     <div className="search-small">
                         <IoSearch className="search-icon-small" />
                         <input
                             type="text"
-                            placeholder="Buscar análisis..."
+                            placeholder="Search assessments..."
                             value={busqueda}
                             onChange={(e) => setBusqueda(e.target.value)}
                             className="search-input-small"
@@ -122,11 +122,11 @@ function Analysis() {
 
                 {loading ? (
                     <div style={{ textAlign: 'center', padding: '2rem' }}>
-                        <p>Cargando análisis...</p>
+                        <p>Loading analyses...</p>
                     </div>
                 ) : filteredAnalyses.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '2rem' }}>
-                        <p>No hay análisis recientes</p>
+                        <p>No recent assessments</p>
                     </div>
                 ) : (
                     <>
@@ -134,9 +134,9 @@ function Analysis() {
                             <table className="analisis-table">
                                 <thead>
                                     <tr>
-                                        <th>Atleta</th>
-                                        <th>Fecha</th>
-                                        <th>Clasificación</th>
+                                        <th>Patient</th>
+                                        <th>Date</th>
+                                        <th>Classification</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -151,10 +151,10 @@ function Analysis() {
                                                     <div className="atleta-avatar">
                                                         {analysis.athlete?.name.charAt(0) || '?'}
                                                     </div>
-                                                    <span className="atleta-nombre">{analysis.athlete?.name || 'Atleta desconocido'}</span>
+                                                    <span className="atleta-nombre">{analysis.athlete?.name || 'Unknown patient'}</span>
                                                 </div>
                                             </td>
-                                            <td>{new Date(analysis.evaluationDate).toLocaleDateString('es-ES')}</td>
+                                            <td>{new Date(analysis.evaluationDate).toLocaleDateString()}</td>
                                             <td>
                                                 <span className={`badge badge-${getClassificationBadge(analysis.globalClassification)}`}>
                                                     {getClassificationText(analysis.globalClassification)}
@@ -172,7 +172,7 @@ function Analysis() {
                                 className="btn-ver-todos"
                                 onClick={() => navigate('/all-analyses')}
                             >
-                                Ver Todos
+                                View All
                             </button>
                         </div>
                     </>

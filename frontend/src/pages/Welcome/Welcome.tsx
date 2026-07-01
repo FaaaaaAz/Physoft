@@ -29,15 +29,15 @@ function Welcome() {
                     </div>
 
                     <h1 className="welcome-title">Physoft</h1>
-                    <p className="welcome-subtitle">Plataforma de Análisis Deportivo</p>
+                    <p className="welcome-subtitle">Sports Analysis Platform</p>
 
                     <div className="welcome-description">
-                        <p>Sistema avanzado de análisis musculoesquelético</p>
-                        <p>para atletas de alto rendimiento</p>
+                        <p>Advanced musculoskeletal analysis system</p>
+                        <p>for high-performance patients</p>
                     </div>
 
                     <button className="welcome-button" onClick={handleEnter}>
-                        <span>Ingresar a la Plataforma</span>
+                        <span>Enter Platform</span>
                         <IoArrowForward className="button-icon" />
                     </button>
 

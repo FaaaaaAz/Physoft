@@ -19,7 +19,7 @@ function Navbar({
   onBack,
   showAddButton = false,
   onAddClick,
-  addButtonTitle = "Agregar"
+  addButtonTitle = "Add"
 }: NavbarProps) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -62,7 +62,7 @@ function Navbar({
               }}
               className={`navbar-link ${isActive('/dashboard') ? 'active' : ''}`}
             >
-              Inicio
+                Home
             </a>
           </li>
           <li>
@@ -74,7 +74,7 @@ function Navbar({
               }}
               className={`navbar-link ${isActive('/analysis') ? 'active' : ''}`}
             >
-              Análisis
+              Assessments
             </a>
           </li>
         </ul>
@@ -85,7 +85,7 @@ function Navbar({
             <button
               className="navbar-icon-btn"
               onClick={handleBack}
-              title="Volver"
+              title="Back"
             >
               <IoArrowBack />
             </button>
@@ -101,14 +101,14 @@ function Navbar({
           )}
           <button
             className="navbar-icon-btn"
-            title="Configuración"
+            title="Settings"
             onClick={() => navigate('/settings')}
           >
             <IoSettings />
           </button>
           <button
             className="navbar-icon-btn"
-            title="Perfil"
+            title="Profile"
             onClick={() => navigate('/profile')}
           >
             <IoPerson />

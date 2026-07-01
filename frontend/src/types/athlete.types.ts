@@ -32,6 +32,7 @@ export interface AthleteFormData {
     club: string
     position: string
     bodyType: string
+    patientType?: string
     height: number
     weight: number
     email: string
@@ -70,6 +71,7 @@ export interface CreateAthleteDTO {
     club?: string
     position?: string
     bodyType: string
+    patientType?: string
     height: number
     weight: number
     email?: string

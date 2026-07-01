@@ -16,13 +16,13 @@ function ImageUpload({ currentImage, onImageSelect, disabled = false }: ImageUpl
     const handleFileSelect = (file: File) => {
         // Validate file type
         if (!file.type.startsWith('image/')) {
-            alert('Por favor selecciona un archivo de imagen válido')
+            alert('Please select a valid image file')
             return
         }
 
         // Validate file size (5MB max)
         if (file.size > 5 * 1024 * 1024) {
-            alert('La imagen no debe superar los 5MB')
+            alert('Image must not exceed 5MB')
             return
         }
 
@@ -84,7 +84,7 @@ function ImageUpload({ currentImage, onImageSelect, disabled = false }: ImageUpl
 
     return (
         <div className="image-upload-container">
-            <label className="image-upload-label">Foto del Atleta</label>
+            <label className="image-upload-label">Patient Photo</label>
 
             <div
                 className={`image-upload-dropzone ${isDragging ? 'dragging' : ''} ${disabled ? 'disabled' : ''}`}
@@ -113,10 +113,10 @@ function ImageUpload({ currentImage, onImageSelect, disabled = false }: ImageUpl
                     <div className="image-upload-placeholder">
                         <IoCloudUpload className="upload-icon" />
                         <p className="upload-text">
-                            Arrastra una imagen aquí o <span className="upload-link">haz clic para seleccionar</span>
+                            Drag an image here or <span className="upload-link">click to select</span>
                         </p>
                         <p className="upload-hint">
-                            <IoImage /> PNG, JPG, WEBP (máx. 5MB)
+                            <IoImage /> PNG, JPG, WEBP (max. 5MB)
                         </p>
                     </div>
                 )}

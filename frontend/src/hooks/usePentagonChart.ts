@@ -47,11 +47,11 @@ export const usePentagonChart = (
 
   const result = useMemo(() => {
     const caps = [
-      { nombre: 'Potencia', valor: capacidades.potencia },
-      { nombre: 'Fuerza', valor: capacidades.fuerza },
-      { nombre: 'Velocidad', valor: capacidades.velocidad },
-      { nombre: 'Flexibilidad', valor: capacidades.flexibilidad },
-      { nombre: 'Resistencia', valor: capacidades.resistencia }
+      { nombre: 'Power', valor: capacidades.potencia },
+      { nombre: 'Strength', valor: capacidades.fuerza },
+      { nombre: 'Speed', valor: capacidades.velocidad },
+      { nombre: 'Flexibility', valor: capacidades.flexibilidad },
+      { nombre: 'Endurance', valor: capacidades.resistencia }
     ]
 
     // Calculate points for actual values

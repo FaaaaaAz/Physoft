@@ -12,12 +12,12 @@ function Settings() {
 
     return (
         <PageTemplate
-            title="Ajustes"
-            subtitle="Personaliza tu experiencia en Physoft"
+            title="Settings"
+            subtitle="Customize your Physoft experience"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Inicio', path: '/dashboard' },
-                { label: 'Ajustes' }
+                { label: 'Home', path: '/dashboard' },
+                { label: 'Settings' }
             ]}
         >
             <div className="settings-container">
@@ -25,13 +25,13 @@ function Settings() {
                 <div className="config-section">
                     <div className="config-section-header">
                         <IoNotifications className="config-icon" />
-                        <h3>Notificaciones</h3>
+                        <h3>Notifications</h3>
                     </div>
                     <div className="config-options">
                         <div className="config-option">
                             <div className="option-info">
-                                <p className="option-title">Notificaciones por email</p>
-                                <p className="option-description">Recibe actualizaciones sobre análisis y atletas</p>
+                                <p className="option-title">Email notifications</p>
+                                <p className="option-description">Receive updates about assessments and patients</p>
                             </div>
                             <label className="toggle-switch">
                                 <input type="checkbox" defaultChecked />
@@ -40,8 +40,8 @@ function Settings() {
                         </div>
                         <div className="config-option">
                             <div className="option-info">
-                                <p className="option-title">Recordatorios de análisis</p>
-                                <p className="option-description">Te recordaremos realizar análisis periódicos</p>
+                                <p className="option-title">Analysis reminders</p>
+                                <p className="option-description">We'll remind you to perform periodic assessments</p>
                             </div>
                             <label className="toggle-switch">
                                 <input type="checkbox" defaultChecked />
@@ -55,15 +55,15 @@ function Settings() {
                 <div className="config-section">
                     <div className="config-section-header">
                         <IoLockClosed className="config-icon" />
-                        <h3>Seguridad</h3>
+                        <h3>Security</h3>
                     </div>
                     <div className="config-options">
                         <div className="config-option">
                             <div className="option-info">
-                                <p className="option-title">Cambiar contraseña</p>
-                                <p className="option-description">Actualiza tu contraseña regularmente</p>
+                                <p className="option-title">Change password</p>
+                                <p className="option-description">Update your password regularly</p>
                             </div>
-                            <button className="config-btn">Cambiar</button>
+                            <button className="config-btn">Change</button>
                         </div>
                         <div className="config-option">
                             <div className="option-info">
@@ -82,13 +82,13 @@ function Settings() {
                 <div className="config-section">
                     <div className="config-section-header">
                         <IoColorPalette className="config-icon" />
-                        <h3>Apariencia</h3>
+                        <h3>Appearance</h3>
                     </div>
                     <div className="config-options">
                         <div className="config-option">
                             <div className="option-info">
-                                <p className="option-title">Tema oscuro</p>
-                                <p className="option-description">Actualmente activo (predeterminado)</p>
+                                <p className="option-title">Dark theme</p>
+                                <p className="option-description">Currently active (default)</p>
                             </div>
                             <label className="toggle-switch">
                                 <input type="checkbox" defaultChecked disabled />
@@ -102,13 +102,13 @@ function Settings() {
                 <div className="config-section">
                     <div className="config-section-header">
                         <IoLanguage className="config-icon" />
-                        <h3>Idioma y Región</h3>
+                        <h3>Language & Region</h3>
                     </div>
                     <div className="config-options">
                         <div className="config-option">
                             <div className="option-info">
-                                <p className="option-title">Idioma</p>
-                                <p className="option-description">Selecciona tu idioma preferido</p>
+                                <p className="option-title">Language</p>
+                                <p className="option-description">Select your preferred language</p>
                             </div>
                             <select className="config-select">
                                 <option value="es">Español</option>
@@ -123,12 +123,12 @@ function Settings() {
                 <div className="config-section">
                     <div className="config-section-header">
                         <IoInformationCircle className="config-icon" />
-                        <h3>Acerca de</h3>
+                        <h3>About</h3>
                     </div>
                     <div className="config-options">
                         <div className="config-option">
                             <div className="option-info">
-                                <p className="option-title">Versión de Physoft</p>
+                                <p className="option-title">Physoft Version</p>
                                 <p className="option-description">1.0.0 Beta</p>
                             </div>
                         </div>

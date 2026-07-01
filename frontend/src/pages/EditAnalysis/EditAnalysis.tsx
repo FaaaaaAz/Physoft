@@ -108,7 +108,7 @@ function EditAnalysis() {
             })
         } catch (error) {
             console.error('Error loading analysis:', error)
-            setMensaje({ tipo: 'error', texto: 'Error al cargar análisis' })
+            setMensaje({ tipo: 'error', texto: 'Error loading analysis' })
         } finally {
             setLoading(false)
         }
@@ -202,14 +202,14 @@ function EditAnalysis() {
             // Update store
             updateAnalysisInStore(parseInt(id), response.data)
 
-            setMensaje({ tipo: 'success', texto: '✅ Análisis actualizado exitosamente' })
+            setMensaje({ tipo: 'success', texto: '✅ Analysis updated successfully' })
 
             setTimeout(() => {
                 navigate(`/analysis-view/${id}`)
             }, 1500)
         } catch (error: any) {
             console.error('Error updating analysis:', error)
-            setMensaje({ tipo: 'error', texto: error.response?.data?.error || 'Error al actualizar análisis' })
+            setMensaje({ tipo: 'error', texto: error.response?.data?.error || 'Error updating analysis' })
         } finally {
             setSaving(false)
         }
@@ -217,23 +217,23 @@ function EditAnalysis() {
 
     if (loading) {
         return (
-            <PageTemplate title="Cargando..." subtitle="">
-                <LoadingSpinner message="Cargando datos del análisis..." />
+            <PageTemplate title="Loading..." subtitle="">
+                <LoadingSpinner message="Loading analysis data..." />
             </PageTemplate>
         )
     }
 
     return (
         <PageTemplate
-            title="Editar Análisis"
-            subtitle="Actualiza la información del análisis deportivo"
+            title="Edit Analysis"
+            subtitle="Update the analysis information"
             className="edit-analysis-page"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Inicio', path: '/dashboard' },
-                { label: 'Análisis', path: '/analysis' },
-                { label: athleteName || 'Análisis', path: `/analysis-view/${id}` },
-                { label: 'Editar' }
+                { label: 'Home', path: '/dashboard' },
+                { label: 'Analysis', path: '/analysis' },
+                { label: athleteName || 'Analysis', path: `/analysis-view/${id}` },
+                { label: 'Edit' }
             ]}
         >
             <form onSubmit={handleSubmit} className="nuevo-analisis-form">
@@ -243,11 +243,11 @@ function EditAnalysis() {
                     </div>
                 )}
 
-                {/* Fecha de Evaluación */}
+                {/* Evaluation Date */}
                 <div className="form-section">
-                    <h3>Fecha de Evaluación</h3>
+                    <h3>Evaluation Date</h3>
                     <div className="form-group">
-                        <label htmlFor="fechaEvaluacion">Fecha *</label>
+                        <label htmlFor="fechaEvaluacion">Date *</label>
                         <input
                             type="date"
                             id="fechaEvaluacion"
@@ -262,10 +262,10 @@ function EditAnalysis() {
                 <div className="form-section">
                     <h3 className="section-title">
                         <span className="section-number">2</span>
-                        Análisis Textual
+                        Textual Analysis
                     </h3>
 
-                    {/* Análisis Detallado */}
+                    {/* Detailed Analysis */}
                     <AnalysisFieldsForm
                         formData={formData}
                         onChange={handleChange}
@@ -276,7 +276,7 @@ function EditAnalysis() {
                 <div className="form-section">
                     <h3 className="section-title">
                         <span className="section-number">3</span>
-                        Conclusiones y Plan
+                        Conclusions and Plan
                     </h3>
 
                     {/* Puntos Débiles */}
@@ -296,32 +296,32 @@ function EditAnalysis() {
 
                 {/* Clasificación y Recomendaciones */}
                 <div className="form-section">
-                    <h3>Clasificación y Recomendaciones</h3>
+                    <h3>Classification and Recommendations</h3>
                     <div className="form-group">
-                        <label htmlFor="clasificacionCohorte">Clasificación Cohorte</label>
+                        <label htmlFor="clasificacionCohorte">Cohort Classification</label>
                         <select
                             id="clasificacionCohorte"
                             className="form-select"
                             value={formData.clasificacionCohorte}
                             onChange={(e) => handleChange('clasificacionCohorte', e.target.value)}
                         >
-                            <option value="">Selecciona una clasificación</option>
+                            <option value="">Select a classification</option>
                             <option value="ELITE">Elite</option>
-                            <option value="AVANZADO">Avanzado</option>
-                            <option value="INTERMEDIO">Intermedio</option>
-                            <option value="PRINCIPIANTE">Principiante</option>
-                            <option value="ATENCION_REQUERIDA">Atención Requerida</option>
+                            <option value="AVANZADO">Advanced</option>
+                            <option value="INTERMEDIO">Intermediate</option>
+                            <option value="PRINCIPIANTE">Beginner</option>
+                            <option value="ATENCION_REQUERIDA">Attention Required</option>
                         </select>
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="recomendaciones">Recomendaciones para el Entrenador</label>
+                        <label htmlFor="recomendaciones">Recommendations for Coach</label>
                         <textarea
                             id="recomendaciones"
                             value={formData.recomendaciones}
                             onChange={(e) => handleChange('recomendaciones', e.target.value)}
                             rows={6}
-                            placeholder="Escribe las recomendaciones para el entrenador..."
+                            placeholder="Write specific recommendations for the coach..."
                         />
                     </div>
                 </div>
@@ -329,7 +329,7 @@ function EditAnalysis() {
                 {/* Submit Button */}
                 <div className="form-actions">
                     <button type="submit" className="btn-primary-large" disabled={saving}>
-                        {saving ? '⏳ Guardando...' : '✓ Guardar Cambios'}
+                        {saving ? '⏳ Saving...' : '✓ Save Changes'}
                     </button>
                 </div>
             </form>

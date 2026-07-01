@@ -4,30 +4,30 @@
 
 // Disciplinas deportivas
 export const DISCIPLINAS = [
-  'Fútbol',
-  'Básquet',
+  'Soccer',
+  'Basketball',
   'Rugby',
-  'Atletismo',
-  'Tenis',
+  'Athletics',
+  'Tennis',
   'Handball',
-  'Voleibol',
-  'Natación',
-  'Otro'
+  'Volleyball',
+  'Swimming',
+  'Other'
 ] as const
 
 // Somatotipos
 export const SOMATOTIPOS = [
-  'Ectomorfo',
-  'Mesomorfo',
-  'Endomorfo',
-  'No definido'
+  'Ectomorph',
+  'Mesomorph',
+  'Endomorph',
+  'Undefined'
 ] as const
 
 // Géneros
 export const GENEROS = [
-  'Masculino',
-  'Femenino',
-  'Otro'
+  'Male',
+  'Female',
+  'Other'
 ] as const
 
 // Clasificaciones globales
@@ -38,25 +38,25 @@ export const CLASIFICACIONES = {
 } as const
 
 export const CLASIFICACION_LABELS = {
-  high: 'Encima del Promedio',
-  medium: 'Promedio',
-  low: 'Debajo del Promedio'
+  high: 'Above Average',
+  medium: 'Average',
+  low: 'Below Average'
 } as const
 
 // Herramientas de análisis
 export const HERRAMIENTAS_ANALISIS = [
   'BTS / FreeEMG',
   'G-Walk',
-  'BioBit / Equilibrio',
+  'BioBit / Balance',
   'Wyscout',
-  'Otros'
+  'Others'
 ] as const
 
 // Lados de apoyo
 export const LADOS_APOYO = [
-  'Derecho',
-  'Izquierdo',
-  'Indeterminado'
+  'Right',
+  'Left',
+  'Undetermined'
 ] as const
 
 // Paginación

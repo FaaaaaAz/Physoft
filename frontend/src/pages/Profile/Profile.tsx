@@ -12,12 +12,12 @@ function Profile() {
 
     return (
         <PageTemplate
-            title="Perfil del Administrador"
-            subtitle="Información del usuario principal de Physoft"
+            title="Administrator Profile"
+            subtitle="Main user information for Physoft"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Inicio', path: '/dashboard' },
-                { label: 'Perfil' }
+                { label: 'Home', path: '/dashboard' },
+                { label: 'Profile' }
             ]}
         >
             <div className="profile-container">
@@ -27,8 +27,8 @@ function Profile() {
                         <IoPerson />
                     </div>
                     <div className="profile-info">
-                        <h2>Administrador</h2>
-                        <p className="profile-role">Rol: Administrador Principal</p>
+                        <h2>Administrator</h2>
+                        <p className="profile-role">Role: Administrator</p>
                     </div>
                 </div>
 
@@ -36,7 +36,7 @@ function Profile() {
                 <div className="profile-section">
                     <div className="profile-section-header">
                         <IoShield className="section-icon" />
-                        <h3>Información General</h3>
+                        <h3>General Information</h3>
                     </div>
                     <div className="profile-details">
                         <div className="profile-detail-item">
@@ -44,8 +44,8 @@ function Profile() {
                                 <IoPerson />
                             </div>
                             <div className="detail-info">
-                                <p className="detail-label">Nombre</p>
-                                <p className="detail-value">Administrador Physoft</p>
+                                <p className="detail-label">Name</p>
+                                <p className="detail-value">Physoft Administrator</p>
                             </div>
                         </div>
                         <div className="profile-detail-item">
@@ -62,7 +62,7 @@ function Profile() {
                                 <IoBriefcase />
                             </div>
                             <div className="detail-info">
-                                <p className="detail-label">Organización</p>
+                                <p className="detail-label">Organization</p>
                                 <p className="detail-value">Physoft Sports Analytics</p>
                             </div>
                         </div>
@@ -71,8 +71,8 @@ function Profile() {
                                 <IoCalendar />
                             </div>
                             <div className="detail-info">
-                                <p className="detail-label">Miembro desde</p>
-                                <p className="detail-value">Diciembre 2025</p>
+                                <p className="detail-label">Member since</p>
+                                <p className="detail-value">December 2025</p>
                             </div>
                         </div>
                     </div>
@@ -82,20 +82,20 @@ function Profile() {
                 <div className="profile-section">
                     <div className="profile-section-header">
                         <IoShield className="section-icon" />
-                        <h3>Estadísticas de Uso</h3>
+                        <h3>Usage Statistics</h3>
                     </div>
                     <div className="profile-stats">
                         <div className="stat-card">
-                            <p className="stat-value">Ilimitado</p>
-                            <p className="stat-label">Atletas Registrados</p>
+                            <p className="stat-value">Unlimited</p>
+                            <p className="stat-label">Registered Patients</p>
                         </div>
                         <div className="stat-card">
-                            <p className="stat-value">Ilimitado</p>
-                            <p className="stat-label">Análisis Realizados</p>
+                            <p className="stat-value">Unlimited</p>
+                            <p className="stat-label">Assessments Completed</p>
                         </div>
                         <div className="stat-card">
                             <p className="stat-value">Premium</p>
-                            <p className="stat-label">Plan Actual</p>
+                            <p className="stat-label">Current Plan</p>
                         </div>
                     </div>
                 </div>
@@ -104,24 +104,24 @@ function Profile() {
                 <div className="profile-section">
                     <div className="profile-section-header">
                         <IoShield className="section-icon" />
-                        <h3>Permisos</h3>
+                        <h3>Permissions</h3>
                     </div>
                     <div className="profile-permissions">
                         <div className="permission-item">
                             <IoShield className="permission-icon" />
-                            <span>Acceso completo al sistema</span>
+                            <span>Full system access</span>
                         </div>
                         <div className="permission-item">
                             <IoShield className="permission-icon" />
-                            <span>Gestión de atletas</span>
+                            <span>Patient management</span>
                         </div>
                         <div className="permission-item">
                             <IoShield className="permission-icon" />
-                            <span>Creación y edición de análisis</span>
+                            <span>Create and edit assessments</span>
                         </div>
                         <div className="permission-item">
                             <IoShield className="permission-icon" />
-                            <span>Análisis con IA</span>
+                            <span>AI-powered analysis</span>
                         </div>
                     </div>
                 </div>

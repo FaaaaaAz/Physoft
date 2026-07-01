@@ -27,10 +27,10 @@ export const transformAthleteForDisplay = (atleta: any) => {
     foto: atleta.photo || '/default-avatar.png',
     deporte: atleta.sport,
     edad: calculateAgeFromDate(atleta.birthDate),
-    nacionalidad: atleta.nationality || 'No especificado',
+    nacionalidad: atleta.nationality || 'Not specified',
     altura: atleta.height,
     peso: atleta.weight,
-    club: atleta.club || atleta.position || 'Sin equipo',
+    club: atleta.club || atleta.position || 'No team',
     somatotipo: atleta.bodyType,
     codigoAcceso: atleta.accessCode,
     capacidades: {
@@ -69,7 +69,7 @@ export const filterAthletesBySport = <T extends { deporte?: string; sport?: stri
   athletes: T[],
   sport: string
 ): T[] => {
-  if (!sport || sport === 'Todos') return athletes
+  if (!sport || sport === 'All') return athletes
   
   return athletes.filter(athlete => {
     const athleteSport = athlete.deporte || athlete.sport
@@ -86,7 +86,7 @@ export const getUniqueSports = <T extends { deporte?: string; sport?: string }>(
   const sportsSet = new Set(
     athletes.map(a => a.deporte || a.sport).filter(Boolean) as string[]
   )
-  return ['Todos', ...Array.from(sportsSet).sort()]
+  return ['All', ...Array.from(sportsSet).sort()]
 }
 
 /**

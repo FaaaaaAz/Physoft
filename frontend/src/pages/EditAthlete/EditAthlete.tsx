@@ -40,6 +40,7 @@ function EditAthlete() {
 
     const [formData, setFormData] = useState({
         name: '',
+        patientType: 'Athlete',
         gender: '',
         birthDate: '',
         nationality: '',
@@ -69,6 +70,7 @@ function EditAthlete() {
 
             setFormData({
                 name: athlete.name,
+                patientType: athlete.patientType || 'Athlete',
                 gender: normalizeGender(athlete.gender),
                 birthDate: athlete.birthDate || '',
                 nationality: athlete.nationality || '',
@@ -85,7 +87,7 @@ function EditAthlete() {
             })
         } catch (error) {
             console.error('Error loading athlete:', error)
-            setMensaje({ tipo: 'error', texto: 'Error al cargar atleta' })
+            setMensaje({ tipo: 'error', texto: 'Error loading patient' })
         } finally {
             setLoading(false)
         }
@@ -119,6 +121,8 @@ function EditAthlete() {
                 weight: parseFloat(formData.weight),
                 email: formData.email || undefined,
                 phone: formData.phone || undefined
+                ,
+                patientType: formData.patientType || undefined
             }
 
             const response = await athleteAPI.update(id, updateData)
@@ -133,14 +137,14 @@ function EditAthlete() {
             // Update store with final athlete data
             updateAthleteInStore(id, finalAthlete)
 
-            setMensaje({ tipo: 'success', texto: 'Atleta actualizado exitosamente' })
+            setMensaje({ tipo: 'success', texto: 'Patient updated successfully' })
 
             setTimeout(() => {
                 navigate(`/athlete-detail/${id}`)
             }, 1500)
         } catch (error: any) {
             console.error('Error updating athlete:', error)
-            setMensaje({ tipo: 'error', texto: error.response?.data?.error || 'Error al actualizar atleta' })
+            setMensaje({ tipo: 'error', texto: error.response?.data?.error || 'Error updating patient' })
         } finally {
             setSaving(false)
         }
@@ -148,22 +152,22 @@ function EditAthlete() {
 
     if (loading) {
         return (
-            <PageTemplate title="Cargando..." subtitle="">
-                <LoadingSpinner message="Cargando datos del atleta..." />
+            <PageTemplate title="Loading..." subtitle="">
+                <LoadingSpinner message="Loading patient data..." />
             </PageTemplate>
         )
     }
 
     return (
         <PageTemplate
-            title="Editar Atleta"
-            subtitle="Actualiza la información del atleta"
+            title="Edit Patient"
+            subtitle="Update patient information"
             className="edit-athlete-page"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Inicio', path: '/dashboard' },
-                { label: 'Atleta', path: `/athlete-detail/${id}` },
-                { label: 'Editar' }
+                { label: 'Home', path: '/dashboard' },
+                { label: 'Patient', path: `/athlete-detail/${id}` },
+                { label: 'Edit' }
             ]}
         >
 
@@ -176,7 +180,7 @@ function EditAthlete() {
 
                 {/* Photo Section */}
                 <div className="form-section photo-section">
-                    <h3>Foto del Atleta</h3>
+                    <h3>Patient Photo</h3>
                     <div className="photo-upload">
                         {(formData.currentPhotoUrl || formData.photo) && (
                             <img
@@ -187,7 +191,7 @@ function EditAthlete() {
                         )}
                         <label htmlFor="photo" className="photo-label">
                             <IoCamera />
-                            {formData.photo ? 'Cambiar Foto' : 'Seleccionar Nueva Foto'}
+                            {formData.photo ? 'Change Photo' : 'Select New Photo'}
                         </label>
                         <input
                             type="file"
@@ -201,10 +205,10 @@ function EditAthlete() {
 
                 {/* Personal Information */}
                 <div className="form-section">
-                    <h3>Información Personal</h3>
+                    <h3>Personal Information</h3>
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="name">Nombre Completo *</label>
+                            <label htmlFor="name">Full Name *</label>
                             <input
                                 type="text"
                                 id="name"
@@ -215,22 +219,36 @@ function EditAthlete() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="gender">Género *</label>
+                            <label htmlFor="patientType">Patient Type *</label>
+                            <select
+                                id="patientType"
+                                value={formData.patientType}
+                                onChange={(e) => setFormData(prev => ({ ...prev, patientType: e.target.value }))}
+                                required
+                            >
+                                <option value="">Select...</option>
+                                <option value="Athlete">Athlete</option>
+                                <option value="General Patient">General Patient</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="gender">Gender *</label>
                             <select
                                 id="gender"
                                 value={formData.gender}
                                 onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
                                 required
                             >
-                                <option value="">Seleccionar...</option>
-                                <option value="Male">Masculino</option>
-                                <option value="Female">Femenino</option>
-                                <option value="Other">Otro</option>
+                                <option value="">Select...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
                             </select>
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="birthDate">Fecha de Nacimiento</label>
+                            <label htmlFor="birthDate">Birth Date</label>
                             <input
                                 type="date"
                                 id="birthDate"
@@ -240,7 +258,7 @@ function EditAthlete() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="nationality">Nacionalidad</label>
+                            <label htmlFor="nationality">Nationality</label>
                             <input
                                 type="text"
                                 id="nationality"
@@ -253,10 +271,10 @@ function EditAthlete() {
 
                 {/* Sports Information */}
                 <div className="form-section">
-                    <h3>Información Deportiva</h3>
+                    <h3>Sports Information</h3>
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="sport">Deporte *</label>
+                            <label htmlFor="sport">Sport *</label>
                             <input
                                 type="text"
                                 id="sport"
@@ -267,7 +285,7 @@ function EditAthlete() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="club">Club/Equipo</label>
+                            <label htmlFor="club">Club/Team</label>
                             <input
                                 type="text"
                                 id="club"
@@ -277,7 +295,7 @@ function EditAthlete() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="position">Posición</label>
+                            <label htmlFor="position">Position</label>
                             <input
                                 type="text"
                                 id="position"
@@ -287,17 +305,17 @@ function EditAthlete() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="bodyType">Tipo de Cuerpo *</label>
+                            <label htmlFor="bodyType">Body Type *</label>
                             <select
                                 id="bodyType"
                                 value={formData.bodyType}
                                 onChange={(e) => setFormData(prev => ({ ...prev, bodyType: e.target.value }))}
                                 required
                             >
-                                <option value="">Seleccionar...</option>
-                                <option value="Ectomorph">Ectomorfo</option>
-                                <option value="Mesomorph">Mesomorfo</option>
-                                <option value="Endomorph">Endomorfo</option>
+                                <option value="">Select...</option>
+                                <option value="Ectomorph">Ectomorph</option>
+                                <option value="Mesomorph">Mesomorph</option>
+                                <option value="Endomorph">Endomorph</option>
                             </select>
                         </div>
                     </div>
@@ -305,10 +323,10 @@ function EditAthlete() {
 
                 {/* Physical Measurements */}
                 <div className="form-section">
-                    <h3>Medidas Físicas</h3>
+                    <h3>Physical Measurements</h3>
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="height">Altura (cm) *</label>
+                            <label htmlFor="height">Height (cm) *</label>
                             <input
                                 type="number"
                                 id="height"
@@ -320,7 +338,7 @@ function EditAthlete() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="weight">Peso (kg) *</label>
+                            <label htmlFor="weight">Weight (kg) *</label>
                             <input
                                 type="number"
                                 id="weight"
@@ -335,7 +353,7 @@ function EditAthlete() {
 
                 {/* Contact Information */}
                 <div className="form-section">
-                    <h3>Información de Contacto</h3>
+                    <h3>Contact Information</h3>
                     <div className="form-grid">
                         <div className="form-group">
                             <label htmlFor="email">Email</label>
@@ -348,7 +366,7 @@ function EditAthlete() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="phone">Teléfono</label>
+                            <label htmlFor="phone">Phone</label>
                             <input
                                 type="tel"
                                 id="phone"
@@ -363,7 +381,7 @@ function EditAthlete() {
                 <div className="form-actions">
                     <button type="submit" className="btn-primary" disabled={saving}>
                         <IoSave />
-                        {saving ? 'Guardando...' : 'Guardar Cambios'}
+                        {saving ? 'Saving...' : 'Save Changes'}
                     </button>
                 </div>
             </form>

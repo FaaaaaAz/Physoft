@@ -107,7 +107,7 @@ function AthleteDetail() {
     if (isLoading) {
         return (
             <PageTemplate title="Loading..." showBackButton={true}>
-                <LoadingSpinner message="Loading athlete data..." />
+                <LoadingSpinner message="Loading patient data..." />
             </PageTemplate>
         )
     }
@@ -116,7 +116,7 @@ function AthleteDetail() {
         return (
             <PageTemplate title="Error" showBackButton={true}>
                 <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-primary)' }}>
-                    <p>{error || 'Athlete not found'}</p>
+                    <p>{error || 'Patient not found'}</p>
                 </div>
             </PageTemplate>
         )
@@ -140,12 +140,12 @@ function AthleteDetail() {
     // Dynamic breadcrumb based on origin
     const breadcrumbItems: BreadcrumbItem[] = from === 'all-analyses'
         ? [
-            { label: 'Análisis', path: '/analysis' },
-            { label: 'Todos los Análisis', path: '/all-analyses' },
+            { label: 'Analysis', path: '/analysis' },
+            { label: 'All Analyses', path: '/all-analyses' },
             { label: athlete.name }
         ]
         : [
-            { label: 'Análisis', path: '/analysis' },
+            { label: 'Analysis', path: '/analysis' },
             { label: athlete.name }
         ]
 
@@ -178,7 +178,7 @@ function AthleteDetail() {
                         onClick={() => navigate(`/ athletes / edit / ${athlete.id} `)}
                         className="btn-edit-athlete"
                     >
-                        <IoCreate /> Editar Atleta
+                        <IoCreate /> Edit Patient
                     </button>
                 </div>
 
@@ -187,15 +187,15 @@ function AthleteDetail() {
                     <div className="detail-info-card">
                         <IoCalendar className="card-icon" />
                         <div className="card-content">
-                            <span className="card-label">EDAD</span>
-                            <span className="card-value">{age > 0 ? `${age} años` : 'N/A'}</span>
+                            <span className="card-label">AGE</span>
+                            <span className="card-value">{age > 0 ? `${age} years` : 'N/A'}</span>
                         </div>
                     </div>
 
                     <div className="detail-info-card">
                         <IoMan className="card-icon" />
                         <div className="card-content">
-                            <span className="card-label">TIPO DE CUERPO</span>
+                            <span className="card-label">BODY TYPE</span>
                             <span className="card-value-small">{translateBodyType(athlete.bodyType)}</span>
                         </div>
                     </div>
@@ -203,7 +203,7 @@ function AthleteDetail() {
                     <div className="detail-info-card">
                         <IoResize className="card-icon" />
                         <div className="card-content">
-                            <span className="card-label">ALTURA</span>
+                            <span className="card-label">HEIGHT</span>
                             <span className="card-value">{athlete.height ? `${athlete.height} cm` : 'N/A'}</span>
                         </div>
                     </div>
@@ -211,7 +211,7 @@ function AthleteDetail() {
                     <div className="detail-info-card">
                         <IoBarbell className="card-icon" />
                         <div className="card-content">
-                            <span className="card-label">PESO</span>
+                            <span className="card-label">WEIGHT</span>
                             <span className="card-value">{athlete.weight ? `${athlete.weight} kg` : 'N/A'}</span>
                         </div>
                     </div>
@@ -219,7 +219,7 @@ function AthleteDetail() {
                     <div className="detail-info-card">
                         <IoBody className="card-icon" />
                         <div className="card-content">
-                            <span className="card-label">ANÁLISIS TOTALES</span>
+                            <span className="card-label">TOTAL ANALYSES</span>
                             <span className="card-value">{analyses.length}</span>
                         </div>
                     </div>
@@ -227,7 +227,7 @@ function AthleteDetail() {
                     <div className="detail-info-card">
                         <IoTrophy className="card-icon" />
                         <div className="card-content">
-                            <span className="card-label">CLASIFICACIÓN RECIENTE</span>
+                            <span className="card-label">RECENT CLASSIFICATION</span>
                             <span className={`badge ${getBadgeClass(latestClassification)} `}>
                                 {getClassificationLabel(latestClassification)}
                             </span>
@@ -238,7 +238,7 @@ function AthleteDetail() {
                         <div className="detail-info-card">
                             <IoTrendingUp className="card-icon" />
                             <div className="card-content">
-                                <span className="card-label">CLASIFICACIÓN COHORTE</span>
+                                <span className="card-label">COHORT CLASSIFICATION</span>
                                 <span className={`badge cohort - ${latestAnalysis.cohortClassification.toLowerCase()} `}>
                                     {latestAnalysis.cohortClassification}
                                 </span>
@@ -253,7 +253,7 @@ function AthleteDetail() {
                         <div className="detail-section">
                             <h2 className="section-title">
                                 <IoBody />
-                                Capacidades Físicas Actuales
+                                Current Physical Capacities
                             </h2>
                             <div className="pentagon-chart-container">
                                 <svg width="100%" height="100%" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
@@ -347,12 +347,12 @@ function AthleteDetail() {
                     )
                 }
 
-                {/* Timeline de Mejoría */}
+                {/* Improvement Timeline */}
                 {analyses.length > 1 && (
                     <div className="detail-section">
                         <h2 className="section-title">
                             <IoTrendingUp />
-                            Timeline de Mejoría
+                            Improvement Timeline
                         </h2>
                         <div className="abilities-timeline-container">
                             <svg width="100%" height="300" viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet">
@@ -529,23 +529,23 @@ function AthleteDetail() {
                             <div className="abilities-legend">
                                 <div className="legend-item-ability">
                                     <div className="legend-color-box" style={{ backgroundColor: '#ef4444' }}></div>
-                                    <span>Fuerza</span>
+                                    <span>Strength</span>
                                 </div>
                                 <div className="legend-item-ability">
                                     <div className="legend-color-box" style={{ backgroundColor: '#06b6d4' }}></div>
-                                    <span>Velocidad</span>
+                                    <span>Speed</span>
                                 </div>
                                 <div className="legend-item-ability">
                                     <div className="legend-color-box" style={{ backgroundColor: '#10b981' }}></div>
-                                    <span>Resistencia</span>
+                                    <span>Endurance</span>
                                 </div>
                                 <div className="legend-item-ability">
                                     <div className="legend-color-box" style={{ backgroundColor: '#f59e0b' }}></div>
-                                    <span>Flexibilidad</span>
+                                    <span>Flexibility</span>
                                 </div>
                                 <div className="legend-item-ability">
                                     <div className="legend-color-box" style={{ backgroundColor: '#a855f7' }}></div>
-                                    <span>Potencia</span>
+                                    <span>Power</span>
                                 </div>
                             </div>
                         </div>
@@ -556,14 +556,14 @@ function AthleteDetail() {
                 <div className="detail-section">
                     <h2 className="section-title">
                         <IoCalendar />
-                        Historial de Análisis
+                        Analysis History
                     </h2>
                     <div className="historial-table-container">
                         <table className="historial-table">
                             <thead>
                                 <tr>
-                                    <th>Fecha</th>
-                                    <th>Clasificación</th>
+                                    <th>Date</th>
+                                    <th>Classification</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -573,7 +573,7 @@ function AthleteDetail() {
                                         className="clickable-row"
                                         onClick={() => handleViewAnalysis(analysis.id)}
                                     >
-                                        <td>{new Date(analysis.evaluationDate).toLocaleDateString('es-ES')}</td>
+                                        <td>{new Date(analysis.evaluationDate).toLocaleDateString('en-US')}</td>
                                         <td>
                                             <span className={`badge ${getBadgeClass(analysis.globalClassification)} `}>
                                                 {getClassificationLabel(analysis.globalClassification)}

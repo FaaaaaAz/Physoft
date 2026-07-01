@@ -26,7 +26,7 @@ function PageTemplate({
   backTo,
   showAddButton = false,
   onAddClick,
-  addButtonText = "Agregar",
+  addButtonText = "Add",
   breadcrumbItems,
   children,
   className = "",

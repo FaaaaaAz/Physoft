@@ -131,8 +131,8 @@ function Dashboard() {
 
     return (
         <PageTemplate
-            title="Gestión de Atletas"
-            subtitle="Gestiona tus atletas y análisis kinesiológicos"
+            title="Patient Management"
+            subtitle="Manage your patients and musculoskeletal assessments"
             className="dashboard"
         >
             {/* Filters */}
@@ -140,7 +140,7 @@ function Dashboard() {
                 <SearchBar
                     value={searchTerm}
                     onChange={setSearchTerm}
-                    placeholder="Buscar atleta por nombre..."
+                    placeholder="Search patients by name..."
                 />
 
                 <select
@@ -149,17 +149,17 @@ function Dashboard() {
                     className="filter-select"
                 >
                     {sports.map(sport => (
-                        <option key={sport} value={sport}>{sport === 'All' ? 'Todos' : sport}</option>
+                        <option key={sport} value={sport}>{sport === 'All' ? 'All' : sport}</option>
                     ))}
                 </select>
 
                 <button
                     className="btn-add-athlete"
                     onClick={() => navigate(ROUTES.ADD_ATHLETE)}
-                    title="Agregar Atleta"
+                    title="Add Patient"
                 >
                     <IoFootball />
-                    Agregar Atleta
+                    Add Patient
                 </button>
             </div>
 
@@ -172,7 +172,7 @@ function Dashboard() {
 
             {/* Content */}
             {loading ? (
-                <LoadingSpinner message="Cargando atletas..." />
+                <LoadingSpinner message="Loading patients..." />
             ) : filteredAthletes.length > 0 ? (
                 <div className="athletes-grid">
                     {filteredAthletes.map((athlete) => (
@@ -186,10 +186,10 @@ function Dashboard() {
             ) : (
                 <EmptyState
                     icon={<IoFootball />}
-                    title="No se encontraron atletas"
-                    message="Intenta con diferentes criterios de búsqueda o agrega uno nuevo"
+                    title="No Patients Found"
+                    message="Try different search criteria or add a new patient"
                     action={{
-                        label: "Agregar Atleta",
+                        label: "Add Patient",
                         onClick: () => navigate(ROUTES.ADD_ATHLETE)
                     }}
                 />

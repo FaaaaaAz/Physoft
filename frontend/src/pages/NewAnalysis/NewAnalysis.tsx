@@ -30,7 +30,7 @@ interface AnalysisCheckboxes {
   fuerzaInercia: boolean
 }
 
-function NuevoAnalisis() {
+function NewAnalysis() {
   const navigate = useNavigate()
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error', texto: string } | null>(null)
@@ -108,15 +108,15 @@ function NuevoAnalisis() {
       setAthletes(response.data || [])
       if (response.data?.length === 0) {
         setMensaje({
-          tipo: 'error',
-          texto: 'No hay atletas en la base de datos. Crea uno primero en la sección de Atletas.'
-        })
+            tipo: 'error',
+            texto: 'No patients found in the database. Please create one first in the Patients section.'
+          })
       }
     } catch (error) {
       console.error('Error loading athletes:', error)
       setMensaje({
         tipo: 'error',
-        texto: 'Error al cargar atletas. Verifica que el backend esté funcionando.'
+        texto: 'Error loading patients. Please verify the backend is running.'
       })
     }
   }
@@ -190,25 +190,25 @@ function NuevoAnalisis() {
     })
     setShowAnalysisFields(true)
     setUsedAI(false)
-    setMensaje({ tipo: 'success', texto: 'Modo manual activado. Completa los campos manualmente.' })
+    setMensaje({ tipo: 'success', texto: 'Manual mode activated. Please complete the fields manually.' })
   }
 
   const handleGenerateAIAnalysis = async () => {
     // Verificar conexión a internet
     if (!isOnline) {
-      setMensaje({ tipo: 'error', texto: 'No hay conexión a internet. Usa el modo manual o conéctate para usar IA.' })
+      setMensaje({ tipo: 'error', texto: 'No internet connection. Use manual mode or connect to use AI.' })
       return
     }
 
     // Verificar que haya al menos un checkbox seleccionado
     const hasSelected = Object.values(analysisCheckboxes).some(val => val)
     if (!hasSelected) {
-      setMensaje({ tipo: 'error', texto: 'Selecciona al menos un tipo de análisis para generar' })
+      setMensaje({ tipo: 'error', texto: 'Select at least one analysis type to generate' })
       return
     }
 
     if (formData.imagenes.length === 0) {
-      setMensaje({ tipo: 'error', texto: 'Debes subir al menos una imagen para el análisis de IA' })
+      setMensaje({ tipo: 'error', texto: 'You must upload at least one image for AI analysis' })
       return
     }
 
@@ -270,10 +270,10 @@ function NuevoAnalisis() {
       setFormData(prev => ({ ...prev, ...mappedData }))
       setShowAnalysisFields(true)
       setUsedAI(true)
-      setMensaje({ tipo: 'success', texto: '✅ Análisis de IA completado. Puedes editar los campos generados.' })
+      setMensaje({ tipo: 'success', texto: '✅ AI analysis completed. You can edit the generated fields.' })
     } catch (error: any) {
-      console.error('Error en análisis de IA:', error)
-      const errorMessage = error.response?.data?.error || error.message || 'Error al procesar el análisis con IA'
+      console.error('Error in AI analysis:', error)
+      const errorMessage = error.response?.data?.error || error.message || 'Error processing AI analysis'
       setMensaje({ tipo: 'error', texto: errorMessage })
     } finally {
       setAiProcessing(false)
@@ -321,7 +321,7 @@ function NuevoAnalisis() {
     e.preventDefault()
 
     if (!selectedAthlete || !formData.athleteId) {
-      setMensaje({ tipo: 'error', texto: 'Debes seleccionar un atleta antes de guardar' })
+      setMensaje({ tipo: 'error', texto: 'You must select a patient before saving' })
       return
     }
 
@@ -377,7 +377,7 @@ function NuevoAnalisis() {
       // Update store with new analysis
       addAnalysis(response.data)
 
-      setMensaje({ tipo: 'success', texto: '✅ Análisis guardado exitosamente' })
+      setMensaje({ tipo: 'success', texto: '✅ Analysis saved successfully' })
 
       setTimeout(() => {
         navigate(`/analysis-view/${response.data.id}`)
@@ -386,7 +386,7 @@ function NuevoAnalisis() {
     } catch (error: any) {
       console.error('Error creating analysis:', error)
       console.error('Error response:', error.response?.data)
-      let errorMessage = 'Error al crear el análisis'
+      let errorMessage = 'Error creating analysis'
 
       if (error.response?.data?.error) {
         errorMessage = error.response.data.error
@@ -405,14 +405,14 @@ function NuevoAnalisis() {
 
   return (
     <PageTemplate
-      title="Nuevo Análisis Deportivo"
-      subtitle="Evaluación kinesiológica completa con asistencia de IA"
+      title="New Sports Assessment"
+      subtitle="Comprehensive kinesiology evaluation with AI assistance"
       showBackButton={true}
       className="nuevo-analisis-page"
       breadcrumbItems={[
-        { label: 'Inicio', path: '/dashboard' },
-        { label: 'Análisis', path: '/analysis' },
-        { label: 'Nuevo Análisis' }
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Assessments', path: '/analysis' },
+        { label: 'New Assessment' }
       ]}
     >
       <div className="nuevo-analisis-container">
@@ -424,16 +424,16 @@ function NuevoAnalisis() {
 
         <form onSubmit={handleSubmit} className="analisis-form">
 
-          {/* SECCIÓN 1 - Información General y Gráficos */}
+          {/* SECTION 1 - General Information & Graphs */}
           <div className="form-section">
             <h3 className="section-title">
               <span className="section-number">1</span>
-              Información General y Gráficos
+              General Information & Graphs
             </h3>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="athleteSearch">Atleta / Código *</label>
+                <label htmlFor="athleteSearch">Patient / Code *</label>
                 <div className="athlete-search-wrapper">
                   <input
                     type="text"
@@ -444,7 +444,7 @@ function NuevoAnalisis() {
                       setShowAthleteDropdown(true)
                     }}
                     onFocus={() => setShowAthleteDropdown(true)}
-                    placeholder="Buscar por código o nombre"
+                    placeholder="Search by code or name"
                     required
                   />
                   <IoSearch className="search-icon" />
@@ -467,14 +467,14 @@ function NuevoAnalisis() {
                 </div>
                 <p className="field-hint">
                   {selectedAthlete
-                    ? `✓ Atleta: ${selectedAthlete.name} - ${selectedAthlete.sport}`
-                    : 'Ingrese el código del atleta o búsquelo por nombre'
+                    ? `✓ Patient: ${selectedAthlete.name} - ${selectedAthlete.sport}`
+                    : 'Enter the patient code or search by name'
                   }
                 </p>
               </div>
 
               <div className="form-group">
-                <label htmlFor="fechaEvaluacion">Fecha/Hora - Evaluación *</label>
+                <label htmlFor="fechaEvaluacion">Evaluation Date/Time *</label>
                 <input
                   type="datetime-local"
                   id="fechaEvaluacion"
@@ -487,7 +487,7 @@ function NuevoAnalisis() {
             </div>
 
             <div className="form-group">
-              <label>Adjuntar imágenes de Gráficos</label>
+              <label>Attach Graph Images</label>
               <div className="upload-zone">
                 <input
                   type="file"
@@ -499,8 +499,8 @@ function NuevoAnalisis() {
                 />
                 <label htmlFor="imagenes-input" className="upload-label">
                   <IoCloudUpload />
-                  <span>Subir imágenes</span>
-                  <p>Haga clic para seleccionar imágenes de los gráficos</p>
+                  <span>Upload images</span>
+                  <p>Click to select graph images</p>
                 </label>
               </div>
 
@@ -508,7 +508,7 @@ function NuevoAnalisis() {
                 <div className="imagenes-grid">
                   {imagenesPreview.map((preview, index) => (
                     <div key={index} className="imagen-preview-item">
-                      <img src={preview} alt={`Gráfico ${index + 1}`} />
+                      <img src={preview} alt={`Chart ${index + 1}`} />
                       <button
                         type="button"
                         className="btn-eliminar-imagen"
@@ -523,7 +523,7 @@ function NuevoAnalisis() {
 
               {formData.imagenes.length === 0 && (
                 <div className="image-required-message">
-                  Debes subir al menos una imagen para el análisis de IA
+                  You must upload at least one image for AI analysis
                 </div>
               )}
             </div>
@@ -535,15 +535,15 @@ function NuevoAnalisis() {
             />
           </div>
 
-          {/* SECCIÓN 2 - Análisis Textual con IA */}
+          {/* SECTION 2 - Textual Analysis with AI */}
           <div className="form-section">
             <h3 className="section-title">
               <span className="section-number">2</span>
-              Análisis Textual
+              Textual Analysis
             </h3>
             <p className="section-description">
-              Selecciona los tipos de análisis que deseas generar con IA.
-              La IA analizará las imágenes adjuntadas y generará informes detallados.
+              Select the types of analysis you want to generate with AI.
+              The AI will analyze attached images and generate detailed reports.
             </p>
 
             {!showAnalysisFields ? (
@@ -557,10 +557,10 @@ function NuevoAnalisis() {
                     />
                     <span className="checkbox-label">
                       <IoCheckmark className="check-icon" />
-                      1. Análisis de flexibilidad
+                      1. Flexibility Analysis
                     </span>
                     <p className="checkbox-description">
-                      La IA analizará rangos de movimiento y flexibilidad articular
+                      AI will analyze range of motion and joint flexibility
                     </p>
                   </label>
 
@@ -572,10 +572,10 @@ function NuevoAnalisis() {
                     />
                     <span className="checkbox-label">
                       <IoCheckmark className="check-icon" />
-                      2. Análisis Biobit
+                      2. Biobit Analysis
                     </span>
                     <p className="checkbox-description">
-                      La IA evaluará patrones de activación muscular
+                      AI will evaluate muscle activation patterns
                     </p>
                   </label>
 
@@ -587,10 +587,10 @@ function NuevoAnalisis() {
                     />
                     <span className="checkbox-label">
                       <IoCheckmark className="check-icon" />
-                      3. Asimetría muscular en activación
+                      3. Muscular Activation Asymmetry
                     </span>
                     <p className="checkbox-description">
-                      La IA detectará desequilibrios musculares bilaterales
+                      AI will detect bilateral muscle imbalances
                     </p>
                   </label>
 
@@ -602,10 +602,10 @@ function NuevoAnalisis() {
                     />
                     <span className="checkbox-label">
                       <IoCheckmark className="check-icon" />
-                      4. Análisis de control motor activo
+                      4. Active Motor Control Analysis
                     </span>
                     <p className="checkbox-description">
-                      La IA evaluará estabilidad y control neuromuscular
+                      AI will evaluate neuromuscular stability and control
                     </p>
                   </label>
 
@@ -617,10 +617,10 @@ function NuevoAnalisis() {
                     />
                     <span className="checkbox-label">
                       <IoCheckmark className="check-icon" />
-                      5. Análisis de fatiga muscular funcional
+                      5. Functional Muscle Fatigue Analysis
                     </span>
                     <p className="checkbox-description">
-                      La IA medirá resistencia y índices de fatiga
+                      AI will measure endurance and fatigue indices
                     </p>
                   </label>
 
@@ -632,13 +632,14 @@ function NuevoAnalisis() {
                     />
                     <span className="checkbox-label">
                       <IoCheckmark className="check-icon" />
-                      6. Análisis de control de fuerza inercia
+                      6. Inertia Force Control Analysis
                     </span>
                     <p className="checkbox-description">
-                      La IA analizará capacidad de generación y control de fuerza
+                      AI will analyze force generation and control capacity
                     </p>
                   </label>
                 </div>
+
 
                 <button
                   type="button"
@@ -646,8 +647,8 @@ function NuevoAnalisis() {
                   onClick={handleGenerateAIAnalysis}
                   disabled={aiProcessing || !isOnline}
                 >
-                  {aiProcessing ? 'Analizando con IA...' : 'Generar Análisis con IA'}
-                  {!isOnline && ' (Sin conexión)'}
+                  {aiProcessing ? 'Analyzing with AI...' : 'Generate AI Analysis'}
+                  {!isOnline && ' (Offline)'}
                 </button>
 
                 <button
@@ -656,7 +657,7 @@ function NuevoAnalisis() {
                   onClick={handleManualAnalysis}
                   disabled={aiProcessing}
                 >
-                  Realizar Análisis Manual
+                  Perform Manual Analysis
                 </button>
 
                 {aiProcessing && (
@@ -668,7 +669,7 @@ function NuevoAnalisis() {
                       ></div>
                     </div>
                     <p className="ai-progress-text">
-                      Procesando imágenes y generando análisis... {aiProgress}%
+                      Processing images and generating analysis... {aiProgress}%
                     </p>
                   </div>
                 )}
@@ -677,15 +678,15 @@ function NuevoAnalisis() {
               <div className="analisis-textual-grid">
                 {usedAI && (
                   <div className="ai-disclaimer">
-                    ℹ️ <strong>Análisis generado por IA:</strong> Basado en patrones visuales del gráfico EMG.
-                    Los porcentajes y valores son estimaciones aproximadas. Se recomienda validación clínica.
+                    ℹ️ <strong>AI-generated analysis:</strong> Based on visual patterns from EMG graphs.
+                    Percentages and values are approximate estimates. Clinical validation is recommended.
                   </div>
                 )}
                 {analysisCheckboxes.flexibilidad && (
                   <div className="form-group">
                     <label htmlFor="analisisFlexibilidad">
-                      1. Análisis de flexibilidad
-                      {usedAI && <span className="ai-badge">Generado por IA</span>}
+                      1. Flexibility Analysis
+                      {usedAI && <span className="ai-badge">Generated by AI</span>}
                     </label>
                     <textarea
                       id="analisisFlexibilidad"
@@ -700,8 +701,8 @@ function NuevoAnalisis() {
                 {analysisCheckboxes.biobit && (
                   <div className="form-group">
                     <label htmlFor="analisisBiobit">
-                      2. Análisis Biobit
-                      {usedAI && <span className="ai-badge">Generado por IA</span>}
+                      2. Biobit Analysis
+                      {usedAI && <span className="ai-badge">Generated by AI</span>}
                     </label>
                     <textarea
                       id="analisisBiobit"
@@ -716,8 +717,8 @@ function NuevoAnalisis() {
                 {analysisCheckboxes.asimetria && (
                   <div className="form-group">
                     <label htmlFor="asimetriaMuscular">
-                      3. Asimetría muscular en activación
-                      {usedAI && <span className="ai-badge">Generado por IA</span>}
+                      3. Muscular Activation Asymmetry
+                      {usedAI && <span className="ai-badge">Generated by AI</span>}
                     </label>
                     <textarea
                       id="asimetriaMuscular"
@@ -732,8 +733,8 @@ function NuevoAnalisis() {
                 {analysisCheckboxes.controlMotor && (
                   <div className="form-group">
                     <label htmlFor="controlMotorActivo">
-                      4. Análisis de control motor activo
-                      {usedAI && <span className="ai-badge">Generado por IA</span>}
+                      4. Active Motor Control Analysis
+                      {usedAI && <span className="ai-badge">Generated by AI</span>}
                     </label>
                     <textarea
                       id="controlMotorActivo"
@@ -748,8 +749,8 @@ function NuevoAnalisis() {
                 {analysisCheckboxes.fatiga && (
                   <div className="form-group">
                     <label htmlFor="fatigaMuscular">
-                      5. Análisis de fatiga muscular funcional
-                      {usedAI && <span className="ai-badge">Generado por IA</span>}
+                      5. Functional Muscle Fatigue Analysis
+                      {usedAI && <span className="ai-badge">Generated by AI</span>}
                     </label>
                     <textarea
                       id="fatigaMuscular"
@@ -764,8 +765,8 @@ function NuevoAnalisis() {
                 {analysisCheckboxes.fuerzaInercia && (
                   <div className="form-group">
                     <label htmlFor="controlFuerzaInercia">
-                      6. Análisis de control de fuerza inercia
-                      {usedAI && <span className="ai-badge">Generado por IA</span>}
+                      6. Inertia Force Control Analysis
+                      {usedAI && <span className="ai-badge">Generated by AI</span>}
                     </label>
                     <textarea
                       id="controlFuerzaInercia"
@@ -786,7 +787,7 @@ function NuevoAnalisis() {
                     setAiProgress(0)
                   }}
                 >
-                  {usedAI ? 'Volver a generar con IA' : 'Generar con IA'}
+                  {usedAI ? 'Regenerate with AI' : 'Generate with AI'}
                 </button>
               </div>
             )}
@@ -802,31 +803,31 @@ function NuevoAnalisis() {
             {/* Puntos Débiles */}
             <div className="subsection">
               <div className="subsection-header">
-                <h4>Puntos débiles</h4>
+                <h4>Weak Points</h4>
                 <button
                   type="button"
                   className="btn-agregar-punto"
                   onClick={handleAgregarPuntoDebil}
                 >
-                  <IoAdd /> Agregar punto débil
+                  <IoAdd /> Add weak point
                 </button>
               </div>
 
               {formData.puntosDebiles.length === 0 ? (
                 <p className="empty-message">
-                  La IA identificará los puntos débiles automáticamente. También puede agregarlos manualmente.
+                  The AI will identify weak points automatically. You can also add them manually.
                 </p>
               ) : (
                 <div className="puntos-debiles-lista">
                   {formData.puntosDebiles.map((punto, index) => (
                     <div key={punto.id} className="punto-debil-item">
-                      <span className="punto-numero">Punto débil {index + 1}</span>
+                        <span className="punto-numero">Weak point {index + 1}</span>
                       <div className="punto-debil-fields">
                         <input
                           type="text"
                           value={punto.area}
                           onChange={(e) => handlePuntoDebilChange(punto.id, 'area', e.target.value)}
-                          placeholder="Área problemática (ej: Fatiga muscular)"
+                          placeholder="Problem area (e.g., Muscle fatigue)"
                           className="punto-debil-input area"
                           required
                         />
@@ -834,7 +835,7 @@ function NuevoAnalisis() {
                           type="text"
                           value={punto.descripcion}
                           onChange={(e) => handlePuntoDebilChange(punto.id, 'descripcion', e.target.value)}
-                          placeholder="Descripción (opcional)"
+                          placeholder="Description (optional)"
                           className="punto-debil-input descripcion"
                         />
                       </div>
@@ -853,19 +854,19 @@ function NuevoAnalisis() {
 
             {/* Capacidades Físicas */}
             <div className="subsection">
-              <h4>Capacidades físicas</h4>
+              <h4>Physical Capacities</h4>
               <p className="subsection-description">
-                La IA evaluará estos valores basándose en el análisis. Puede ajustarlos manualmente.
+                The AI will estimate these values based on the analysis. You can adjust them manually.
               </p>
               {!isOnline && (
                 <div className="offline-warning">
-                  ⚠️ Análisis de Capacidades físicas con IA no disponible sin conexión
+                  ⚠️ AI-based physical capacities analysis not available offline
                 </div>
               )}
 
               <div className="capacidades-grid">
                 <div className="capacidad-item">
-                  <label htmlFor="potencia">Potencia</label>
+                  <label htmlFor="potencia">Power</label>
                   <div className="capacidad-input-group">
                     <input
                       type="range"
@@ -888,7 +889,7 @@ function NuevoAnalisis() {
                 </div>
 
                 <div className="capacidad-item">
-                  <label htmlFor="resistencia">Resistencia</label>
+                  <label htmlFor="resistencia">Endurance</label>
                   <div className="capacidad-input-group">
                     <input
                       type="range"
@@ -911,7 +912,7 @@ function NuevoAnalisis() {
                 </div>
 
                 <div className="capacidad-item">
-                  <label htmlFor="fuerza">Fuerza</label>
+                  <label htmlFor="fuerza">Strength</label>
                   <div className="capacidad-input-group">
                     <input
                       type="range"
@@ -934,7 +935,7 @@ function NuevoAnalisis() {
                 </div>
 
                 <div className="capacidad-item">
-                  <label htmlFor="flexibilidad">Flexibilidad</label>
+                  <label htmlFor="flexibilidad">Flexibility</label>
                   <div className="capacidad-input-group">
                     <input
                       type="range"
@@ -957,7 +958,7 @@ function NuevoAnalisis() {
                 </div>
 
                 <div className="capacidad-item">
-                  <label htmlFor="velocidad">Velocidad</label>
+                  <label htmlFor="velocidad">Speed</label>
                   <div className="capacidad-input-group">
                     <input
                       type="range"
@@ -984,8 +985,8 @@ function NuevoAnalisis() {
             {/* Clasificación Cohorte */}
             <div className="subsection">
               <h4>Clasificación Cohorte</h4>
-              <p className="subsection-description">
-                La IA determinará la clasificación basándose en las capacidades físicas evaluadas.
+                <p className="subsection-description">
+                AI will determine the classification based on evaluated physical capacities.
               </p>
               <select
                 className="form-select"
@@ -994,7 +995,7 @@ function NuevoAnalisis() {
                 onChange={handleChange}
                 required
               >
-                <option value="">Selecciona una clasificación</option>
+                <option value="">Select a classification</option>
                 <option value="ELITE">Elite</option>
                 <option value="AVANZADO">Avanzado</option>
                 <option value="INTERMEDIO">Intermedio</option>
@@ -1005,13 +1006,13 @@ function NuevoAnalisis() {
 
             {/* Recomendaciones */}
             <div className="subsection">
-              <h4>Recomendaciones para el entrenador</h4>
+              <h4>Recommendations for Coach</h4>
               <textarea
                 name="recomendaciones"
                 value={formData.recomendaciones}
                 onChange={handleChange}
                 rows={6}
-                placeholder="Escriba las recomendaciones específicas para el entrenador..."
+                  placeholder="Write specific recommendations for the coach..."
                 className="form-textarea-large"
               />
             </div>
@@ -1024,14 +1025,14 @@ function NuevoAnalisis() {
               className="btn-secondary-large"
               onClick={() => navigate('/analysis')}
             >
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"
               className="btn-primary-large"
               disabled={guardando}
             >
-              {guardando ? '⏳ Guardando...' : '✓ Guardar Análisis'}
+              {guardando ? '⏳ Saving...' : '✓ Save Analysis'}
             </button>
           </div>
         </form>
@@ -1040,4 +1041,4 @@ function NuevoAnalisis() {
   )
 }
 
-export default NuevoAnalisis
+export default NewAnalysis

@@ -32,6 +32,7 @@ const initialValues: AthleteFormData = {
     club: '',
     position: '',
     bodyType: 'Mesomorph',
+    patientType: 'Athlete',
     height: undefined as any,
     weight: undefined as any,
     email: '',
@@ -43,75 +44,81 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
     name: [
         {
             validate: (value) => value.trim().length > 0,
-            message: 'El nombre es requerido'
+            message: 'Name is required'
         },
         {
             validate: (value) => value.trim().length >= 3,
-            message: 'El nombre debe tener al menos 3 caracteres'
+            message: 'Name must be at least 3 characters'
         }
     ],
     gender: [
         {
             validate: (value) => ['Male', 'Female', 'Other'].includes(value),
-            message: 'El género es requerido'
+            message: 'Gender is required'
+        }
+    ],
+    patientType: [
+        {
+            validate: (value) => ['Athlete', 'General Patient'].includes(value),
+            message: 'Patient type is required'
         }
     ],
     sport: [
         {
             validate: (value) => value.trim().length > 0,
-            message: 'El deporte es requerido'
+            message: 'Sport is required'
         }
     ],
     bodyType: [
         {
             validate: (value) => ['Ectomorph', 'Mesomorph', 'Endomorph'].includes(value),
-            message: 'El tipo de cuerpo es requerido'
+            message: 'Body type is required'
         }
     ],
     height: [
         {
             validate: (value) => value !== undefined && value !== null && String(value).trim() !== '' && !isNaN(Number(value)),
-            message: 'La altura es requerida'
+            message: 'Height is required'
         },
         {
             validate: (value) => {
                 const num = Number(value)
                 return num > 0
             },
-            message: 'La altura debe ser mayor a 0'
+            message: 'Height must be greater than 0'
         },
         {
             validate: (value) => {
                 const num = Number(value)
                 return num >= 50 && num <= 250
             },
-            message: 'La altura debe estar entre 50 y 250 cm'
+            message: 'Height must be between 50 and 250 cm'
         }
     ],
     weight: [
         {
             validate: (value) => value !== undefined && value !== null && String(value).trim() !== '' && !isNaN(Number(value)),
-            message: 'El peso es requerido'
+            message: 'Weight is required'
         },
         {
             validate: (value) => {
                 const num = Number(value)
                 return num > 0
             },
-            message: 'El peso debe ser mayor a 0'
+            message: 'Weight must be greater than 0'
         },
         {
             validate: (value) => {
                 const num = Number(value)
                 return num >= 20 && num <= 300
             },
-            message: 'El peso debe estar entre 20 y 300 kg'
+            message: 'Weight must be between 20 and 300 kg'
         }
     ],
     email: [
         {
             validate: (value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-            message: 'Formato de email inválido'
+            message: 'Invalid email format'
         }
     ]
 }
@@ -147,8 +154,8 @@ function AddAthlete() {
                 addAthlete(response.data)
 
                 showMessage(
-                    'success',
-                    `✅ Athlete ${values.name} created successfully with code ${response.data.accessCode}`
+                        'success',
+                        `✅ Patient ${values.name} created successfully with code ${response.data.accessCode}`
                 )
 
                 // Reset form
@@ -172,14 +179,14 @@ function AddAthlete() {
 
     return (
         <PageTemplate
-            title="Agregar Nuevo Atleta"
-            subtitle="Completa la información del atleta para agregarlo a la base de datos"
+            title="Add New Patient"
+            subtitle="Fill out the patient information to add them to the database"
             showBackButton={true}
             className="add-athlete-page"
             showNavbar={true}
             breadcrumbItems={[
-                { label: 'Inicio', path: '/dashboard' },
-                { label: 'Agregar Atleta' }
+                { label: 'Home', path: '/dashboard' },
+                { label: 'Add Patient' }
             ]}
         >
             <div className="add-athlete-container">
@@ -207,81 +214,91 @@ function AddAthlete() {
                     />
 
                     {/* Personal Information */}
-                    <Form.Section title="Información Personal" icon={<IoPerson />}>
+                    <Form.Section title="Personal Information" icon={<IoPerson />}>
                         <Form.Row>
                             <Form.Field
                                 name="name"
-                                label="Nombre Completo"
-                                placeholder="ej., Lionel Messi"
+                                label="Full Name"
+                                placeholder="e.g., Lionel Messi"
                                 required
                             />
                             <Form.Field
                                 name="gender"
-                                label="Género"
+                                label="Gender"
                                 type="select"
                                 required
                                 options={[
-                                    { value: 'Male', label: 'Masculino' },
-                                    { value: 'Female', label: 'Femenino' },
-                                    { value: 'Other', label: 'Otro' }
+                                    { value: 'Male', label: 'Male' },
+                                    { value: 'Female', label: 'Female' },
+                                    { value: 'Other', label: 'Other' }
+                                ]}
+                            />
+                            <Form.Field
+                                name="patientType"
+                                label="Patient Type"
+                                type="select"
+                                required
+                                options={[
+                                    { value: 'Athlete', label: 'Athlete' },
+                                    { value: 'General Patient', label: 'General Patient' }
                                 ]}
                             />
                         </Form.Row>
 
                         <Form.Row>
                             <Form.Field
-                                name="birthDate"
-                                label="Fecha de Nacimiento"
-                                type="date"
-                                icon={<IoCalendar />}
-                                max={new Date().toISOString().split('T')[0]}
-                            />
+                                    name="birthDate"
+                                    label="Birth Date"
+                                    type="date"
+                                    icon={<IoCalendar />}
+                                    max={new Date().toISOString().split('T')[0]}
+                                />
                             <Form.Field
-                                name="nationality"
-                                label="Nacionalidad"
-                                placeholder="ej., Argentina"
-                                icon={<IoGlobe />}
+                                    name="nationality"
+                                    label="Nationality"
+                                    placeholder="e.g., Argentina"
+                                    icon={<IoGlobe />}
                             />
                         </Form.Row>
                     </Form.Section>
 
                     {/* Sports Information */}
-                    <Form.Section title="Información Deportiva" icon={<IoFootball />}>
+                    <Form.Section title="Sport Information" icon={<IoFootball />}>
                         <Form.Row>
                             <Form.Field
                                 name="sport"
-                                label="Deporte"
-                                placeholder="ej., Fútbol, Baloncesto, Atletismo"
+                                label="Sport"
+                                placeholder="e.g., Soccer, Basketball, Track"
                                 required
                             />
                             <Form.Field
                                 name="club"
-                                label="Club/Equipo"
-                                placeholder="ej., FC Barcelona"
+                                label="Club/Team"
+                                placeholder="e.g., FC Barcelona"
                             />
                         </Form.Row>
 
                         <Form.Row>
                             <Form.Field
                                 name="position"
-                                label="Posición/Especialidad"
-                                placeholder="ej., Delantero, Defensa"
+                                label="Position/Specialty"
+                                placeholder="e.g., Forward, Defender"
                             />
                         </Form.Row>
                     </Form.Section>
 
                     {/* Physical Information */}
-                    <Form.Section title="Información Física" icon={<IoBody />}>
+                    <Form.Section title="Physical Information" icon={<IoBody />}>
                         <Form.Row>
                             <Form.Field
                                 name="bodyType"
-                                label="Tipo de Cuerpo"
+                                label="Body Type"
                                 type="select"
                                 required
                                 options={[
-                                    { value: 'Ectomorph', label: 'Ectomorfo (Delgado)' },
-                                    { value: 'Mesomorph', label: 'Mesomorfo (Atlético)' },
-                                    { value: 'Endomorph', label: 'Endomorfo (Robusto)' }
+                                    { value: 'Ectomorph', label: 'Ectomorph (Lean)' },
+                                    { value: 'Mesomorph', label: 'Mesomorph (Athletic)' },
+                                    { value: 'Endomorph', label: 'Endomorph (Robust)' }
                                 ]}
                             />
                         </Form.Row>
@@ -289,17 +306,17 @@ function AddAthlete() {
                         <Form.Row>
                             <Form.Field
                                 name="height"
-                                label="Altura (cm)"
+                                label="Height (cm)"
                                 type="number"
-                                placeholder="ej., 175"
+                                placeholder="e.g., 175"
                                 required
                                 icon={<IoResize />}
                             />
                             <Form.Field
                                 name="weight"
-                                label="Peso (kg)"
+                                label="Weight (kg)"
                                 type="number"
-                                placeholder="ej., 70"
+                                placeholder="e.g., 70"
                                 required
                                 icon={<IoScale />}
                             />
@@ -307,7 +324,7 @@ function AddAthlete() {
                     </Form.Section>
 
                     {/* Contact Information */}
-                    <Form.Section title="Información de Contacto" icon={<IoMail />}>
+                    <Form.Section title="Contact Information" icon={<IoMail />}>
                         <Form.Row>
                             <Form.Field
                                 name="email"
@@ -318,7 +335,7 @@ function AddAthlete() {
                             />
                             <Form.Field
                                 name="phone"
-                                label="Teléfono"
+                                label="Phone"
                                 type="tel"
                                 placeholder="+1 123 456 7890"
                                 icon={<IoCall />}
@@ -329,10 +346,10 @@ function AddAthlete() {
                     {/* Actions */}
                     <Form.Actions>
                         <Form.SubmitButton
-                            loadingText="Creando..."
+                            loadingText="Creating..."
                             icon={<IoPersonAdd />}
                         >
-                            Crear Atleta
+                            Create Patient
                         </Form.SubmitButton>
                     </Form.Actions>
                 </Form>
