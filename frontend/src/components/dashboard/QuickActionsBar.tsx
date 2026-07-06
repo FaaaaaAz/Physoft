@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { IoPersonAdd, IoAddCircle, IoDocuments, IoDownload } from 'react-icons/io5'
+import { ConsentModal, useConsentGate } from '@/components/ConsentModal'
 import { ROUTES } from '../../constants'
 import './QuickActionsBar.css'
 
 function QuickActionsBar() {
     const navigate = useNavigate()
+    const newAssessmentConsent = useConsentGate(ROUTES.NEW_ANALYSIS)
 
     return (
         <div className="quick-actions-bar">
@@ -12,7 +14,7 @@ function QuickActionsBar() {
                 <IoPersonAdd />
                 Add Patient
             </button>
-            <button className="quick-action-btn" onClick={() => navigate(ROUTES.NEW_ANALYSIS)}>
+            <button className="quick-action-btn" onClick={newAssessmentConsent.requestAccess}>
                 <IoAddCircle />
                 New Assessment
             </button>
@@ -25,6 +27,12 @@ function QuickActionsBar() {
                 Generate Report
                 <span className="quick-action-soon">Soon</span>
             </button>
+
+            <ConsentModal
+                isOpen={newAssessmentConsent.isOpen}
+                onCancel={newAssessmentConsent.cancel}
+                onAccept={newAssessmentConsent.accept}
+            />
         </div>
     )
 }
