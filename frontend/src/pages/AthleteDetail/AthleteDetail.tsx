@@ -1,7 +1,7 @@
 import { IoCalendar, IoTrendingUp, IoBody, IoCreate, IoMan, IoResize, IoBarbell, IoTrophy } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import { BreadcrumbItem } from '../../components/Breadcrumb'
-import { useNavigate, useLocation, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { athleteAPI, Athlete, Analysis } from '../../services/api'
 import { useAthleteStore } from '@/store/athleteStore'
@@ -10,13 +10,12 @@ import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from 
 import { calculateAge } from '../../utils/date.utils'
 import { translateBodyType, translateClassification, getClassificationBadgeClass } from '../../utils/translation.utils'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
+import { ROUTES } from '@/constants'
 import './AthleteDetail.css'
 
 function AthleteDetail() {
     const navigate = useNavigate()
-    const location = useLocation()
     const { id } = useParams<{ id: string }>()
-    const from = location.state?.from || 'all-analysis'
 
     const { athletes, fetchAthletes, getAthleteById } = useAthleteStore()
     const { analyses: allAnalyses, fetchAnalysesByAthlete } = useAnalysisStore()
@@ -137,17 +136,13 @@ function AthleteDetail() {
     const age = calculateAge(athlete.birthDate)
     const latestClassification = latestAnalysis?.globalClassification
 
-    // Dynamic breadcrumb based on origin
-    const breadcrumbItems: BreadcrumbItem[] = from === 'all-analyses'
-        ? [
-            { label: 'Analysis', path: '/analysis' },
-            { label: 'All Analyses', path: '/all-analyses' },
-            { label: athlete.name }
-        ]
-        : [
-            { label: 'Analysis', path: '/analysis' },
-            { label: athlete.name }
-        ]
+    // Same breadcrumb structure regardless of where the user came from
+    // (Dashboard > Recent Activity, All Patients, etc.)
+    const breadcrumbItems: BreadcrumbItem[] = [
+        { label: 'Home', path: ROUTES.DASHBOARD },
+        { label: 'Patients', path: ROUTES.ALL_PATIENTS },
+        { label: athlete.name }
+    ]
 
     return (
         <PageTemplate
@@ -175,7 +170,7 @@ function AthleteDetail() {
                         </div>
                     </div>
                     <button
-                        onClick={() => navigate(`/ athletes / edit / ${athlete.id} `)}
+                        onClick={() => navigate(`/athletes/edit/${athlete.id}`)}
                         className="btn-edit-athlete"
                     >
                         <IoCreate /> Edit Patient
