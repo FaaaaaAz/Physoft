@@ -13,6 +13,7 @@ model Athlete {
   photo              String?
   cloudinaryPublicId String?
   name               String
+  patientType        String     @default("Athlete")
   gender             String
   birthDate          String?
   nationality        String?

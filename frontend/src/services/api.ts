@@ -50,6 +50,7 @@ export interface Athlete {
   photo?: string | null
   cloudinaryPublicId?: string | null
   name: string
+  patientType?: string | null
   gender: string
   birthDate?: string | null
   nationality?: string | null
@@ -71,6 +72,7 @@ export interface Athlete {
 export interface CreateAthleteDTO {
   photo?: File | null
   name: string
+  patientType?: string
   gender: string
   birthDate?: string
   nationality?: string
@@ -91,6 +93,7 @@ export interface AthleteFilters {
   sport?: string
   bodyType?: string
   nationality?: string
+  patientType?: string
 }
 
 export const athleteAPI = {
@@ -102,6 +105,7 @@ export const athleteAPI = {
     if (filters?.sport) params.append('sport', filters.sport)
     if (filters?.bodyType) params.append('bodyType', filters.bodyType)
     if (filters?.nationality) params.append('nationality', filters.nationality)
+    if (filters?.patientType) params.append('patientType', filters.patientType)
 
     const response = await apiClient.get<{ success: boolean; data: Athlete[]; total: number }>(
       `/athletes?${params.toString()}`
@@ -123,6 +127,7 @@ export const athleteAPI = {
 
     // Append all fields
     formData.append('name', athlete.name)
+    if (athlete.patientType) formData.append('patientType', athlete.patientType)
     formData.append('gender', athlete.gender)
     formData.append('sport', athlete.sport)
     formData.append('bodyType', athlete.bodyType)

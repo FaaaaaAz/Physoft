@@ -10,6 +10,7 @@ export interface Athlete {
   photo?: string | null  // Photo URL (local or Cloudinary)
   cloudinaryPublicId?: string | null  // Cloudinary public ID
   name: string
+  patientType: string
   gender: string
   birthDate?: string | null  // Birth date
   nationality?: string | null  // Nationality

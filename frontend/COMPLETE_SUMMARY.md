@@ -1,6 +1,6 @@
 # 📋 RESUMEN COMPLETO DE COMPONENTES, HOOKS Y UTILIDADES CREADAS
 
-## 🎯 RESUMEN EJECUTIVO
+## 🎯 RESUMEN EJECUTIVO.
 
 Se han creado **18 componentes React**, **9 custom hooks** y **5 archivos de utilidades** para reemplazar código duplicado en toda la aplicación Physoft. Este documento lista TODOS los archivos creados y dónde deben ser utilizados.
 

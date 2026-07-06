@@ -2,7 +2,7 @@
 
 ## 📁 Opción 1: Almacenamiento Local (Desarrollo)
 
-### 1. Instalar dependencias
+### 1. Instalar dependencias.
 
 ```bash
 npm install multer
