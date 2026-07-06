@@ -84,6 +84,8 @@ dev.db-journal
 # Prisma
 migrations/
 !prisma/migrations/.gitkeep
+!backend/prisma/migrations/
+!backend/prisma/migrations/**
 
 # OS
 Thumbs.db

@@ -5,6 +5,7 @@
 export interface Athlete {
     id: string  // UUID from API
     name: string
+    patientType?: string | null
     gender: string
     birthDate: string | null
     nationality: string | null

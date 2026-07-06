@@ -34,7 +34,7 @@ export class AthleteController {
    */
   static async getAll(req: Request, res: Response) {
     try {
-      const { name, gender, sport, bodyType, nationality } = req.query
+      const { name, gender, sport, bodyType, nationality, patientType } = req.query
 
       // Build dynamic filters
       const where: any = { deletedAt: null }
@@ -50,6 +50,7 @@ export class AthleteController {
       if (sport) where.sport = sport as string
       if (bodyType) where.bodyType = bodyType as string
       if (nationality) where.nationality = nationality as string
+      if (patientType) where.patientType = patientType as string
 
       const athletes = await prisma.athlete.findMany({
         where,
@@ -114,7 +115,7 @@ export class AthleteController {
     try {
       const {
         name, gender, birthDate, nationality, sport, club,
-        position, bodyType, height, weight, email, phone, deviceId
+        position, bodyType, height, weight, email, phone, deviceId, patientType
       } = req.body
 
       // Basic validations
@@ -150,6 +151,7 @@ export class AthleteController {
           id,
           accessCode,
           name,
+          patientType: patientType || 'Athlete',
           gender,
           birthDate: birthDate || null,
           nationality: nationality || null,
@@ -190,7 +192,7 @@ export class AthleteController {
       const { id } = req.params
       const {
         name, gender, birthDate, nationality, sport, club,
-        position, bodyType, height, weight, email, phone
+        position, bodyType, height, weight, email, phone, patientType
       } = req.body
 
       // Check if athlete exists
@@ -206,6 +208,7 @@ export class AthleteController {
         where: { id },
         data: {
           ...(name && { name }),
+          ...(patientType !== undefined && { patientType }),
           ...(gender && { gender }),
           ...(birthDate !== undefined && { birthDate }),
           ...(nationality !== undefined && { nationality }),

@@ -59,7 +59,7 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
     ],
     patientType: [
         {
-            validate: (value) => ['Athlete', 'General Patient'].includes(value),
+            validate: (value) => ['Athlete', 'General Patient'].includes(value ?? ''),
             message: 'Patient type is required'
         }
     ],
