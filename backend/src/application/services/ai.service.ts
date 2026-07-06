@@ -216,10 +216,10 @@ class AIService {
 
             // Proporcionar mensaje de error más específico
             if (error.message.includes('SAFETY') || error.message.includes('blocked') || error.message.includes('seguridad')) {
-                throw new Error('Contenido bloqueado por filtros de seguridad del proveedor de IA. Verifica que las imágenes sean apropiadas.')
+                throw new Error('Content blocked by AI provider security filters. Check that the images are appropriate.')
             }
 
-            throw new Error(`Error al analizar imágenes con IA (${this.provider.providerName}): ${error.message}`)
+            throw new Error(`Error when analyzing images with AI (${this.provider.providerName}): ${error.message}`)
         }
     }
 
@@ -227,88 +227,89 @@ class AIService {
      * Construye el prompt especializado según los tipos de análisis seleccionados
      */
     private buildPrompt(analysisTypes: AnalysisTypes): string {
-    let prompt = `Responde ÚNICAMENTE con el JSON solicitado. Sin texto introductorio, sin explicaciones, sin markdown. El primer carácter de tu respuesta debe ser '{' y el último '}'.
+    let prompt = `Respond ONLY with the requested JSON. No introductory text, no explanations, no markdown formatting. The first character of your response must be '{' and the last must be '}'.
 
-Eres un kinesiólogo deportivo senior generando un reporte técnico clínico.
+    You are a senior sports kinesiologist generating a clinical technical report.
 
-═══════════════════════════════════════════
-PASO 1 — IDENTIFICACIÓN DEL TIPO DE EXAMEN
-═══════════════════════════════════════════
-Antes de cualquier análisis, identifica qué tipo de datos contienen las imágenes.
-Clasifica en UNO de estos tipos:
+    ═══════════════════════════════════════════
+    STEP 1 — EXAM TYPE IDENTIFICATION
+    ═══════════════════════════════════════════
+    Before any analysis, identify what kind of data the images contain.
+    Classify into ONE of these types:
 
-- EMG: Señales electromiográficas de superficie (gráficos de onda, canales musculares)
-- CINEMATICA: Ángulos articulares, rangos de movimiento, análisis postural (diagramas angulares, gráficos de ángulos vs tiempo)
-- PELVIS: Datos de inclinación, oblicuidad y rotación pélvica (diales angulares, reportes de pelvis)
-- FUERZA: Curvas de fuerza, plataforma de fuerza, dinamometría
-- POSTURAL: Fotografías posturales o análisis de alineación corporal
-- MARCHA: Análisis de ciclo de marcha, cadencia, parámetros espacio-temporales
-- MIXTO: Combinación de dos o más tipos anteriores
-- INVALIDO: Imagen sin contenido biomecánico/clínico relevante
+    - EMG: Surface electromyography signals (waveforms, muscle channels)
+    - CINEMATICA: Joint angles, range of motion, postural analysis
+    - PELVIS: Pelvic tilt, obliquity, and rotation data
+    - FUERZA: Force curves, force plates, dynamometry
+    - POSTURAL: Postural photographs or body alignment analysis
+    - MARCHA: Gait cycle analysis, cadence, spatiotemporal parameters
+    - MIXTO: Combination of two or more of the above types
+    - INVALIDO: Image without relevant biomechanical/clinical content
 
-SI el tipo es INVALIDO, responde EXACTAMENTE:
-{"advertencia": "Las imágenes no contienen datos biomecánicos válidos. Se requieren gráficos EMG, análisis cinemáticos, fotografías posturales u otros datos clínicos relevantes."}
+    IF the type is INVALIDO, respond EXACTLY with:
+    {"advertencia": "Las imágenes no contienen datos biomecánicos válidos. Se requieren gráficos EMG, análisis cinemáticos, fotografías posturales u otros datos clínicos relevantes."}
 
-═══════════════════════════════════════════════════════
-PASO 2 — VALORES NORMATIVOS SEGÚN TIPO DE EXAMEN
-═══════════════════════════════════════════════════════
-Usa estos rangos de referencia para clasificar estados. Aplica SOLO los relevantes al tipo identificado:
+    ═══════════════════════════════════════════════════════
+    STEP 2 — NORMATIVE VALUES BY EXAM TYPE
+    ═══════════════════════════════════════════════════════
+    Use these reference ranges to classify statuses. Apply ONLY those relevant to the identified type:
 
-[EMG - ACTIVIDAD MUSCULAR]
-- Fases de reposo: actividad mínima (~0) = OPTIMO
-- Tono residual leve en reposo = ATENCION
-- Tono residual persistente significativo = CRITICO
-- Coordinación agonista/antagonista coherente = OPTIMO
-- Cocontracción excesiva = ATENCION
+    [EMG - MUSCLE ACTIVITY]
+    - Resting phases: minimal activity (~0) = OPTIMO
+    - Mild residual tone at rest = ATENCION
+    - Significant persistent residual tone = CRITICO
+    - Coherent agonist/antagonist coordination = OPTIMO
+    - Excessive co-contraction = ATENCION
 
-[CINEMÁTICA PÉLVICA - en salto/marcha]
-- Tilt rango: <45° = OPTIMO | 45-55° = ATENCION | >55° = CRITICO
-- Obliquity rango: <10° = OPTIMO | 10-15° = ATENCION | >15° = CRITICO
-- Rotation rango: <12° = OPTIMO | 12-20° = ATENCION | >20° = CRITICO
+    [PELVIC KINEMATICS - in jump/gait]
+    - Tilt range: <45° = OPTIMO | 45-55° = ATENCION | >55° = CRITICAL
+    - Obliquity range: <10° = OPTIMO | 10-15° = ATENCION | >15° = CRITICO
+    - Rotation range: <12° = OPTIMO | 12-20° = ATENCION | >20° = CRITICO
 
-[CINEMÁTICA RODILLA - en salto/marcha]
-- Flexión pico en landing: 45-90° = OPTIMO | <45° = ATENCION (rigidez) | >90° = ATENCION
-- Valgo dinámico: <10° = OPTIMO | 10-20° = ATENCION | >20° = CRITICO
+    [KNEE KINEMATICS - in jump/gait]
+    - Peak flexion on landing: 45-90° = OPTIMO | <45° = ATENCION (stiffness) | >90° = ATENCION
+    - Dynamic valgus: <10° = OPTIMO | 10-20° = ATENCION | >20° = CRITICO
 
-[CINEMÁTICA CADERA - en salto/marcha]
-- Flexión funcional: 30-60° = OPTIMO | fuera de rango = ATENCION
-- Rotación interna excesiva en carga: >15° = ATENCION
+    [HIP KINEMATICS - in jump/gait]
+    - Functional flexion: 30-60° = OPTIMO | out of range = ATENCION
+    - Excessive internal rotation under load: >15° = ATENCION
 
-[ANÁLISIS POSTURAL]
-- Desviación sagital/frontal <5° = OPTIMO
-- Desviación 5-15° = ATENCION
-- Desviación >15° = CRITICO
+    [POSTURAL ANALYSIS]
+    - Sagittal/frontal deviation <5° = OPTIMO
+    - Deviation 5-15° = ATENCION
+    - Deviation >15° = CRITICO
 
-[FUERZA]
-- Asimetría bilateral fuerza: <10% = OPTIMO | 10-15% = ATENCION | >15% = CRITICO
-- Déficit de fuerza vs normativa por edad/deporte: <15% = OPTIMO | 15-25% = ATENCION | >25% = CRITICO
+    [FORCE]
+    - Bilateral force asymmetry: <10% = OPTIMO | 10-15% = ATENCION | >15% = CRITICO
+    - Force deficit vs age/sport norm: <15% = OPTIMO | 15-25% = ATENCION | >25% = CRITICO
 
-[MARCHA]
-- Cadencia normal adulto: 100-120 pasos/min = OPTIMO
-- Asimetría de paso: <5% = OPTIMO | 5-10% = ATENCION | >10% = CRITICO
+    [GAIT]
+    - Normal adult cadence: 100-120 steps/min = OPTIMO
+    - Step asymmetry: <5% = OPTIMO | 5-10% = ATENCION | >10% = CRITICO
 
-REGLAS ABSOLUTAS:
-1. Afirmaciones directas. NUNCA inicies con: "Sí", "No", "Hay".
-2. NO expliques conceptos. Reporta hallazgos clínicos.
-3. PROHIBIDO inventar datos no visibles en la imagen.
-4. PROHIBIDO inventar porcentajes o magnitudes sin medición explícita.
-5. Si no hay evidencia suficiente, usa estado "NO_EVALUABLE" con explicación.
-6. La amplitud EMG normalizada NO es comparable entre músculos sin MVC. NUNCA afirmes dominancia lateral por amplitud visual.
-7. Para cinemática: usa los valores normativos del PASO 2 para determinar el estado.
-8. Escribe como médico en reporte clínico, no como chatbot.
+    ABSOLUTE RULES:
+    1. Direct declarative statements. NEVER start with conversational words like: "Sí", "No", "Hay".
+    2. DO NOT explain concepts. Report clinical findings.
+    3. FORBIDDEN to invent data not visible in the image.
+    4. FORBIDDEN to invent percentages or magnitudes without explicit measurement.
+    5. If there is insufficient evidence, use the status "NO_EVALUABLE".
+    6. Normalized EMG amplitude is NOT comparable between muscles without MVC. NEVER assert lateral dominance based solely on visual amplitude.
+    7. For kinematics: use the normative values from STEP 2 to determine the status.
+    8. Write as a medical professional in a clinical report in Spanish, not as a chatbot.
+    9. UX/UI DATA STRUCTURE RULE: If a section's "estado" is "NO_EVALUABLE", you MUST set ALL its descriptive text fields strictly to null. NEVER write "Not evaluable", "No hay datos", or any error messages inside the descriptive strings.
 
-JSON a generar:
-{
-"tipo_examen": "EMG | CINEMATICA | PELVIS | FUERZA | POSTURAL | MARCHA | MIXTO",`;
+    JSON to generate:
+    {
+    "tipo_examen": "EMG | CINEMATICA | PELVIS | FUERZA | POSTURAL | MARCHA | MIXTO",`;
 
     // 1. FLEXIBILIDAD
     if (analysisTypes.flexibilidad) {
         prompt += `
         "flexibilidad": {
             "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "hallazgos": "EMG → describe relajación muscular en valles y tono residual. CINEMATICA/PELVIS → describe rangos articulares con valores numéricos exactos encontrados. POSTURAL → describe alineación y desviaciones observadas. Siempre incluye los valores numéricos si están disponibles.",
-            "interpretacion": "Contrasta los valores encontrados con los rangos normativos del PASO 2. Menciona explícitamente si el valor está dentro o fuera del rango normal.",
-            "recomendacion": "Acción clínica concreta y específica."
+            "hallazgos": "EMG → describe muscle relaxation and residual tone. KINEMATICS/PELVIS → describe joint ranges. POSTURAL → describe alignment. (null if NO_EVALUABLE)",
+            "interpretacion": "Contrast findings with normative ranges. (null if NO_EVALUABLE)",
+            "recomendacion": "Concrete clinical action. (null if NO_EVALUABLE)"
         },`;
     }
 
@@ -316,10 +317,10 @@ JSON a generar:
     if (analysisTypes.biobit) {
         prompt += `
         "biobit": {
-            "estado": "OPTIMO | ATENCION | CRITICO",
-            "patron_temporal": "EMG → secuencia de activación muscular. CINEMATICA → describe el patrón de movimiento entre fases (ej: takeoff vs landing). MARCHA → describe el ciclo de movimiento.",
-            "sincronizacion": "Evalúa coordinación entre segmentos, músculos o fases del movimiento según el tipo de examen.",
-            "hallazgo_clave": "Hallazgo principal más relevante clínicamente."
+            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
+            "patron_temporal": "EMG → muscle activation sequence. KINEMATICS/GAIT → movement cycle pattern. (null if NO_EVALUABLE)",
+            "sincronizacion": "Evaluate coordination between segments or muscles. (null if NO_EVALUABLE)",
+            "hallazgo_clave": "Main clinical finding. (null if NO_EVALUABLE)"
         },`;
     }
 
@@ -328,11 +329,11 @@ JSON a generar:
         prompt += `
         "asimetria": {
             "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "datos_disponibles": "Especifica qué datos bilaterales existen. Si no hay datos de ambos lados: 'No hay datos bilaterales suficientes para comparar lados.'",
-            "comparacion": "Solo compara izquierdo vs derecho si existen datos explícitos de ambos lados.",
-            "lado_dominante": "Oración completa. Ej: 'El lado derecho presenta mayor activación.' / 'El patrón es simétrico entre ambos lados.' / 'No es posible determinar dominancia sin datos bilaterales.'",
-            "magnitud": "Oración completa con valor si existe. Ej: 'La diferencia es de aproximadamente 15%.' / 'La magnitud no es cuantificable sin métricas RMS o amplitud integrada; no es posible determinar significancia clínica.'",
-            "relevancia": "Significancia clínica solo si la asimetría está demostrada con datos. Si no, indicar que no es concluible."
+            "datos_disponibles": "Specify what bilateral data exists. (null if NO_EVALUABLE)",
+            "comparacion": "Compare left vs right. (null if NO_EVALUABLE)",
+            "lado_dominante": "Declare dominance. (null if NO_EVALUABLE)",
+            "magnitud": "Sentence with estimated value. (null if NO_EVALUABLE)",
+            "relevancia": "Clinical significance. (null if NO_EVALUABLE)"
         },`;
     }
 
@@ -340,11 +341,11 @@ JSON a generar:
     if (analysisTypes.controlMotor) {
         prompt += `
         "control_motor": {
-            "estado": "OPTIMO | ATENCION | CRITICO",
-            "calidad_patron": "EMG → suavidad y consistencia de la señal. CINEMATICA → fluidez y consistencia del movimiento articular.",
-            "estabilidad": "Evalúa estabilidad durante las fases de mayor demanda.",
-            "fases_reposo": "EMG → actividad en reposo. CINEMATICA → comportamiento en fases de baja demanda o neutras.",
-            "conclusion": "Resumen de la capacidad de control motor."
+            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
+            "calidad_patron": "Signal smoothness/consistency or movement fluidity. (null if NO_EVALUABLE)",
+            "estabilidad": "Evaluate stability during peak demand. (null if NO_EVALUABLE)",
+            "fases_reposo": "Behavior in resting or low-demand phases. (null if NO_EVALUABLE)",
+            "conclusion": "Summary of motor control capacity. (null if NO_EVALUABLE)"
         },`;
     }
 
@@ -353,10 +354,10 @@ JSON a generar:
         prompt += `
         "fatiga": {
             "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "evolucion_temporal": "Describe progresión de la señal a lo largo del tiempo. Si no hay progresión temporal demostrable: 'El registro no muestra progresión temporal suficiente para evaluar fatiga.'",
-            "comparacion": "Compara inicio vs final SOLO si hay duración suficiente. Si no: 'No hay suficiente contexto temporal para comparar inicio y final.'",
-            "signos": "Solo signos OBJETIVOS presentes: aumento progresivo de amplitud, disminución de frecuencia, degradación del patrón. Si no hay: 'No se observan signos objetivos de fatiga en el registro.'",
-            "nivel": "Con evidencia objetiva clara: 'Sin fatiga evidente' | 'Fatiga moderada' | 'Fatiga significativa'. Sin evidencia: 'NO_EVALUABLE: requiere registro de esfuerzo sostenido.'"
+            "evolucion_temporal": "Describe signal progression over time. (null if NO_EVALUABLE)",
+            "comparacion": "Compare start vs end. (null if NO_EVALUABLE)",
+            "signos": "Describe objective signs of fatigue. (null if NO_EVALUABLE)",
+            "nivel": "State 'Sin fatiga evidente', 'Fatiga moderada', or 'Fatiga significativa'. (null if NO_EVALUABLE)"
         },`;
     }
 
@@ -365,43 +366,43 @@ JSON a generar:
         prompt += `
         "fuerza_inercia": {
             "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "tipo_medicion": "Especifica exactamente qué datos están disponibles (EMG, fuerza, cinemática, velocidad, aceleración).",
-            "generacion": "Con datos de fuerza/velocidad → analiza fase de generación explosiva. Con solo EMG o cinemática angular → 'No evaluable: se requieren datos de fuerza o velocidad.'",
-            "control": "Con datos de fuerza/velocidad → analiza fase de frenado. Con solo EMG o cinemática → 'No evaluable: se requieren datos de fuerza o velocidad.'",
-            "interpretacion": "Con datos suficientes → resume eficiencia mecánica. Sin datos suficientes → 'La eficiencia mecánica no es evaluable con los datos disponibles. Se requiere dinamometría o análisis cinemático completo.'"
+            "tipo_medicion": "Specify available data type. (null if NO_EVALUABLE)",
+            "generacion": "Analyze explosive generation phase. (null if NO_EVALUABLE)",
+            "control": "Analyze braking phase. (null if NO_EVALUABLE)",
+            "interpretacion": "Summarize mechanical efficiency. (null if NO_EVALUABLE)"
         },`;
     }
 
     prompt += `
-    INSTRUCCIONES PARA CONCLUSIONES:
+    INSTRUCTIONS FOR CONCLUSIONS:
 
-    1. PUNTOS DÉBILES — REGLA FUNDAMENTAL:
-       - [] es válido y correcto si todos los estados son OPTIMO.
-       - Estados ATENCION → máximo 2 puntos débiles.
-       - Estados CRITICO → máximo 4 puntos débiles.
-       - NUNCA inventes problemas para completar la lista.
-       - Específicos: "Rotación pélvica 19° supera rango normal (<12°)" NO "Problemas de rotación".
-       - NO incluir secciones en NO_EVALUABLE como puntos débiles.
-       - Prioridad: CRITICO > ATENCION.
+    1. WEAK POINTS — FUNDAMENTAL RULE:
+       - [] is valid and correct if all statuses are OPTIMO.
+       - ATENCION statuses → maximum 2 weak points.
+       - CRITICO statuses → maximum 4 weak points.
+       - NEVER invent problems just to populate the list.
+       - Be specific: "Rotación pélvica 19° supera rango normal" NOT "Problemas de rotación".
+       - DO NOT include NO_EVALUABLE sections as weak points.
+       - Priority: CRITICO > ATENCION.
 
-    2. CAPACIDADES FÍSICAS (0-100):
-       - Potencia: fuerza_inercia → generación explosiva
-       - Resistencia: fatiga → capacidad de mantener esfuerzo
-       - Fuerza: fuerza_inercia → generación de fuerza
-       - Flexibilidad: flexibilidad → rangos/relajación
-       - Velocidad: biobit + control_motor → rapidez de activación/movimiento
-       - Mapeo: OPTIMO=75-95 | ATENCION=45-74 | CRITICO=15-44 | NO_EVALUABLE=50
+    2. PHYSICAL CAPACITIES (0-100):
+       - potencia: fuerza_inercia → explosive generation
+       - resistencia: fatiga → capacity to sustain effort
+       - fuerza: fuerza_inercia → force generation
+       - flexibilidad: flexibilidad → ranges/relaxation
+       - velocidad: biobit + control_motor → speed of activation/movement
+       - Mapping: OPTIMO=75-95 | ATENCION=45-74 | CRITICO=15-44 | NO_EVALUABLE=50
 
-    3. CLASIFICACIÓN COHORTE:
-       - ELITE: 4-5 capacidades >75, sin CRITICO
-       - AVANZADO: 3+ capacidades >65, máx 1 CRITICO
-       - INTERMEDIO: 2+ capacidades >55, máx 2 CRITICO
-       - PRINCIPIANTE: <2 capacidades >55
-       - ATENCION_REQUERIDA: 2+ estados CRITICO o asimetrías severas
+    3. COHORT CLASSIFICATION:
+       - ELITE: 4-5 capacities >75, no CRITICO
+       - AVANZADO: 3+ capacities >65, max 1 CRITICO
+       - INTERMEDIO: 2+ capacities >55, max 2 CRITICO
+       - PRINCIPIANTE: <2 capacities >55
+       - ATENCION_REQUERIDA: 2+ CRITICO statuses or severe asymmetries
 
     "conclusiones": {
         "puntos_debiles": [
-            {"area": "Área específica", "descripcion": "Descripción con valor numérico si aplica"}
+            {"area": "Specific area in Spanish", "descripcion": "Description with numerical value if applicable"}
         ],
         "capacidades_fisicas": {
             "potencia": 0,
@@ -411,7 +412,7 @@ JSON a generar:
             "velocidad": 0
         },
         "clasificacion_cohorte": "ELITE | AVANZADO | INTERMEDIO | PRINCIPIANTE | ATENCION_REQUERIDA",
-        "resumen_global": "1-2 frases ejecutivas integrando tipo de examen y hallazgos principales.",
+        "resumen_global": "1-2 executive sentences in Spanish integrating exam type and main findings.",
         "advertencia": null
     }
     }`;
