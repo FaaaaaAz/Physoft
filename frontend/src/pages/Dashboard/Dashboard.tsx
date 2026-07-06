@@ -1,208 +1,145 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { IoFootball } from 'react-icons/io5'
+import { useState, useMemo, useEffect } from 'react'
 import PageTemplate from '../../components/templates/PageTemplate'
-import AthleteCard from '../../components/athlete/AthleteCard'
-import AthleteModal from '../../components/athlete/AthleteModal'
-import { SearchBar } from '@/components/common/data-display/SearchBar'
-import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
-import EmptyState from '@/components/common/feedback/EmptyState'
-import { useDebounce } from '../../hooks'
-import { calculateAge } from '../../utils/date.utils'
-import { getPhotoUrl, Analysis, Athlete } from '../../services/api'
+import DashboardHeader from '@/components/dashboard/DashboardHeader'
+import MetricsOverview from '@/components/dashboard/MetricsOverview'
+import QuickActionsBar from '@/components/dashboard/QuickActionsBar'
+import RecentActivityCard from '@/components/dashboard/RecentActivityCard'
+import AssessmentsTrendCard from '@/components/dashboard/AssessmentsTrendCard'
+import AIModuleCard from '@/components/dashboard/AIModuleCard'
 import { useAthleteStore } from '@/store/athleteStore'
 import { useAnalysisStore } from '@/store/analysisStore'
-import { ROUTES, MESSAGES } from '../../constants'
-import type { AthleteDisplay } from '../../types/athlete.types'
+import type { Analysis, Athlete } from '../../services/api'
 import './Dashboard.css'
 
+const TREND_DAYS = 30
+const RECENT_ACTIVITY_LIMIT = 7
+const FOLLOW_UP_STALE_DAYS = 30
+const DAY_MS = 24 * 60 * 60 * 1000
+
 function Dashboard() {
-    const navigate = useNavigate()
-    const { athletes, loading, fetchAthletes, deleteAthlete } = useAthleteStore()
-    const { analyses: allAnalyses, fetchAnalyses } = useAnalysisStore()
-
-    // Local state
-    const [searchTerm, setSearchTerm] = useState('')
-    const [sportFilter, setSportFilter] = useState('All')
-    const [selectedAthlete, setSelectedAthlete] = useState<AthleteDisplay | null>(null)
-    const [athleteAnalyses, setAthleteAnalyses] = useState<Record<string, Analysis[]>>({})
+    const { athletes, loading: athletesLoading, fetchAthletes } = useAthleteStore()
+    const { analyses, loading: analysesLoading, fetchAnalyses } = useAnalysisStore()
     const [error, setError] = useState('')
-
-    // Debounce search for better performance
-    const debouncedSearch = useDebounce(searchTerm, 300)
 
     // Fetch athletes and analyses on mount ONLY if store is empty
     useEffect(() => {
         const loadData = async () => {
             try {
-                // Only fetch if stores are empty
                 if (athletes.length === 0) {
                     await fetchAthletes()
                 }
-                if (allAnalyses.length === 0) {
+                if (analyses.length === 0) {
                     await fetchAnalyses()
                 }
             } catch (err) {
-                console.error('Error loading data:', err)
-                setError('Error loading data')
+                console.error('Error loading dashboard data:', err)
+                setError('Error loading dashboard data')
             }
         }
 
         loadData()
     }, []) // Only run once on mount
 
-    // Map analyses to athletes
-    useEffect(() => {
-        if (athletes.length === 0 || allAnalyses.length === 0) return
+    const loading = athletesLoading || analysesLoading
 
-        const analysesMap: Record<string, Analysis[]> = {}
-        athletes.forEach((athlete: Athlete) => {
-            const athleteAnalysesList = allAnalyses.filter((a: Analysis) => a.athleteId === athlete.id)
-            analysesMap[athlete.id] = athleteAnalysesList.sort((a: Analysis, b: Analysis) =>
-                new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime()
-            )
-        })
+    const athleteById = useMemo(() => {
+        const map = new Map<string, Athlete>()
+        athletes.forEach((athlete: Athlete) => map.set(athlete.id, athlete))
+        return map
+    }, [athletes])
 
-        setAthleteAnalyses(analysesMap)
-    }, [athletes, allAnalyses])
-
-    // Transform athletes for display - memoized to avoid recalculation
-    const athletesDisplay = useMemo((): AthleteDisplay[] => {
-        return athletes.map((athlete: Athlete) => {
-            // Get latest analysis for this athlete
-            const latestAnalysis = athleteAnalyses[athlete.id]?.[0]
-
-            return {
-                id: athlete.id,
-                name: athlete.name,
-                photo: getPhotoUrl(athlete.photo),
-                sport: athlete.sport,
-                age: calculateAge(athlete.birthDate),
-                nationality: athlete.nationality || 'Not specified',
-                height: athlete.height,
-                weight: athlete.weight,
-                club: athlete.club || athlete.position || 'No team',
-                bodyType: athlete.bodyType,
-                accessCode: athlete.accessCode,
-                capacities: {
-                    power: latestAnalysis?.power || 0,
-                    strength: latestAnalysis?.strength || 0,
-                    speed: latestAnalysis?.speed || 0,
-                    flexibility: latestAnalysis?.flexibility || 0,
-                    endurance: latestAnalysis?.endurance || 0
-                }
+    const latestAnalysisByAthlete = useMemo(() => {
+        const map = new Map<string, Analysis>()
+        analyses.forEach((analysis: Analysis) => {
+            const current = map.get(analysis.athleteId)
+            if (!current || new Date(analysis.evaluationDate) > new Date(current.evaluationDate)) {
+                map.set(analysis.athleteId, analysis)
             }
         })
-    }, [athletes, athleteAnalyses])
+        return map
+    }, [analyses])
 
-    // Filter athletes - memoized
-    const filteredAthletes = useMemo(() => {
-        return athletesDisplay.filter(athlete => {
-            const matchesName = athlete.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-            const matchesSport = sportFilter === 'All' || athlete.sport === sportFilter
-            return matchesName && matchesSport
+    const assessmentsThisWeek = useMemo(() => {
+        const now = Date.now()
+        return analyses.filter((a: Analysis) => now - new Date(a.evaluationDate).getTime() <= 7 * DAY_MS).length
+    }, [analyses])
+
+    const pendingFollowUps = useMemo(() => {
+        const now = Date.now()
+        return athletes.filter((athlete: Athlete) => {
+            const latest = latestAnalysisByAthlete.get(athlete.id)
+            if (!latest) return true
+            return now - new Date(latest.evaluationDate).getTime() > FOLLOW_UP_STALE_DAYS * DAY_MS
+        }).length
+    }, [athletes, latestAnalysisByAthlete])
+
+    const recentActivity = useMemo(() => {
+        return [...analyses]
+            .sort((a, b) => new Date(b.evaluationDate).getTime() - new Date(a.evaluationDate).getTime())
+            .slice(0, RECENT_ACTIVITY_LIMIT)
+            .map((analysis: Analysis) => {
+                const athlete = athleteById.get(analysis.athleteId)
+                return {
+                    id: analysis.id,
+                    athleteId: analysis.athleteId,
+                    patientName: athlete?.name || analysis.athlete?.name || 'Unknown patient',
+                    photo: athlete?.photo ?? analysis.athlete?.photo,
+                    evaluationDate: analysis.evaluationDate,
+                    classification: analysis.cohortClassification || analysis.globalClassification
+                }
+            })
+    }, [analyses, athleteById])
+
+    const trendData = useMemo(() => {
+        const countsByDay = new Map<string, number>()
+        analyses.forEach((analysis: Analysis) => {
+            const day = new Date(analysis.evaluationDate)
+            day.setHours(0, 0, 0, 0)
+            const key = day.toISOString().slice(0, 10)
+            countsByDay.set(key, (countsByDay.get(key) || 0) + 1)
         })
-    }, [athletesDisplay, debouncedSearch, sportFilter])
 
-    // Get unique sports - memoized
-    const sports = useMemo(() => {
-        return ['All', ...Array.from(new Set(athletesDisplay.map(a => a.sport)))]
-    }, [athletesDisplay])
+        const todayStart = new Date()
+        todayStart.setHours(0, 0, 0, 0)
 
-    // Handle athlete selection
-    const handleAthleteClick = useCallback((athlete: AthleteDisplay) => {
-        setSelectedAthlete(athlete)
-    }, [])
-
-    // Handle athlete deletion
-    const handleDeleteAthlete = useCallback(async (id: string) => {
-        if (!window.confirm(MESSAGES.CONFIRM.DELETE_ATHLETE)) {
-            return
+        const days = []
+        for (let i = TREND_DAYS - 1; i >= 0; i--) {
+            const day = new Date(todayStart.getTime() - i * DAY_MS)
+            const key = day.toISOString().slice(0, 10)
+            days.push({
+                date: day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                count: countsByDay.get(key) || 0
+            })
         }
-
-        try {
-            await deleteAthlete(id)
-            setSelectedAthlete(null)
-        } catch (err) {
-            console.error('Error deleting athlete:', err)
-            alert(MESSAGES.ERROR.DELETING_ATHLETE)
-        }
-    }, [deleteAthlete])
+        return days
+    }, [analyses])
 
     return (
-        <PageTemplate
-            title="Patient Management"
-            subtitle="Manage your patients and musculoskeletal assessments"
-            className="dashboard"
-        >
-            {/* Filters */}
-            <div className="dashboard-filters">
-                <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder="Search patients by name..."
-                />
+        <PageTemplate className="dashboard">
+            <DashboardHeader />
 
-                <select
-                    value={sportFilter}
-                    onChange={(e) => setSportFilter(e.target.value)}
-                    className="filter-select"
-                >
-                    {sports.map(sport => (
-                        <option key={sport} value={sport}>{sport === 'All' ? 'All' : sport}</option>
-                    ))}
-                </select>
-
-                <button
-                    className="btn-add-athlete"
-                    onClick={() => navigate(ROUTES.ADD_ATHLETE)}
-                    title="Add Patient"
-                >
-                    <IoFootball />
-                    Add Patient
-                </button>
-            </div>
-
-            {/* Error Message */}
             {error && (
                 <div className="error-message">
                     {error}
                 </div>
             )}
 
-            {/* Content */}
-            {loading ? (
-                <LoadingSpinner message="Loading patients..." />
-            ) : filteredAthletes.length > 0 ? (
-                <div className="athletes-grid">
-                    {filteredAthletes.map((athlete) => (
-                        <AthleteCard
-                            key={athlete.id}
-                            athlete={athlete}
-                            onClick={() => handleAthleteClick(athlete)}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <EmptyState
-                    icon={<IoFootball />}
-                    title="No Patients Found"
-                    message="Try different search criteria or add a new patient"
-                    action={{
-                        label: "Add Patient",
-                        onClick: () => navigate(ROUTES.ADD_ATHLETE)
-                    }}
-                />
-            )}
-
-            {/* Athlete Modal */}
-            <AthleteModal
-                athlete={selectedAthlete}
-                onClose={() => setSelectedAthlete(null)}
-                onDelete={handleDeleteAthlete}
-                onViewDetails={(id) => navigate(`/athlete-detail/${id}`)}
-                onEdit={(id) => navigate(`/athletes/edit/${id}`)}
+            <MetricsOverview
+                totalPatients={athletes.length}
+                totalAssessments={analyses.length}
+                assessmentsThisWeek={assessmentsThisWeek}
+                pendingFollowUps={pendingFollowUps}
+                loading={loading}
             />
+
+            <QuickActionsBar />
+
+            <div className="dashboard-columns">
+                <RecentActivityCard items={recentActivity} loading={loading} />
+                <AssessmentsTrendCard data={trendData} loading={loading} />
+            </div>
+
+            <AIModuleCard />
         </PageTemplate>
     )
 }

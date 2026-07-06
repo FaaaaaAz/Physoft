@@ -12,7 +12,7 @@ export interface BodyMark {
   id: string
   x: number // posición X en porcentaje (0-100)
   y: number // posición Y en porcentaje (0-100)
-  viewType: 'frontal' | 'trasero' | 'izquierdo' | 'derecho'
+  viewType: 'front' | 'back' | 'left' | 'right'
 }
 
 interface BodyVisualizationProps {
@@ -21,10 +21,10 @@ interface BodyVisualizationProps {
 }
 
 const viewTypes = [
-  { id: 'frontal', label: 'Vista Frontal', image: FrontalImg },
-  { id: 'trasero', label: 'Vista Trasera', image: TraseroImg },
-  { id: 'izquierdo', label: 'Perfil Izquierdo', image: IzquierdoImg },
-  { id: 'derecho', label: 'Perfil Derecho', image: DerechoImg }
+  { id: 'front', label: 'Front View', image: FrontalImg },
+  { id: 'back', label: 'Back View', image: TraseroImg },
+  { id: 'left', label: 'Left Side View', image: IzquierdoImg },
+  { id: 'right', label: 'Right Side View', image: DerechoImg }
 ] as const
 
 function BodyVisualization({ marks, onChange }: BodyVisualizationProps) {
@@ -84,16 +84,15 @@ function BodyVisualization({ marks, onChange }: BodyVisualizationProps) {
   return (
     <div className="body-visualization">
       <div className="body-viz-header">
-        <h4>Visualización Corporal - Zonas Afectadas</h4>
+        <h4>Body Visualization - Affected Areas</h4>
         <p className="body-viz-description">
-          Selecciona las vistas necesarias y haz clic en las zonas del cuerpo afectadas para marcarlas.
-          Puedes eliminar marcas individualmente haciendo clic en ellas.
+          Select the required views and click on the affected body areas to mark them. You can remove individual markers by clicking on them.
         </p>
       </div>
 
       {/* Selector de vistas */}
       <div className="view-selector">
-        <label className="view-selector-label">Vistas a mostrar:</label>
+        <label className="view-selector-label">Views to display:</label>
         <div className="view-checkboxes">
           {viewTypes.map(view => (
             <label key={view.id} className="view-checkbox-item">
@@ -112,9 +111,9 @@ function BodyVisualization({ marks, onChange }: BodyVisualizationProps) {
             type="button"
             className="btn-clear-all-marks"
             onClick={handleClearAllMarks}
-            title="Limpiar todas las marcas"
+            title="Clear all marks"
           >
-            <IoTrash /> Limpiar todas las marcas ({marks.length})
+            <IoTrash /> Clear all marks ({marks.length})
           </button>
         )}
       </div>
@@ -135,7 +134,7 @@ function BodyVisualization({ marks, onChange }: BodyVisualizationProps) {
                       type="button"
                       className="btn-clear-view-marks"
                       onClick={(e) => handleClearViewMarks(view.id, e)}
-                      title="Limpiar marcas de esta vista"
+                      title="Clear marks for this view"
                     >
                       <IoTrash /> {viewMarks.length}
                     </button>
@@ -179,7 +178,7 @@ function BodyVisualization({ marks, onChange }: BodyVisualizationProps) {
                 </div>
 
                 <p className="body-image-instruction">
-                  Haz clic en las zonas afectadas
+                  Click on the affected areas
                 </p>
               </div>
             )
@@ -188,7 +187,7 @@ function BodyVisualization({ marks, onChange }: BodyVisualizationProps) {
 
       {marks.length === 0 && (
         <div className="no-marks-message">
-          <p>No hay zonas marcadas. Haz clic en las imágenes para marcar las áreas afectadas.</p>
+          <p>No affected areas have been marked. Click on the images to mark the affected areas.</p>
         </div>
       )}
     </div>

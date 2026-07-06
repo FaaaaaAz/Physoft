@@ -1,4 +1,4 @@
-import '../../styles/StatCard.css'
+import './StatCard.css'
 
 interface StatCardProps {
   icon: React.ReactNode
