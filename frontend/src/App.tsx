@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Welcome from './pages/Welcome/Welcome'
 import Dashboard from './pages/Dashboard/Dashboard'
+import Patients from './pages/Patients/Patients'
 import Home from './pages/Home/Home'
 import Analysis from './pages/Analysis/Analysis'
 import AllAnalyses from './pages/AllAnalyses/AllAnalyses'
@@ -22,6 +23,7 @@ function App() {
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/home" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/patients" element={<Patients />} />
         <Route path="/analysis" element={<Analysis />} />
         <Route path="/all-analyses" element={<AllAnalyses />} />
         <Route path="/athlete-detail/:id" element={<AthleteDetail />} />

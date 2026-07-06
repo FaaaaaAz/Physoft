@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { IoPersonAdd, IoAddCircle, IoDocuments, IoDownload } from 'react-icons/io5'
+import { IoPersonAdd, IoAddCircle, IoDocuments, IoDownload, IoPeople } from 'react-icons/io5'
 import { ConsentModal, useConsentGate } from '@/components/ConsentModal'
 import { ROUTES } from '../../constants'
 import './QuickActionsBar.css'
@@ -21,6 +21,10 @@ function QuickActionsBar() {
             <button className="quick-action-btn" onClick={() => navigate(ROUTES.ALL_ANALYSES)}>
                 <IoDocuments />
                 All Assessments
+            </button>
+            <button className="quick-action-btn" onClick={() => navigate(ROUTES.ALL_PATIENTS)}>
+                <IoPeople />
+                All Patients
             </button>
             <button className="quick-action-btn quick-action-btn-disabled" disabled title="Coming soon">
                 <IoDownload />

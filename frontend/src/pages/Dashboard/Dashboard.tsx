@@ -5,7 +5,6 @@ import MetricsOverview from '@/components/dashboard/MetricsOverview'
 import QuickActionsBar from '@/components/dashboard/QuickActionsBar'
 import RecentActivityCard from '@/components/dashboard/RecentActivityCard'
 import AssessmentsTrendCard from '@/components/dashboard/AssessmentsTrendCard'
-import AIModuleCard from '@/components/dashboard/AIModuleCard'
 import { useAthleteStore } from '@/store/athleteStore'
 import { useAnalysisStore } from '@/store/analysisStore'
 import type { Analysis, Athlete } from '../../services/api'
@@ -138,8 +137,6 @@ function Dashboard() {
                 <RecentActivityCard items={recentActivity} loading={loading} />
                 <AssessmentsTrendCard data={trendData} loading={loading} />
             </div>
-
-            <AIModuleCard />
         </PageTemplate>
     )
 }

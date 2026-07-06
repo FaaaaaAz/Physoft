@@ -11,6 +11,7 @@ export const APP_CONFIG = {
 export const ROUTES = {
     HOME: '/',
     DASHBOARD: '/dashboard',
+    ALL_PATIENTS: '/patients',
     ADD_ATHLETE: '/add-athlete',
     ATHLETE_DETAIL: '/athlete/:id',
     NEW_ANALYSIS: '/new-analysis',

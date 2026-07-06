@@ -1,0 +1,136 @@
+.patients-page {
+  min-height: 100vh;
+  background: var(--bg-color);
+}
+
+/* Toolbar: search + sport filter + add button */
+
+.patients-toolbar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 40px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.patients-toolbar .search-container {
+  flex: 1;
+  min-width: 320px;
+  max-width: 500px;
+}
+
+.patients-sport-select {
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
+  padding-right: 48px;
+}
+
+.patients-sport-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
+}
+
+.patients-sport-select option {
+  background: var(--surface-color);
+  color: var(--text-primary);
+}
+
+.patients-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 14px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+  margin-left: auto;
+}
+
+.patients-add-btn:hover {
+  background: var(--primary-color-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.4);
+}
+
+.patients-add-btn:active {
+  transform: translateY(0);
+}
+
+/* Patient grid */
+
+.patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 28px;
+  margin-bottom: 50px;
+}
+
+.patients-error-message {
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--error-color);
+  border-radius: 10px;
+  color: var(--error-color);
+  font-weight: 500;
+}
+
+/* Responsive */
+
+@media (max-width: 1024px) {
+  .patients-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+  }
+
+  .patients-toolbar .search-container {
+    min-width: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .patients-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .patients-toolbar .search-container {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .patients-sport-select {
+    width: 100%;
+  }
+
+  .patients-add-btn {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .patients-grid {
+    grid-template-columns: 1fr;
+  }
+}
