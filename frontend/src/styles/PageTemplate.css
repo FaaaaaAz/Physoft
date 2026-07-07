@@ -6,7 +6,8 @@
   min-height: 100vh;
   background: var(--color-bg-primary, #0a0a0a);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
 /* ============================================
@@ -15,10 +16,11 @@
 
 .page-content {
   flex: 1;
+  min-width: 0;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 2.5rem;
 }
 
 .page-header {
@@ -126,26 +128,14 @@
    ============================================ */
 
 @media (max-width: 1024px) {
-  .navbar-content {
-    padding: 0 1.5rem;
-  }
-
   .page-content {
     padding: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
-  .navbar-menu {
-    display: none; /* Se puede implementar menú hamburguesa */
-  }
-
-  .navbar-content {
-    padding: 0 1rem;
-  }
-
   .page-content {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   .page-title-section {
@@ -171,18 +161,8 @@
 }
 
 @media (max-width: 480px) {
-  .navbar-title {
-    font-size: 1.25rem;
-  }
-
   .page-title {
     font-size: 1.5rem;
-  }
-
-  .navbar-icon-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
   }
 }
 

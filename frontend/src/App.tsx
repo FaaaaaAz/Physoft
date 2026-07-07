@@ -11,6 +11,10 @@ import EditAthlete from './pages/EditAthlete/EditAthlete'
 import NewAnalysis from './pages/NewAnalysis/NewAnalysis'
 import EditAnalysis from './pages/EditAnalysis/EditAnalysis'
 import AnalysisView from './pages/AnalysisView/AnalysisView'
+import Analytics from './pages/Analytics/Analytics'
+import Reports from './pages/Reports/Reports'
+import Protocols from './pages/Protocols/Protocols'
+import Assistant from './pages/Assistant/Assistant'
 import Settings from './pages/Settings/Settings'
 import Profile from './pages/Profile/Profile'
 import './styles/index.css'
@@ -32,6 +36,10 @@ function App() {
         <Route path="/new-analysis" element={<NewAnalysis />} />
         <Route path="/analysis/edit/:id" element={<EditAnalysis />} />
         <Route path="/analysis-view/:id" element={<AnalysisView />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/protocols" element={<Protocols />} />
+        <Route path="/assistant" element={<Assistant />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
 

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoAdd, IoArrowBack } from 'react-icons/io5'
-import Navbar from '../Navbar'
+import Sidebar from '../Sidebar'
 import Breadcrumb, { BreadcrumbItem } from '../Breadcrumb'
 import '../../styles/PageTemplate.css'
 
@@ -44,17 +44,8 @@ function PageTemplate({
 
   return (
     <div className={`page-template ${className}`}>
-      {/* Navbar Superior */}
-      {showNavbar && (
-        <Navbar
-          showBackButton={false}
-          backTo={backTo}
-          onBack={handleBack}
-          showAddButton={false}
-          onAddClick={onAddClick}
-          addButtonTitle={addButtonText}
-        />
-      )}
+      {/* Barra lateral de navegación principal */}
+      {showNavbar && <Sidebar />}
 
       {/* Contenido Principal */}
       <main className="page-content">

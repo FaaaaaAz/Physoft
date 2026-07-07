@@ -1,0 +1,52 @@
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60vh;
+  padding: 40px 20px;
+}
+
+.coming-soon-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  margin-bottom: 28px;
+  font-size: 2.8rem;
+  color: var(--color-primary);
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.16), rgba(13, 148, 136, 0.04));
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  box-shadow: 0 0 40px rgba(20, 184, 166, 0.15);
+}
+
+.coming-soon-badge {
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  background: rgba(20, 184, 166, 0.12);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+.coming-soon-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.coming-soon-desc {
+  max-width: 440px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
