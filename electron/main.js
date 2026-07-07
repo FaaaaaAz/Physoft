@@ -3,6 +3,11 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
 
+// Force the Chromium UI locale to English regardless of the OS locale, so
+// native controls the app can't restyle via CSS (date picker popup, context
+// menus, etc.) are always in English. Must be set before the app is ready.
+app.commandLine.appendSwitch('lang', 'en-US');
+
 let mainWindow;
 let backendProcess;
 

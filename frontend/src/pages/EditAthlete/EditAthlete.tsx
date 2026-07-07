@@ -38,6 +38,7 @@ function EditAthlete() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null)
+    const [isNonAthlete, setIsNonAthlete] = useState(false)
 
     const [formData, setFormData] = useState({
         name: '',
@@ -86,6 +87,7 @@ function EditAthlete() {
                 photo: null,
                 currentPhotoUrl: athlete.photo || ''
             })
+            setIsNonAthlete(athlete.sport === 'None')
         } catch (error) {
             console.error('Error loading athlete:', error)
             setMensaje({ tipo: 'error', texto: 'Error loading patient' })
@@ -98,6 +100,19 @@ function EditAthlete() {
         if (e.target.files && e.target.files[0]) {
             setFormData(prev => ({ ...prev, photo: e.target.files![0] }))
         }
+    }
+
+    // "None" toggles the whole Sports Information section off: the sport
+    // value is auto-filled with the sentinel "None" so the native
+    // `required` attribute keeps being satisfied unchanged.
+    const handleNonAthleteToggle = (checked: boolean) => {
+        setIsNonAthlete(checked)
+        setFormData(prev => ({
+            ...prev,
+            sport: checked ? 'None' : (prev.sport === 'None' ? '' : prev.sport),
+            club: checked ? '' : prev.club,
+            position: checked ? '' : prev.position
+        }))
     }
 
     const handleSubmit = async (e: FormEvent) => {
@@ -274,6 +289,16 @@ function EditAthlete() {
                 {/* Sports Information */}
                 <div className="form-section">
                     <h3>Sports Information</h3>
+
+                    <label className="non-athlete-checkbox">
+                        <input
+                            type="checkbox"
+                            checked={isNonAthlete}
+                            onChange={(e) => handleNonAthleteToggle(e.target.checked)}
+                        />
+                        <span>None &mdash; this patient does not practice a sport</span>
+                    </label>
+
                     <div className="form-grid">
                         <div className="form-group">
                             <label htmlFor="sport">Sport *</label>
@@ -283,6 +308,7 @@ function EditAthlete() {
                                 value={formData.sport}
                                 onChange={(e) => setFormData(prev => ({ ...prev, sport: e.target.value }))}
                                 required
+                                disabled={isNonAthlete}
                             />
                         </div>
 
@@ -293,6 +319,7 @@ function EditAthlete() {
                                 id="club"
                                 value={formData.club}
                                 onChange={(e) => setFormData(prev => ({ ...prev, club: e.target.value }))}
+                                disabled={isNonAthlete}
                             />
                         </div>
 
@@ -303,6 +330,7 @@ function EditAthlete() {
                                 id="position"
                                 value={formData.position}
                                 onChange={(e) => setFormData(prev => ({ ...prev, position: e.target.value }))}
+                                disabled={isNonAthlete}
                             />
                         </div>
 

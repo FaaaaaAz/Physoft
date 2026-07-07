@@ -797,7 +797,7 @@ function NewAnalysis() {
           <div className="form-section">
             <h3 className="section-title">
               <span className="section-number">3</span>
-              Conclusiones y Plan
+              Conclusions and plan
             </h3>
 
             {/* Puntos Débiles */}

@@ -128,6 +128,7 @@ function AddAthlete() {
     const { addAthlete } = useAthleteStore()
     const { message, showMessage, clearMessage } = useFormMessage()
     const [photoFile, setPhotoFile] = useState<File | null>(null)
+    const [isNonAthlete, setIsNonAthlete] = useState(false)
 
     // Form hook
     const form = useForm<AthleteFormData>({
@@ -135,6 +136,20 @@ function AddAthlete() {
         validationSchema,
         onSubmit: handleFormSubmit
     })
+
+    // "None" toggles the whole Sport Information section off: the sport
+    // value is auto-filled with the sentinel "None" so the existing
+    // "Sport is required" validation rule keeps passing unchanged.
+    const handleNonAthleteToggle = (checked: boolean) => {
+        setIsNonAthlete(checked)
+        if (checked) {
+            form.setFieldValue('sport', 'None')
+            form.setFieldValue('club', '')
+            form.setFieldValue('position', '')
+        } else {
+            form.setFieldValue('sport', '')
+        }
+    }
 
     async function handleFormSubmit(values: AthleteFormData) {
         clearMessage()
@@ -264,17 +279,28 @@ function AddAthlete() {
 
                     {/* Sports Information */}
                     <Form.Section title="Sport Information" icon={<IoFootball />}>
+                        <label className="non-athlete-checkbox">
+                            <input
+                                type="checkbox"
+                                checked={isNonAthlete}
+                                onChange={(e) => handleNonAthleteToggle(e.target.checked)}
+                            />
+                            <span>None &mdash; this patient does not practice a sport</span>
+                        </label>
+
                         <Form.Row>
                             <Form.Field
                                 name="sport"
                                 label="Sport"
                                 placeholder="e.g., Soccer, Basketball, Track"
                                 required
+                                disabled={isNonAthlete}
                             />
                             <Form.Field
                                 name="club"
                                 label="Club/Team"
                                 placeholder="e.g., FC Barcelona"
+                                disabled={isNonAthlete}
                             />
                         </Form.Row>
 
@@ -283,6 +309,7 @@ function AddAthlete() {
                                 name="position"
                                 label="Position/Specialty"
                                 placeholder="e.g., Forward, Defender"
+                                disabled={isNonAthlete}
                             />
                         </Form.Row>
                     </Form.Section>

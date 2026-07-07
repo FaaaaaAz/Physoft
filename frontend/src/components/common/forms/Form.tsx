@@ -125,6 +125,7 @@ interface FieldProps {
     type?: 'text' | 'email' | 'tel' | 'number' | 'date' | 'select'
     placeholder?: string
     required?: boolean
+    disabled?: boolean
     icon?: React.ReactNode
     min?: number | string
     max?: number | string
@@ -139,6 +140,7 @@ function Field({
     type = 'text',
     placeholder,
     required = false,
+    disabled = false,
     icon,
     min,
     max,
@@ -174,6 +176,7 @@ function Field({
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     required={required}
+                    disabled={disabled}
                 >
                     {options?.map(option => (
                         <option key={option.value} value={option.value}>
@@ -191,6 +194,7 @@ function Field({
                     onBlur={handleInputBlur}
                     placeholder={placeholder}
                     required={required}
+                    disabled={disabled}
                     min={min}
                     max={max}
                     step={step}
