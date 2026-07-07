@@ -247,7 +247,7 @@ class AIService {
     - INVALIDO: Image without relevant biomechanical/clinical content
 
     IF the type is INVALIDO, respond EXACTLY with:
-    {"advertencia": "Las imágenes no contienen datos biomecánicos válidos. Se requieren gráficos EMG, análisis cinemáticos, fotografías posturales u otros datos clínicos relevantes."}
+    {"advertencia": "The images do not contain valid biomechanical data. EMG graphs, kinematic analyses, postural photographs, or other relevant clinical data are required."}
 
     ═══════════════════════════════════════════════════════
     STEP 2 — NORMATIVE VALUES BY EXAM TYPE
@@ -255,48 +255,48 @@ class AIService {
     Use these reference ranges to classify statuses. Apply ONLY those relevant to the identified type:
 
     [EMG - MUSCLE ACTIVITY]
-    - Resting phases: minimal activity (~0) = OPTIMO
-    - Mild residual tone at rest = ATENCION
-    - Significant persistent residual tone = CRITICO
-    - Coherent agonist/antagonist coordination = OPTIMO
-    - Excessive co-contraction = ATENCION
+    - Resting phases: minimal activity (~0) = OPTIMAL
+    - Mild residual tone at rest = WARNING
+    - Significant persistent residual tone = CRITICAL
+    - Coherent agonist/antagonist coordination = OPTIMAL
+    - Excessive co-contraction = WARNING
 
     [PELVIC KINEMATICS - in jump/gait]
-    - Tilt range: <45° = OPTIMO | 45-55° = ATENCION | >55° = CRITICO
-    - Obliquity range: <10° = OPTIMO | 10-15° = ATENCION | >15° = CRITICO
-    - Rotation range: <12° = OPTIMO | 12-20° = ATENCION | >20° = CRITICO
+    - Tilt range: <45° = OPTIMAL | 45-55° = WARNING | >55° = CRITICAL
+    - Obliquity range: <10° = OPTIMAL | 10-15° = WARNING | >15° = CRITICAL
+    - Rotation range: <12° = OPTIMAL | 12-20° = WARNING | >20° = CRITICAL
 
     [KNEE KINEMATICS - in jump/gait]
-    - Peak flexion on landing: 45-90° = OPTIMO | <45° = ATENCION (stiffness) | >90° = ATENCION
-    - Dynamic valgus: <10° = OPTIMO | 10-20° = ATENCION | >20° = CRITICO
+    - Peak flexion on landing: 45-90° = OPTIMAL | <45° = WARNING (stiffness) | >90° = WARNING
+    - Dynamic valgus: <10° = OPTIMAL | 10-20° = WARNING | >20° = CRITICAL
 
     [HIP KINEMATICS - in jump/gait]
-    - Functional flexion: 30-60° = OPTIMO | out of range = ATENCION
-    - Excessive internal rotation under load: >15° = ATENCION
+    - Functional flexion: 30-60° = OPTIMAL | out of range = WARNING
+    - Excessive internal rotation under load: >15° = WARNING
 
     [POSTURAL ANALYSIS]
-    - Sagittal/frontal deviation <5° = OPTIMO
-    - Deviation 5-15° = ATENCION
-    - Deviation >15° = CRITICO
+    - Sagittal/frontal deviation <5° = OPTIMAL
+    - Deviation 5-15° = WARNING
+    - Deviation >15° = CRITICAL
 
     [FORCE]
-    - Bilateral force asymmetry: <10% = OPTIMO | 10-15% = ATENCION | >15% = CRITICO
-    - Force deficit vs age/sport norm: <15% = OPTIMO | 15-25% = ATENCION | >25% = CRITICO
+    - Bilateral force asymmetry: <10% = OPTIMAL | 10-15% = WARNING | >15% = CRITICAL
+    - Force deficit vs age/sport norm: <15% = OPTIMAL | 15-25% = WARNING | >25% = CRITICAL
 
     [GAIT]
-    - Normal adult cadence: 100-120 steps/min = OPTIMO
-    - Step asymmetry: <5% = OPTIMO | 5-10% = ATENCION | >10% = CRITICO
+    - Normal adult cadence: 100-120 steps/min = OPTIMAL
+    - Step asymmetry: <5% = OPTIMAL | 5-10% = WARNING | >10% = CRITICAL
 
     ABSOLUTE RULES:
-    1. Direct declarative statements. NEVER start with conversational words like: "Sí", "No", "Hay".
+    1. Direct declarative statements. NEVER start with conversational words like: "Yes", "No", "There is", "There are".
     2. DO NOT explain concepts. Report clinical findings directly.
     3. FORBIDDEN to invent data not visible in the image.
     4. FORBIDDEN to invent percentages or magnitudes without explicit measurement.
-    5. If there is insufficient evidence for a section, use the status "NO_EVALUABLE".
+    5. If there is insufficient evidence for a section, use the status "NOT_EVALUABLE".
     6. Normalized EMG amplitude is NOT comparable between muscles without MVC. NEVER assert lateral dominance based solely on visual amplitude.
     7. For kinematics: use the normative values from STEP 2 to determine the status.
-    8. Write as a medical professional in a clinical report. The descriptive clinical text MUST be written in Spanish.
-    9. UX/UI DATA STRUCTURE RULE: If a section's "estado" is "NO_EVALUABLE", you MUST set ALL its descriptive text fields strictly to null. NEVER write "Not evaluable", "No hay datos", or any error messages inside the descriptive strings.
+    8. Write as a medical professional in a clinical report. The descriptive clinical text MUST be written in ENGLISH, even though the JSON keys are in Spanish.
+    9. UX/UI DATA STRUCTURE RULE: If a section's "estado" is "NOT_EVALUABLE", you MUST set ALL its descriptive text fields strictly to null. NEVER write "Not evaluable", "No data", or any error messages inside the descriptive strings.
 
     JSON to generate:
     {
@@ -306,10 +306,10 @@ class AIService {
     if (analysisTypes.flexibilidad) {
         prompt += `
         "flexibilidad": {
-            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "hallazgos": "EMG → describe muscle relaxation and residual tone. KINEMATICS/PELVIS → describe joint ranges. POSTURAL → describe alignment. (null if NO_EVALUABLE)",
-            "interpretacion": "Contrast findings with normative ranges. (null if NO_EVALUABLE)",
-            "recomendacion": "Concrete clinical action. (null if NO_EVALUABLE)"
+            "estado": "OPTIMAL | WARNING | CRITICAL | NOT_EVALUABLE",
+            "hallazgos": "EMG → describe muscle relaxation and residual tone. KINEMATICS/PELVIS → describe joint ranges. POSTURAL → describe alignment. (null if NOT_EVALUABLE)",
+            "interpretacion": "Contrast findings with normative ranges. (null if NOT_EVALUABLE)",
+            "recomendacion": "Concrete clinical action. (null if NOT_EVALUABLE)"
         },`;
     }
 
@@ -317,10 +317,10 @@ class AIService {
     if (analysisTypes.biobit) {
         prompt += `
         "biobit": {
-            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "patron_temporal": "EMG → muscle activation sequence. KINEMATICS/GAIT → movement cycle pattern. (null if NO_EVALUABLE)",
-            "sincronizacion": "Evaluate coordination between segments or muscles. (null if NO_EVALUABLE)",
-            "hallazgo_clave": "Main clinical finding. (null if NO_EVALUABLE)"
+            "estado": "OPTIMAL | WARNING | CRITICAL | NOT_EVALUABLE",
+            "patron_temporal": "EMG → muscle activation sequence. KINEMATICS/GAIT → movement cycle pattern. (null if NOT_EVALUABLE)",
+            "sincronizacion": "Evaluate coordination between segments or muscles. (null if NOT_EVALUABLE)",
+            "hallazgo_clave": "Main clinical finding. (null if NOT_EVALUABLE)"
         },`;
     }
 
@@ -328,12 +328,12 @@ class AIService {
     if (analysisTypes.asimetria) {
         prompt += `
         "asimetria": {
-            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "datos_disponibles": "Specify what bilateral data exists. (null if NO_EVALUABLE)",
-            "comparacion": "Compare left vs right. (null if NO_EVALUABLE)",
-            "lado_dominante": "Declare dominance. (null if NO_EVALUABLE)",
-            "magnitud": "Sentence with estimated value. (null if NO_EVALUABLE)",
-            "relevancia": "Clinical significance. (null if NO_EVALUABLE)"
+            "estado": "OPTIMAL | WARNING | CRITICAL | NOT_EVALUABLE",
+            "datos_disponibles": "Specify what bilateral data exists. (null if NOT_EVALUABLE)",
+            "comparacion": "Compare left vs right. (null if NOT_EVALUABLE)",
+            "lado_dominante": "Declare dominance. (null if NOT_EVALUABLE)",
+            "magnitud": "Sentence with estimated value. (null if NOT_EVALUABLE)",
+            "relevancia": "Clinical significance. (null if NOT_EVALUABLE)"
         },`;
     }
 
@@ -341,11 +341,11 @@ class AIService {
     if (analysisTypes.controlMotor) {
         prompt += `
         "control_motor": {
-            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "calidad_patron": "Signal smoothness/consistency or movement fluidity. (null if NO_EVALUABLE)",
-            "estabilidad": "Evaluate stability during peak demand. (null if NO_EVALUABLE)",
-            "fases_reposo": "Behavior in resting or low-demand phases. (null if NO_EVALUABLE)",
-            "conclusion": "Summary of motor control capacity. (null if NO_EVALUABLE)"
+            "estado": "OPTIMAL | WARNING | CRITICAL | NOT_EVALUABLE",
+            "calidad_patron": "Signal smoothness/consistency or movement fluidity. (null if NOT_EVALUABLE)",
+            "estabilidad": "Evaluate stability during peak demand. (null if NOT_EVALUABLE)",
+            "fases_reposo": "Behavior in resting or low-demand phases. (null if NOT_EVALUABLE)",
+            "conclusion": "Summary of motor control capacity. (null if NOT_EVALUABLE)"
         },`;
     }
 
@@ -353,11 +353,11 @@ class AIService {
     if (analysisTypes.fatiga) {
         prompt += `
         "fatiga": {
-            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "evolucion_temporal": "Describe signal progression over time. (null if NO_EVALUABLE)",
-            "comparacion": "Compare start vs end. (null if NO_EVALUABLE)",
-            "signos": "Describe objective signs of fatigue. (null if NO_EVALUABLE)",
-            "nivel": "State 'Sin fatiga evidente', 'Fatiga moderada', or 'Fatiga significativa'. (null if NO_EVALUABLE)"
+            "estado": "OPTIMAL | WARNING | CRITICAL | NOT_EVALUABLE",
+            "evolucion_temporal": "Describe signal progression over time. (null if NOT_EVALUABLE)",
+            "comparacion": "Compare start vs end. (null if NOT_EVALUABLE)",
+            "signos": "Describe objective signs of fatigue. (null if NOT_EVALUABLE)",
+            "nivel": "State 'No evident fatigue', 'Moderate fatigue', or 'Significant fatigue'. (null if NOT_EVALUABLE)"
         },`;
     }
 
@@ -365,11 +365,11 @@ class AIService {
     if (analysisTypes.fuerzaInercia) {
         prompt += `
         "fuerza_inercia": {
-            "estado": "OPTIMO | ATENCION | CRITICO | NO_EVALUABLE",
-            "tipo_medicion": "Specify available data type. (null if NO_EVALUABLE)",
-            "generacion": "Analyze explosive generation phase. (null if NO_EVALUABLE)",
-            "control": "Analyze braking phase. (null if NO_EVALUABLE)",
-            "interpretacion": "Summarize mechanical efficiency. (null if NO_EVALUABLE)"
+            "estado": "OPTIMAL | WARNING | CRITICAL | NOT_EVALUABLE",
+            "tipo_medicion": "Specify available data type. (null if NOT_EVALUABLE)",
+            "generacion": "Analyze explosive generation phase. (null if NOT_EVALUABLE)",
+            "control": "Analyze braking phase. (null if NOT_EVALUABLE)",
+            "interpretacion": "Summarize mechanical efficiency. (null if NOT_EVALUABLE)"
         },`;
     }
 
@@ -377,13 +377,13 @@ class AIService {
     INSTRUCTIONS FOR CONCLUSIONS:
 
     1. WEAK POINTS — FUNDAMENTAL RULE:
-       - [] is valid and correct if all statuses are OPTIMO.
-       - ATENCION statuses → maximum 2 weak points.
-       - CRITICO statuses → maximum 4 weak points.
+       - [] is valid and correct if all statuses are OPTIMAL.
+       - WARNING statuses → maximum 2 weak points.
+       - CRITICAL statuses → maximum 4 weak points.
        - NEVER invent problems just to populate the list.
-       - Be specific: "Rotación pélvica 19° supera rango normal" NOT "Problemas de rotación".
-       - DO NOT include NO_EVALUABLE sections as weak points.
-       - Priority: CRITICO > ATENCION.
+       - Be specific: "Pelvic rotation 19° exceeds normal range" NOT "Rotation problems".
+       - DO NOT include NOT_EVALUABLE sections as weak points.
+       - Priority: CRITICAL > WARNING.
 
     2. PHYSICAL CAPACITIES (0-100):
        - potencia: fuerza_inercia → explosive generation
@@ -391,18 +391,18 @@ class AIService {
        - fuerza: fuerza_inercia → force generation
        - flexibilidad: flexibilidad → ranges/relaxation
        - velocidad: biobit + control_motor → speed of activation/movement
-       - Mapping: OPTIMO=75-95 | ATENCION=45-74 | CRITICO=15-44 | NO_EVALUABLE=50
+       - Mapping: OPTIMAL=75-95 | WARNING=45-74 | CRITICAL=15-44 | NOT_EVALUABLE=50
 
     3. COHORT CLASSIFICATION:
-       - ELITE: 4-5 capacities >75, no CRITICO
-       - AVANZADO: 3+ capacities >65, max 1 CRITICO
-       - INTERMEDIO: 2+ capacities >55, max 2 CRITICO
+       - ELITE: 4-5 capacities >75, no CRITICAL
+       - AVANZADO: 3+ capacities >65, max 1 CRITICAL
+       - INTERMEDIO: 2+ capacities >55, max 2 CRITICAL
        - PRINCIPIANTE: <2 capacities >55
-       - ATENCION_REQUERIDA: 2+ CRITICO statuses or severe asymmetries
+       - ATENCION_REQUERIDA: 2+ CRITICAL statuses or severe asymmetries
 
     "conclusiones": {
         "puntos_debiles": [
-            {"area": "Specific area in Spanish", "descripcion": "Description with numerical value if applicable"}
+            {"area": "Specific area in English", "descripcion": "Description in English with numerical value if applicable"}
         ],
         "capacidades_fisicas": {
             "potencia": 0,
@@ -412,7 +412,7 @@ class AIService {
             "velocidad": 0
         },
         "clasificacion_cohorte": "ELITE | AVANZADO | INTERMEDIO | PRINCIPIANTE | ATENCION_REQUERIDA",
-        "resumen_global": "1-2 executive sentences in Spanish integrating exam type and main findings.",
+        "resumen_global": "1-2 executive sentences in English integrating exam type and main findings.",
         "advertencia": null
     }
     }`;
