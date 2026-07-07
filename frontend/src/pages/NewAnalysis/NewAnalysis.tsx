@@ -860,7 +860,7 @@ function NewAnalysis() {
               </p>
               {!isOnline && (
                 <div className="offline-warning">
-                  ⚠️ AI-based physical capacities analysis not available offline
+                  ⚠️ AI-based physical capacities analysis not available offline.
                 </div>
               )}
 

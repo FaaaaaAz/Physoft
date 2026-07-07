@@ -73,18 +73,18 @@ class GeminiProvider implements AIProvider {
 
         const finishReason = response.candidates?.[0]?.finishReason
         if (finishReason === 'MAX_TOKENS') {
-            throw new Error('La respuesta fue truncada por límite de tokens. Por favor, selecciona MENOS tipos de análisis (máximo 3-4) o reduce el número de imágenes.')
+            throw new Error('The response was truncated due to token limit. Please select FEWER types of analysis (maximum 3-4) or reduce the number of images.')
         }
         if (finishReason === 'SAFETY') {
-            throw new Error('Contenido bloqueado por filtros de seguridad. Las imágenes pueden contener contenido inapropiado.')
+            throw new Error('Content blocked by security filters. Images may contain inappropriate content.')
         }
         if (finishReason === 'RECITATION') {
-            throw new Error('Respuesta bloqueada por detección de contenido duplicado.')
+            throw new Error('Response blocked by duplicate content detection.')
         }
 
         const text = typeof response?.text === 'function' ? response.text() : ''
         if (!text || text.trim().length === 0) {
-            throw new Error('La IA devolvió una respuesta vacía. Por favor, intenta de nuevo.')
+            throw new Error('The AI returned an empty response. Please try again.')
         }
 
         return text
@@ -145,7 +145,7 @@ class OpenAIProvider implements AIProvider {
             : rawContent
 
         if (typeof text !== 'string' || text.trim().length === 0) {
-            throw new Error('La IA devolvió una respuesta vacía. Por favor, intenta de nuevo.')
+            throw new Error('The AI returned an empty response. Please try again.')
         }
 
         return text
@@ -161,7 +161,7 @@ class AIService {
         if (provider === 'openai') {
             const apiKey = process.env.OPENAI_API_KEY
             if (!apiKey) {
-                throw new Error('OPENAI_API_KEY no está configurada en las variables de entorno')
+                throw new Error('OPENAI_API_KEY is not configured in the environment variables')
             }
 
             const modelName = process.env.OPENAI_MODEL || 'gpt-4.1-mini'
@@ -172,7 +172,7 @@ class AIService {
 
         const apiKey = process.env.GEMINI_API_KEY
         if (!apiKey) {
-            throw new Error('GEMINI_API_KEY no está configurada en las variables de entorno')
+            throw new Error('GEMINI_API_KEY is not configured in the environment variables')
         }
 
         const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
@@ -262,7 +262,7 @@ class AIService {
     - Excessive co-contraction = ATENCION
 
     [PELVIC KINEMATICS - in jump/gait]
-    - Tilt range: <45° = OPTIMO | 45-55° = ATENCION | >55° = CRITICAL
+    - Tilt range: <45° = OPTIMO | 45-55° = ATENCION | >55° = CRITICO
     - Obliquity range: <10° = OPTIMO | 10-15° = ATENCION | >15° = CRITICO
     - Rotation range: <12° = OPTIMO | 12-20° = ATENCION | >20° = CRITICO
 
@@ -289,13 +289,13 @@ class AIService {
 
     ABSOLUTE RULES:
     1. Direct declarative statements. NEVER start with conversational words like: "Sí", "No", "Hay".
-    2. DO NOT explain concepts. Report clinical findings.
+    2. DO NOT explain concepts. Report clinical findings directly.
     3. FORBIDDEN to invent data not visible in the image.
     4. FORBIDDEN to invent percentages or magnitudes without explicit measurement.
-    5. If there is insufficient evidence, use the status "NO_EVALUABLE".
+    5. If there is insufficient evidence for a section, use the status "NO_EVALUABLE".
     6. Normalized EMG amplitude is NOT comparable between muscles without MVC. NEVER assert lateral dominance based solely on visual amplitude.
     7. For kinematics: use the normative values from STEP 2 to determine the status.
-    8. Write as a medical professional in a clinical report in Spanish, not as a chatbot.
+    8. Write as a medical professional in a clinical report. The descriptive clinical text MUST be written in Spanish.
     9. UX/UI DATA STRUCTURE RULE: If a section's "estado" is "NO_EVALUABLE", you MUST set ALL its descriptive text fields strictly to null. NEVER write "Not evaluable", "No hay datos", or any error messages inside the descriptive strings.
 
     JSON to generate:
