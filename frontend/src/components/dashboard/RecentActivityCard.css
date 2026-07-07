@@ -86,6 +86,31 @@
   white-space: nowrap;
 }
 
+.recent-activity-viewall {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 14px 8px 0;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: gap 0.15s ease, color 0.15s ease;
+}
+
+.recent-activity-viewall:hover {
+  color: var(--primary-color-dark);
+  gap: 9px;
+}
+
+.recent-activity-viewall svg {
+  font-size: 1rem;
+}
+
 .recent-activity-empty {
   flex: 1;
   display: flex;

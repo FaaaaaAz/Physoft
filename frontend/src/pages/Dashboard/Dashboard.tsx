@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect } from 'react'
 import PageTemplate from '../../components/templates/PageTemplate'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import MetricsOverview from '@/components/dashboard/MetricsOverview'
-import QuickActionsBar from '@/components/dashboard/QuickActionsBar'
 import RecentActivityCard from '@/components/dashboard/RecentActivityCard'
+import PatientDistributionCard from '@/components/dashboard/PatientDistributionCard'
 import AssessmentsTrendCard from '@/components/dashboard/AssessmentsTrendCard'
 import { useAthleteStore } from '@/store/athleteStore'
 import { useAnalysisStore } from '@/store/analysisStore'
@@ -11,7 +11,7 @@ import type { Analysis, Athlete } from '../../services/api'
 import './Dashboard.css'
 
 const TREND_DAYS = 30
-const RECENT_ACTIVITY_LIMIT = 7
+const RECENT_ACTIVITY_LIMIT = 4
 const FOLLOW_UP_STALE_DAYS = 30
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -89,6 +89,20 @@ function Dashboard() {
             })
     }, [analyses, athleteById])
 
+    // Patient distribution: count each patient once, by the classification of
+    // their most recent assessment (globalClassification → low / medium / high).
+    // Patients whose latest assessment has no classification are not counted.
+    const patientDistribution = useMemo(() => {
+        const counts = { low: 0, medium: 0, high: 0 }
+        latestAnalysisByAthlete.forEach((latest) => {
+            const value = latest.globalClassification?.toLowerCase()
+            if (value === 'low' || value === 'medium' || value === 'high') {
+                counts[value]++
+            }
+        })
+        return counts
+    }, [latestAnalysisByAthlete])
+
     const trendData = useMemo(() => {
         const countsByDay = new Map<string, number>()
         analyses.forEach((analysis: Analysis) => {
@@ -131,10 +145,14 @@ function Dashboard() {
                 loading={loading}
             />
 
-            <QuickActionsBar />
-
             <div className="dashboard-columns">
                 <RecentActivityCard items={recentActivity} loading={loading} />
+                <PatientDistributionCard
+                    low={patientDistribution.low}
+                    medium={patientDistribution.medium}
+                    high={patientDistribution.high}
+                    loading={loading}
+                />
                 <AssessmentsTrendCard data={trendData} loading={loading} />
             </div>
         </PageTemplate>

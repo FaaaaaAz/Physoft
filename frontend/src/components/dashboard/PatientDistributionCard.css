@@ -1,0 +1,125 @@
+.patient-distribution-card {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+/* Donut + centered total */
+.pd-chart {
+  position: relative;
+  width: 100%;
+  margin: 4px 0 6px;
+}
+
+.pd-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pd-center-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.pd-center-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+/* Legend */
+.pd-legend {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.pd-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.pd-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pd-legend-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.pd-legend-count {
+  color: var(--text-secondary);
+}
+
+.pd-legend-pct {
+  min-width: 40px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty / loading */
+.pd-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  padding: 40px 0;
+}
+
+/* Tooltip */
+.pd-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 12px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.pd-tooltip-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pd-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.pd-tooltip-value {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}

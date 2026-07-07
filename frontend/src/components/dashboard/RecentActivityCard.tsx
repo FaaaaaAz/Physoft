@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import { IoTime } from 'react-icons/io5'
+import { IoTime, IoArrowForward } from 'react-icons/io5'
 import { getPhotoUrl } from '../../services/api'
 import { getRelativeTime } from '../../utils/date.utils'
+import { ROUTES } from '../../constants'
 import './RecentActivityCard.css'
 
 export interface RecentActivityItem {
@@ -41,7 +42,7 @@ function RecentActivityCard({ items, loading = false }: RecentActivityCardProps)
         <div className="recent-activity-card">
             <div className="dashboard-card-header">
                 <h2>Recent Activity</h2>
-                <p>Last {items.length} assessments performed</p>
+                <p>Latest assessments</p>
             </div>
 
             {loading ? (
@@ -52,38 +53,47 @@ function RecentActivityCard({ items, loading = false }: RecentActivityCardProps)
                     No assessments recorded yet.
                 </div>
             ) : (
-                <ul className="recent-activity-list">
-                    {items.map(item => {
-                        const badge = getClassificationBadge(item.classification)
-                        return (
-                            <li
-                                key={item.id}
-                                className="recent-activity-row"
-                                onClick={() => navigate(`/athlete-detail/${item.athleteId}`)}
-                            >
-                                <img
-                                    src={getPhotoUrl(item.photo)}
-                                    alt={item.patientName}
-                                    className="recent-activity-avatar"
-                                />
-                                <div className="recent-activity-info">
-                                    <span className="recent-activity-name">{item.patientName}</span>
-                                    <span className="recent-activity-meta">
-                                        Assessment &middot; {getRelativeTime(item.evaluationDate)}
-                                    </span>
-                                </div>
-                                {badge && (
-                                    <span
-                                        className="recent-activity-badge"
-                                        style={{ color: badge.color, borderColor: badge.color }}
-                                    >
-                                        {badge.label}
-                                    </span>
-                                )}
-                            </li>
-                        )
-                    })}
-                </ul>
+                <>
+                    <ul className="recent-activity-list">
+                        {items.map(item => {
+                            const badge = getClassificationBadge(item.classification)
+                            return (
+                                <li
+                                    key={item.id}
+                                    className="recent-activity-row"
+                                    onClick={() => navigate(`/athlete-detail/${item.athleteId}`)}
+                                >
+                                    <img
+                                        src={getPhotoUrl(item.photo)}
+                                        alt={item.patientName}
+                                        className="recent-activity-avatar"
+                                    />
+                                    <div className="recent-activity-info">
+                                        <span className="recent-activity-name">{item.patientName}</span>
+                                        <span className="recent-activity-meta">
+                                            Assessment &middot; {getRelativeTime(item.evaluationDate)}
+                                        </span>
+                                    </div>
+                                    {badge && (
+                                        <span
+                                            className="recent-activity-badge"
+                                            style={{ color: badge.color, borderColor: badge.color }}
+                                        >
+                                            {badge.label}
+                                        </span>
+                                    )}
+                                </li>
+                            )
+                        })}
+                    </ul>
+
+                    <button
+                        className="recent-activity-viewall"
+                        onClick={() => navigate(ROUTES.ASSESSMENTS)}
+                    >
+                        View All Assessments <IoArrowForward />
+                    </button>
+                </>
             )}
         </div>
     )
