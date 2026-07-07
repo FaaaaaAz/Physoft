@@ -5,6 +5,7 @@ import PageTemplate from '@/components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import { athleteAPI } from '@/services/api'
 import { useAthleteStore } from '@/store/athleteStore'
+import { ROUTES } from '@/constants'
 import './EditAthlete.css'
 
 const normalizeGender = (gender: string | null | undefined): string => {
@@ -165,8 +166,9 @@ function EditAthlete() {
             className="edit-athlete-page"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Home', path: '/dashboard' },
-                { label: 'Patient', path: `/athlete-detail/${id}` },
+                { label: 'Home', path: ROUTES.DASHBOARD },
+                { label: 'Patients', path: ROUTES.ALL_PATIENTS },
+                { label: formData.name || 'Patient', path: `/athlete-detail/${id}` },
                 { label: 'Edit' }
             ]}
         >
