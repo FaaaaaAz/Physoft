@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoSearch, IoFitness, IoTrendingUp, IoDocument } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
-import { ConsentModal, useConsentGate } from '@/components/ConsentModal'
 import type { Analysis as AnalysisType } from '../../services/api'
 import { useAthleteStore } from '@/store/athleteStore'
 import { useAnalysisStore } from '@/store/analysisStore'
@@ -13,7 +12,6 @@ import './Analysis.css'
 function Analysis() {
     const navigate = useNavigate()
     const [busqueda, setBusqueda] = useState('')
-    const newAssessmentConsent = useConsentGate(ROUTES.NEW_ANALYSIS)
 
     const { athletes, loading: loadingAthletes, fetchAthletes } = useAthleteStore()
     const { analyses, loading: loadingAnalyses, fetchAnalyses } = useAnalysisStore()
@@ -58,7 +56,7 @@ function Analysis() {
     )
 
     const handleCrearAnalisis = () => {
-        newAssessmentConsent.requestAccess()
+        navigate(ROUTES.NEW_ANALYSIS)
     }
 
     const handleViewAnalysis = (analysis: AnalysisType) => {
@@ -181,12 +179,6 @@ function Analysis() {
                     </>
                 )}
             </div>
-
-            <ConsentModal
-                isOpen={newAssessmentConsent.isOpen}
-                onCancel={newAssessmentConsent.cancel}
-                onAccept={newAssessmentConsent.accept}
-            />
         </PageTemplate>
     )
 }

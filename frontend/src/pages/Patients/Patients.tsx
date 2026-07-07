@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoFootball } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
+import { ConsentModal, useConsentGate } from '@/components/ConsentModal'
 import AthleteCard from '../../components/athlete/AthleteCard'
 import AthleteModal from '../../components/athlete/AthleteModal'
 import { SearchBar } from '@/components/common/data-display/SearchBar'
@@ -18,6 +19,8 @@ import './Patients.css'
 
 function Patients() {
     const navigate = useNavigate()
+    // Patient consent must be accepted before opening the Create Patient form.
+    const addPatientConsent = useConsentGate(ROUTES.ADD_ATHLETE)
     const { athletes, loading, fetchAthletes, deleteAthlete } = useAthleteStore()
     const { analyses: allAnalyses, fetchAnalyses } = useAnalysisStore()
 
@@ -151,7 +154,7 @@ function Patients() {
 
                 <button
                     className="patients-add-btn"
-                    onClick={() => navigate(ROUTES.ADD_ATHLETE)}
+                    onClick={addPatientConsent.requestAccess}
                     title="Add Patient"
                 >
                     <IoFootball />
@@ -184,7 +187,7 @@ function Patients() {
                     message="Try different search criteria or add a new patient"
                     action={{
                         label: "Add Patient",
-                        onClick: () => navigate(ROUTES.ADD_ATHLETE)
+                        onClick: addPatientConsent.requestAccess
                     }}
                 />
             )}
@@ -195,6 +198,12 @@ function Patients() {
                 onDelete={handleDeleteAthlete}
                 onViewDetails={(id) => navigate(`/athlete-detail/${id}`)}
                 onEdit={(id) => navigate(`/athletes/edit/${id}`)}
+            />
+
+            <ConsentModal
+                isOpen={addPatientConsent.isOpen}
+                onCancel={addPatientConsent.cancel}
+                onAccept={addPatientConsent.accept}
             />
         </PageTemplate>
     )
