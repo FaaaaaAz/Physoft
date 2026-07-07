@@ -181,7 +181,7 @@ class AIService {
     }
 
     /**
-     * Analiza imágenes deportivas usando el proveedor de IA configurado
+     * Analiza imágenes deportivas usando el proveedor de IA configurado.
      */
     async analyzeImages(
         imageBuffers: Buffer[],

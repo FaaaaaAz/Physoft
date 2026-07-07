@@ -984,7 +984,7 @@ function NewAnalysis() {
 
             {/* Clasificación Cohorte */}
             <div className="subsection">
-              <h4>Clasificación Cohorte</h4>
+              <h4>Cohort Classification</h4>
                 <p className="subsection-description">
                 AI will determine the classification based on evaluated physical capacities.
               </p>
@@ -997,10 +997,10 @@ function NewAnalysis() {
               >
                 <option value="">Select a classification</option>
                 <option value="ELITE">Elite</option>
-                <option value="AVANZADO">Avanzado</option>
-                <option value="INTERMEDIO">Intermedio</option>
-                <option value="PRINCIPIANTE">Principiante</option>
-                <option value="ATENCION_REQUERIDA">Atención Requerida</option>
+                <option value="AVANZADO">Advanced</option>
+                <option value="INTERMEDIO">Intermediate</option>
+                <option value="PRINCIPIANTE">Beginner</option>
+                <option value="ATENCION_REQUERIDA">Attention Required</option>
               </select>
             </div>
 
