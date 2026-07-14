@@ -68,7 +68,7 @@ export class AthleteController {
       console.error('Error fetching athletes:', error)
       return res.status(500).json({
         success: false,
-        error: 'Error fetching athletes',
+        error: 'Error fetching patients',
       })
     }
   }
@@ -90,7 +90,7 @@ export class AthleteController {
       if (!athlete || athlete.deletedAt) {
         return res.status(404).json({
           success: false,
-          error: 'Athlete not found',
+          error: 'Patient not found',
         })
       }
 
@@ -102,7 +102,7 @@ export class AthleteController {
       console.error('Error fetching athlete:', error)
       return res.status(500).json({
         success: false,
-        error: 'Error fetching athlete',
+        error: 'Error fetching patient',
       })
     }
   }
@@ -172,13 +172,13 @@ export class AthleteController {
       return res.status(201).json({
         success: true,
         data: newAthlete,
-        message: 'Athlete created successfully',
+        message: 'Patient created successfully',
       })
     } catch (error) {
       console.error('Error creating athlete:', error)
       return res.status(500).json({
         success: false,
-        error: 'Error creating athlete',
+        error: 'Error creating patient',
       })
     }
   }
@@ -200,7 +200,7 @@ export class AthleteController {
       if (!existing || existing.deletedAt) {
         return res.status(404).json({
           success: false,
-          error: 'Athlete not found',
+          error: 'Patient not found',
         })
       }
 
@@ -226,13 +226,13 @@ export class AthleteController {
       return res.json({
         success: true,
         data: updatedAthlete,
-        message: 'Athlete updated successfully',
+        message: 'Patient updated successfully',
       })
     } catch (error) {
       console.error('Error updating athlete:', error)
       return res.status(500).json({
         success: false,
-        error: 'Error updating athlete',
+        error: 'Error updating patient',
       })
     }
   }
@@ -260,7 +260,7 @@ export class AthleteController {
       if (!athlete || athlete.deletedAt) {
         return res.status(404).json({
           success: false,
-          error: 'Athlete not found',
+          error: 'Patient not found',
         })
       }
 
@@ -315,7 +315,7 @@ export class AthleteController {
       if (!athlete || athlete.deletedAt) {
         return res.status(404).json({
           success: false,
-          error: 'Athlete not found',
+          error: 'Patient not found',
         })
       }
 
@@ -361,13 +361,13 @@ export class AthleteController {
 
       return res.json({
         success: true,
-        message: 'Athlete deleted successfully',
+        message: 'Patient deleted successfully',
       })
     } catch (error) {
       console.error('Error deleting athlete:', error)
       return res.status(500).json({
         success: false,
-        error: 'Error deleting athlete',
+        error: 'Error deleting patient',
       })
     }
   }
@@ -389,7 +389,7 @@ export class AthleteController {
       console.error('Error comparing athlete:', error)
       return res.status(500).json({
         success: false,
-        error: 'Error comparing athlete',
+        error: 'Error comparing patient',
       })
     }
   }

@@ -28,7 +28,22 @@
       "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"http://localhost:3000/api/athletes/cae6d508-e6b6-4f86-8bf7-f61ccf573f9e\")",
       "Bash(node debug-edit-athlete.mjs)",
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\); const list=j.data||j; console.log\\('Total:', list.length\\); const nulls = list.filter\\(a=>a.height==null||a.weight==null||a.sport==null\\); console.log\\('Con height/weight/sport null:', nulls.length\\); console.log\\(nulls.map\\(a=>\\({id:a.id,name:a.name,height:a.height,weight:a.weight,sport:a.sport,patientType:a.patientType}\\)\\)\\)}\\)\")",
-      "Bash(node verify-athlete-fixes.mjs)"
+      "Bash(node verify-athlete-fixes.mjs)",
+      "Bash(node verify-toast-modal.mjs)",
+      "Bash(psql --version)",
+      "Bash(PROD_DATABASE_URL='postgresql://postgres.vroymaxhuhyoewfmyxbl:PhysoftSupabase2025@aws-1-us-east-1.pooler.supabase.com:5432/postgres' node prod-inspect.mjs)",
+      "Bash(node discover-prod-api.mjs)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"https://physoft-backend.vercel.app/api/athletes/85d67c48-fb6c-4d1e-a4a6-4e1136e3637b\")",
+      "Bash(PROD_DATABASE_URL='postgresql://postgres.vroymaxhuhyoewfmyxbl:PhysoftSupabase2025@aws-1-us-east-1.pooler.supabase.com:5432/postgres' node prod-migrate.mjs)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"https://physoft-backend.vercel.app/api/athletes/32b0228f-7d9b-492d-bac3-984e7a184010\")",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"https://physoft-backend.vercel.app/api/athletes/bf660fea-dc66-4315-98c9-30a292528d39\")",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/athletes -F 'name=DELETE VERIFY TEST' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" -X DELETE \"https://physoft-backend.vercel.app/api/athletes/dfcc2f3e-9be6-45c5-b2fc-b17165033aa9\")",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"https://physoft-backend.vercel.app/api/athletes/dfcc2f3e-9be6-45c5-b2fc-b17165033aa9\")",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/athletes -F 'name=DELETE VERIFY TEST 2' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160)",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/analyses -F athleteId=09a86357-2e95-453c-af24-2d28a76b1d46 -F evaluationDate=2026-07-14T10:00:00.000Z)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" -X DELETE \"https://physoft-backend.vercel.app/api/athletes/09a86357-2e95-453c-af24-2d28a76b1d46\")",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"https://physoft-backend.vercel.app/api/athletes/09a86357-2e95-453c-af24-2d28a76b1d46\")"
     ]
   }
 }

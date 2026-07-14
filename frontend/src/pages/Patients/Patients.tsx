@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { IoFootball } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import { ConsentModal, useConsentGate } from '@/components/ConsentModal'
@@ -8,6 +8,8 @@ import AthleteModal from '../../components/athlete/AthleteModal'
 import { SearchBar } from '@/components/common/data-display/SearchBar'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import EmptyState from '@/components/common/feedback/EmptyState'
+import ConfirmModal from '@/components/common/feedback/ConfirmModal'
+import Toast, { ToastType } from '@/components/common/feedback/Toast'
 import { useDebounce } from '../../hooks'
 import { calculateAge } from '../../utils/date.utils'
 import { getPhotoUrl, Analysis, Athlete } from '../../services/api'
@@ -19,6 +21,7 @@ import './Patients.css'
 
 function Patients() {
     const navigate = useNavigate()
+    const location = useLocation()
     // Patient consent must be accepted before opening the Create Patient form.
     const addPatientConsent = useConsentGate(ROUTES.ADD_ATHLETE)
     const { athletes, loading, fetchAthletes, deleteAthlete } = useAthleteStore()
@@ -30,6 +33,20 @@ function Patients() {
     const [selectedAthlete, setSelectedAthlete] = useState<AthleteDisplay | null>(null)
     const [athleteAnalyses, setAthleteAnalyses] = useState<Record<string, Analysis[]>>({})
     const [error, setError] = useState('')
+    const [athleteToDelete, setAthleteToDelete] = useState<string | null>(null)
+    const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null)
+
+    // A page that just created/updated a patient (e.g. AddAthlete) can hand
+    // off a toast to show here via router state, since it navigates away
+    // before any locally-rendered toast would be visible.
+    useEffect(() => {
+        const incomingToast = (location.state as { toast?: { type: ToastType; message: string } } | null)?.toast
+        if (incomingToast) {
+            setToast(incomingToast)
+            navigate(location.pathname, { replace: true, state: {} })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // Debounce search for better performance
     const debouncedSearch = useDebounce(searchTerm, 300)
@@ -114,19 +131,25 @@ function Patients() {
         setSelectedAthlete(athlete)
     }, [])
 
-    const handleDeleteAthlete = useCallback(async (id: string) => {
-        if (!window.confirm(MESSAGES.CONFIRM.DELETE_ATHLETE)) {
-            return
-        }
+    const handleDeleteAthlete = useCallback((id: string) => {
+        setAthleteToDelete(id)
+    }, [])
+
+    const confirmDeleteAthlete = useCallback(async () => {
+        if (!athleteToDelete) return
+        const id = athleteToDelete
+        setAthleteToDelete(null)
 
         try {
             await deleteAthlete(id)
             setSelectedAthlete(null)
-        } catch (err) {
+            setToast({ type: 'success', message: MESSAGES.SUCCESS.ATHLETE_DELETED })
+        } catch (err: any) {
             console.error('Error deleting athlete:', err)
-            alert(MESSAGES.ERROR.DELETING_ATHLETE)
+            const backendMessage = err.response?.data?.error
+            setToast({ type: 'error', message: backendMessage || MESSAGES.ERROR.DELETING_ATHLETE })
         }
-    }, [deleteAthlete])
+    }, [deleteAthlete, athleteToDelete])
 
     return (
         <PageTemplate
@@ -205,6 +228,24 @@ function Patients() {
                 onCancel={addPatientConsent.cancel}
                 onAccept={addPatientConsent.accept}
             />
+
+            <ConfirmModal
+                isOpen={athleteToDelete !== null}
+                title="Delete patient"
+                message={MESSAGES.CONFIRM.DELETE_ATHLETE}
+                confirmLabel="Delete"
+                danger
+                onConfirm={confirmDeleteAthlete}
+                onCancel={() => setAthleteToDelete(null)}
+            />
+
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </PageTemplate>
     )
 }

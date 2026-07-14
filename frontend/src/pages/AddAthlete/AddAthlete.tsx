@@ -169,19 +169,16 @@ function AddAthlete() {
                 // Update store with new athlete
                 addAthlete(response.data)
 
-                showMessage(
-                        'success',
-                        `✅ Patient ${values.name} created successfully with code ${response.data.accessCode}`
-                )
-
-                // Reset form
-                form.reset()
-                setPhotoFile(null)
-
-                // Redirect after 2 seconds
-                setTimeout(() => {
-                    navigate('/dashboard')
-                }, 2000)
+                // Hand off a toast to the Patients list via router state, since
+                // we navigate away immediately rather than lingering on the form.
+                navigate('/patients', {
+                    state: {
+                        toast: {
+                            type: 'success',
+                            message: `Patient ${values.name} created successfully with code ${response.data.accessCode}`
+                        }
+                    }
+                })
             }
         } catch (error: any) {
             const errorMsg = error.response?.data?.error || error.message || 'Unknown error'

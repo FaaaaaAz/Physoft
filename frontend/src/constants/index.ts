@@ -65,27 +65,27 @@ export const VALIDATION = {
 
 export const MESSAGES = {
     SUCCESS: {
-        ATHLETE_CREATED: 'Athlete created successfully',
-        ATHLETE_UPDATED: 'Athlete updated successfully',
-        ATHLETE_DELETED: 'Athlete deleted successfully',
-        ANALYSIS_CREATED: 'Analysis created successfully',
-        ANALYSIS_UPDATED: 'Analysis updated successfully',
-        ANALYSIS_DELETED: 'Analysis deleted successfully',
+        ATHLETE_CREATED: 'Patient created successfully',
+        ATHLETE_UPDATED: 'Patient updated successfully',
+        ATHLETE_DELETED: 'Patient deleted successfully',
+        ANALYSIS_CREATED: 'Assessment created successfully',
+        ANALYSIS_UPDATED: 'Assessment updated successfully',
+        ANALYSIS_DELETED: 'Assessment deleted successfully',
     },
     ERROR: {
         UNKNOWN: 'An unknown error occurred',
         NETWORK: 'Network error. Please check your connection',
-        LOADING_ATHLETES: 'Could not load athletes from server',
-        LOADING_ATHLETE: 'Could not load athlete details',
-        LOADING_ANALYSES: 'Could not load analyses',
-        CREATING_ATHLETE: 'Error creating athlete',
-        UPDATING_ATHLETE: 'Error updating athlete',
-        DELETING_ATHLETE: 'Error deleting athlete',
-        DELETING_ANALYSIS: 'Error deleting analysis',
+        LOADING_ATHLETES: 'Could not load patients from server',
+        LOADING_ATHLETE: 'Could not load patient details',
+        LOADING_ANALYSES: 'Could not load assessments',
+        CREATING_ATHLETE: 'Error creating patient',
+        UPDATING_ATHLETE: 'Error updating patient',
+        DELETING_ATHLETE: 'Error deleting patient',
+        DELETING_ANALYSIS: 'Error deleting assessment',
     },
     CONFIRM: {
-        DELETE_ATHLETE: 'Are you sure you want to delete this athlete?',
-        DELETE_ANALYSIS: 'Are you sure you want to delete this analysis?',
+        DELETE_ATHLETE: 'Are you sure you want to delete this patient? This will also delete all of their assessments.',
+        DELETE_ANALYSIS: 'Are you sure you want to delete this assessment?',
     },
 } as const
 

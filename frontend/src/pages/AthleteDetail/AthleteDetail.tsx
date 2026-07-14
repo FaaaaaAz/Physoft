@@ -55,7 +55,7 @@ function AthleteDetail() {
             }
 
             if (!athleteData) {
-                setError('Athlete not found')
+                setError('Patient not found')
                 setIsLoading(false)
                 return
             }
@@ -74,7 +74,7 @@ function AthleteDetail() {
             ))
         } catch (err) {
             console.error('Error loading athlete data:', err)
-            setError('Error loading athlete data')
+            setError('Error loading patient data')
         } finally {
             setIsLoading(false)
         }
