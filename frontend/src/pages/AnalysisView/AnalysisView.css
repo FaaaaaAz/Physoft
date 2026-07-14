@@ -55,6 +55,13 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.ai-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 1rem;
+}
+
 .analysis-section h2 {
   color: var(--color-text-primary);
   font-size: 1.5rem;

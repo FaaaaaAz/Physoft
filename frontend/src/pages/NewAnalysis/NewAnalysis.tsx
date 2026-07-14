@@ -1,10 +1,13 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoAdd, IoTrash, IoCloudUpload, IoSearch, IoCheckmark } from 'react-icons/io5'
+import { IoAdd, IoTrash, IoSearch } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
-import { athleteAPI, analysisAPI, Athlete } from '@/services/api'
+import { athleteAPI, analysisAPI, Athlete, AIAnalysisResult } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
 import BodyVisualization, { BodyMark } from '@/components/analysis/BodyVisualization'
+import DateInputDDMMYYYY from '@/components/common/forms/DateInputDDMMYYYY'
+import TextualAnalysisSection from '@/components/analysis/TextualAnalysisSection'
+import { calculateAge } from '@/utils/date.utils'
 import './NewAnalysis.css'
 
 interface PuntoDebil {
@@ -21,15 +24,6 @@ interface CapacidadesFisicas {
   velocidad: number
 }
 
-interface AnalysisCheckboxes {
-  flexibilidad: boolean
-  biobit: boolean
-  asimetria: boolean
-  controlMotor: boolean
-  fatiga: boolean
-  fuerzaInercia: boolean
-}
-
 function NewAnalysis() {
   const navigate = useNavigate()
   const [guardando, setGuardando] = useState(false)
@@ -40,34 +34,14 @@ function NewAnalysis() {
   const [showAthleteDropdown, setShowAthleteDropdown] = useState(false)
   const { addAnalysis } = useAnalysisStore()
 
-  // Estados para el flujo de IA
-  const [aiProcessing, setAiProcessing] = useState(false)
-  const [aiProgress, setAiProgress] = useState(0)
-  const [showAnalysisFields, setShowAnalysisFields] = useState(false)
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [usedAI, setUsedAI] = useState(false) // Track if AI was used
-  const [analysisCheckboxes, setAnalysisCheckboxes] = useState<AnalysisCheckboxes>({
-    flexibilidad: false,
-    biobit: false,
-    asimetria: false,
-    controlMotor: false,
-    fatiga: false,
-    fuerzaInercia: false
-  })
+  // Textual Analysis (AI) results, reported up from TextualAnalysisSection
+  const [aiAnalysisResults, setAiAnalysisResults] = useState<AIAnalysisResult[]>([])
+  const [isAiGenerating, setIsAiGenerating] = useState(false)
 
   const [formData, setFormData] = useState({
     athleteId: '',
     fechaEvaluacion: '',
-    imagenes: [] as File[],
     bodyMarks: [] as BodyMark[], // Marcas corporales de zonas afectadas
-
-    // Análisis Textual
-    analisisFlexibilidad: '',
-    analisisBiobit: '',
-    asimetriaMuscular: '',
-    controlMotorActivo: '',
-    fatigaMuscular: '',
-    controlFuerzaInercia: '',
 
     // Conclusiones
     puntosDebiles: [] as PuntoDebil[],
@@ -82,23 +56,16 @@ function NewAnalysis() {
     recomendaciones: ''
   })
 
-  const [imagenesPreview, setImagenesPreview] = useState<string[]>([])
   const [proximoIdPuntoDebil, setProximoIdPuntoDebil] = useState(1)
+
+  // Evaluation date/time is tracked as separate date (DD/MM/YYYY) + time parts,
+  // then combined into formData.fechaEvaluacion ('YYYY-MM-DDTHH:mm') so the
+  // rest of the form/submit logic is unchanged.
+  const [evalDatePart, setEvalDatePart] = useState('')
+  const [evalTimePart, setEvalTimePart] = useState('')
 
   useEffect(() => {
     loadAthletes()
-
-    // Monitorear conexión a internet
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
   }, [])
 
   const loadAthletes = async () => {
@@ -138,6 +105,25 @@ function NewAnalysis() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleEvalDateChange = (isoDate: string) => {
+    setEvalDatePart(isoDate)
+    if (!isoDate) {
+      setFormData(prev => ({ ...prev, fechaEvaluacion: '' }))
+      return
+    }
+    const time = evalTimePart || new Date().toTimeString().slice(0, 5)
+    if (!evalTimePart) setEvalTimePart(time)
+    setFormData(prev => ({ ...prev, fechaEvaluacion: `${isoDate}T${time}` }))
+  }
+
+  const handleEvalTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = e.target.value
+    setEvalTimePart(time)
+    if (evalDatePart) {
+      setFormData(prev => ({ ...prev, fechaEvaluacion: `${evalDatePart}T${time}` }))
+    }
+  }
+
   const handleCapacidadChange = (capacidad: keyof CapacidadesFisicas, value: number) => {
     setFormData(prev => ({
       ...prev,
@@ -146,138 +132,6 @@ function NewAnalysis() {
         [capacidad]: value
       }
     }))
-  }
-
-  const handleImagenesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files)
-      setFormData(prev => ({ ...prev, imagenes: [...prev.imagenes, ...files] }))
-
-      files.forEach(file => {
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          setImagenesPreview(prev => [...prev, reader.result as string])
-        }
-        reader.readAsDataURL(file)
-      })
-    }
-  }
-
-  const handleEliminarImagen = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      imagenes: prev.imagenes.filter((_, i) => i !== index)
-    }))
-    setImagenesPreview(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const handleCheckboxChange = (field: keyof AnalysisCheckboxes) => {
-    setAnalysisCheckboxes(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }))
-  }
-
-  const handleManualAnalysis = () => {
-    // Mostrar todos los campos de análisis sin IA
-    setAnalysisCheckboxes({
-      flexibilidad: true,
-      biobit: true,
-      asimetria: true,
-      controlMotor: true,
-      fatiga: true,
-      fuerzaInercia: true
-    })
-    setShowAnalysisFields(true)
-    setUsedAI(false)
-    setMensaje({ tipo: 'success', texto: 'Manual mode activated. Please complete the fields manually.' })
-  }
-
-  const handleGenerateAIAnalysis = async () => {
-    // Verificar conexión a internet
-    if (!isOnline) {
-      setMensaje({ tipo: 'error', texto: 'No internet connection. Use manual mode or connect to use AI.' })
-      return
-    }
-
-    // Verificar que haya al menos un checkbox seleccionado
-    const hasSelected = Object.values(analysisCheckboxes).some(val => val)
-    if (!hasSelected) {
-      setMensaje({ tipo: 'error', texto: 'Select at least one analysis type to generate' })
-      return
-    }
-
-    if (formData.imagenes.length === 0) {
-      setMensaje({ tipo: 'error', texto: 'You must upload at least one image for AI analysis' })
-      return
-    }
-
-    setAiProcessing(true)
-    setAiProgress(0)
-    setMensaje(null)
-
-    try {
-      // Simular progreso visual mientras se procesa
-      const progressInterval = setInterval(() => {
-        setAiProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval)
-            return 90
-          }
-          return prev + 10
-        })
-      }, 500)
-
-      // Llamar al endpoint real de IA
-      const response = await analysisAPI.aiAnalyze(formData.imagenes, analysisCheckboxes)
-
-      clearInterval(progressInterval)
-      setAiProgress(100)
-
-      // Mapear nombres de campos del backend (inglés) al frontend (español)
-      const mappedData: any = {}
-
-      // Análisis textuales
-      if (response.data.flexibilityAnalysis) mappedData.analisisFlexibilidad = response.data.flexibilityAnalysis
-      if (response.data.biobitAnalysis) mappedData.analisisBiobit = response.data.biobitAnalysis
-      if (response.data.muscularAsymmetry) mappedData.asimetriaMuscular = response.data.muscularAsymmetry
-      if (response.data.activeMotorControl) mappedData.controlMotorActivo = response.data.activeMotorControl
-      if (response.data.functionalMuscleFatigue) mappedData.fatigaMuscular = response.data.functionalMuscleFatigue
-      if (response.data.inertiaForceControl) mappedData.controlFuerzaInercia = response.data.inertiaForceControl
-
-      // Conclusiones
-      if (response.data.weakPoints) {
-        mappedData.puntosDebiles = response.data.weakPoints.map((wp: any, index: number) => ({
-          id: Date.now() + index, // Generar ID único
-          area: wp.area,
-          descripcion: wp.descripcion
-        }))
-      }
-      if (response.data.physicalCapacities) {
-        mappedData.capacidadesFisicas = {
-          potencia: response.data.physicalCapacities.potencia || 0,
-          resistencia: response.data.physicalCapacities.resistencia || 0,
-          fuerza: response.data.physicalCapacities.fuerza || 0,
-          flexibilidad: response.data.physicalCapacities.flexibilidad || 0,
-          velocidad: response.data.physicalCapacities.velocidad || 0
-        }
-      }
-      if (response.data.cohortClassification) {
-        mappedData.clasificacionCohorte = response.data.cohortClassification
-      }
-
-      // Actualizar formData con los resultados mapeados
-      setFormData(prev => ({ ...prev, ...mappedData }))
-      setShowAnalysisFields(true)
-      setUsedAI(true)
-      setMensaje({ tipo: 'success', texto: '✅ AI analysis completed. You can edit the generated fields.' })
-    } catch (error: any) {
-      console.error('Error in AI analysis:', error)
-      const errorMessage = error.response?.data?.error || error.message || 'Error processing AI analysis'
-      setMensaje({ tipo: 'error', texto: errorMessage })
-    } finally {
-      setAiProcessing(false)
-    }
   }
 
   const handleAgregarPuntoDebil = () => {
@@ -336,16 +190,12 @@ function NewAnalysis() {
       const submitData: any = {
         athleteId: formData.athleteId,
         evaluationDate: new Date(formData.fechaEvaluacion).toISOString(),
-        graphs: formData.imagenes, // File[] array
       }
 
-      // Análisis textuales
-      if (formData.analisisFlexibilidad) submitData.flexibilityAnalysis = formData.analisisFlexibilidad
-      if (formData.analisisBiobit) submitData.biobitAnalysis = formData.analisisBiobit
-      if (formData.asimetriaMuscular) submitData.muscularAsymmetry = formData.asimetriaMuscular
-      if (formData.controlMotorActivo) submitData.activeMotorControl = formData.controlMotorActivo
-      if (formData.fatigaMuscular) submitData.functionalMuscleFatigue = formData.fatigaMuscular
-      if (formData.controlFuerzaInercia) submitData.inertiaForceControl = formData.controlFuerzaInercia
+      // Textual Analysis AI results (per-checkbox prompt + response history)
+      if (aiAnalysisResults.length > 0) {
+        submitData.aiAnalysisResults = aiAnalysisResults
+      }
 
       // Preparar puntos débiles para envío
       const puntosDebilesTexto = formData.puntosDebiles
@@ -424,11 +274,11 @@ function NewAnalysis() {
 
         <form onSubmit={handleSubmit} className="analisis-form">
 
-          {/* SECTION 1 - General Information & Graphs */}
+          {/* SECTION 1 - General Information */}
           <div className="form-section">
             <h3 className="section-title">
               <span className="section-number">1</span>
-              General Information & Graphs
+              General Information
             </h3>
 
             <div className="form-row">
@@ -475,57 +325,22 @@ function NewAnalysis() {
 
               <div className="form-group">
                 <label htmlFor="fechaEvaluacion">Evaluation Date/Time *</label>
-                <input
-                  type="datetime-local"
-                  id="fechaEvaluacion"
-                  name="fechaEvaluacion"
-                  value={formData.fechaEvaluacion}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Attach Graph Images</label>
-              <div className="upload-zone">
-                <input
-                  type="file"
-                  id="imagenes-input"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImagenesChange}
-                  style={{ display: 'none' }}
-                />
-                <label htmlFor="imagenes-input" className="upload-label">
-                  <IoCloudUpload />
-                  <span>Upload images</span>
-                  <p>Click to select graph images</p>
-                </label>
-              </div>
-
-              {imagenesPreview.length > 0 && (
-                <div className="imagenes-grid">
-                  {imagenesPreview.map((preview, index) => (
-                    <div key={index} className="imagen-preview-item">
-                      <img src={preview} alt={`Chart ${index + 1}`} />
-                      <button
-                        type="button"
-                        className="btn-eliminar-imagen"
-                        onClick={() => handleEliminarImagen(index)}
-                      >
-                        <IoTrash />
-                      </button>
-                    </div>
-                  ))}
+                <div className="eval-datetime-row">
+                  <DateInputDDMMYYYY
+                    id="fechaEvaluacion"
+                    value={evalDatePart}
+                    onChange={handleEvalDateChange}
+                    required
+                  />
+                  <input
+                    type="time"
+                    value={evalTimePart}
+                    onChange={handleEvalTimeChange}
+                    aria-label="Evaluation time"
+                    className="eval-time-input"
+                  />
                 </div>
-              )}
-
-              {formData.imagenes.length === 0 && (
-                <div className="image-required-message">
-                  You must upload at least one image for AI analysis
-                </div>
-              )}
+              </div>
             </div>
 
             {/* Visualización Corporal - Zonas Afectadas */}
@@ -542,255 +357,20 @@ function NewAnalysis() {
               Textual Analysis
             </h3>
             <p className="section-description">
-              Select the types of analysis you want to generate with AI.
-              The AI will analyze attached images and generate detailed reports.
+              Select one or more analysis types, attach supporting files (PDF or images),
+              and optionally add a prompt to focus the AI on specific aspects.
             </p>
 
-            {!showAnalysisFields ? (
-              <>
-                <div className="ai-checkbox-grid">
-                  <label className="ai-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={analysisCheckboxes.flexibilidad}
-                      onChange={() => handleCheckboxChange('flexibilidad')}
-                    />
-                    <span className="checkbox-label">
-                      <IoCheckmark className="check-icon" />
-                      1. Flexibility Analysis
-                    </span>
-                    <p className="checkbox-description">
-                      AI will analyze range of motion and joint flexibility
-                    </p>
-                  </label>
-
-                  <label className="ai-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={analysisCheckboxes.biobit}
-                      onChange={() => handleCheckboxChange('biobit')}
-                    />
-                    <span className="checkbox-label">
-                      <IoCheckmark className="check-icon" />
-                      2. Biobit Analysis
-                    </span>
-                    <p className="checkbox-description">
-                      AI will evaluate muscle activation patterns
-                    </p>
-                  </label>
-
-                  <label className="ai-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={analysisCheckboxes.asimetria}
-                      onChange={() => handleCheckboxChange('asimetria')}
-                    />
-                    <span className="checkbox-label">
-                      <IoCheckmark className="check-icon" />
-                      3. Muscular Activation Asymmetry
-                    </span>
-                    <p className="checkbox-description">
-                      AI will detect bilateral muscle imbalances
-                    </p>
-                  </label>
-
-                  <label className="ai-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={analysisCheckboxes.controlMotor}
-                      onChange={() => handleCheckboxChange('controlMotor')}
-                    />
-                    <span className="checkbox-label">
-                      <IoCheckmark className="check-icon" />
-                      4. Active Motor Control Analysis
-                    </span>
-                    <p className="checkbox-description">
-                      AI will evaluate neuromuscular stability and control
-                    </p>
-                  </label>
-
-                  <label className="ai-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={analysisCheckboxes.fatiga}
-                      onChange={() => handleCheckboxChange('fatiga')}
-                    />
-                    <span className="checkbox-label">
-                      <IoCheckmark className="check-icon" />
-                      5. Functional Muscle Fatigue Analysis
-                    </span>
-                    <p className="checkbox-description">
-                      AI will measure endurance and fatigue indices
-                    </p>
-                  </label>
-
-                  <label className="ai-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={analysisCheckboxes.fuerzaInercia}
-                      onChange={() => handleCheckboxChange('fuerzaInercia')}
-                    />
-                    <span className="checkbox-label">
-                      <IoCheckmark className="check-icon" />
-                      6. Inertia Force Control Analysis
-                    </span>
-                    <p className="checkbox-description">
-                      AI will analyze force generation and control capacity
-                    </p>
-                  </label>
-                </div>
-
-
-                <button
-                  type="button"
-                  className="btn-generate-ai"
-                  onClick={handleGenerateAIAnalysis}
-                  disabled={aiProcessing || !isOnline}
-                >
-                  {aiProcessing ? 'Analyzing with AI...' : 'Generate AI Analysis'}
-                  {!isOnline && ' (Offline)'}
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-manual-analysis"
-                  onClick={handleManualAnalysis}
-                  disabled={aiProcessing}
-                >
-                  Perform Manual Analysis
-                </button>
-
-                {aiProcessing && (
-                  <div className="ai-progress-container">
-                    <div className="ai-progress-bar">
-                      <div
-                        className="ai-progress-fill"
-                        style={{ width: `${aiProgress}%` }}
-                      ></div>
-                    </div>
-                    <p className="ai-progress-text">
-                      Processing images and generating analysis... {aiProgress}%
-                    </p>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="analisis-textual-grid">
-                {usedAI && (
-                  <div className="ai-disclaimer">
-                    ℹ️ <strong>AI-generated analysis:</strong> Based on visual patterns from EMG graphs.
-                    Percentages and values are approximate estimates. Clinical validation is recommended.
-                  </div>
-                )}
-                {analysisCheckboxes.flexibilidad && (
-                  <div className="form-group">
-                    <label htmlFor="analisisFlexibilidad">
-                      1. Flexibility Analysis
-                      {usedAI && <span className="ai-badge">Generated by AI</span>}
-                    </label>
-                    <textarea
-                      id="analisisFlexibilidad"
-                      name="analisisFlexibilidad"
-                      value={formData.analisisFlexibilidad}
-                      onChange={handleChange}
-                      rows={5}
-                    />
-                  </div>
-                )}
-
-                {analysisCheckboxes.biobit && (
-                  <div className="form-group">
-                    <label htmlFor="analisisBiobit">
-                      2. Biobit Analysis
-                      {usedAI && <span className="ai-badge">Generated by AI</span>}
-                    </label>
-                    <textarea
-                      id="analisisBiobit"
-                      name="analisisBiobit"
-                      value={formData.analisisBiobit}
-                      onChange={handleChange}
-                      rows={5}
-                    />
-                  </div>
-                )}
-
-                {analysisCheckboxes.asimetria && (
-                  <div className="form-group">
-                    <label htmlFor="asimetriaMuscular">
-                      3. Muscular Activation Asymmetry
-                      {usedAI && <span className="ai-badge">Generated by AI</span>}
-                    </label>
-                    <textarea
-                      id="asimetriaMuscular"
-                      name="asimetriaMuscular"
-                      value={formData.asimetriaMuscular}
-                      onChange={handleChange}
-                      rows={5}
-                    />
-                  </div>
-                )}
-
-                {analysisCheckboxes.controlMotor && (
-                  <div className="form-group">
-                    <label htmlFor="controlMotorActivo">
-                      4. Active Motor Control Analysis
-                      {usedAI && <span className="ai-badge">Generated by AI</span>}
-                    </label>
-                    <textarea
-                      id="controlMotorActivo"
-                      name="controlMotorActivo"
-                      value={formData.controlMotorActivo}
-                      onChange={handleChange}
-                      rows={5}
-                    />
-                  </div>
-                )}
-
-                {analysisCheckboxes.fatiga && (
-                  <div className="form-group">
-                    <label htmlFor="fatigaMuscular">
-                      5. Functional Muscle Fatigue Analysis
-                      {usedAI && <span className="ai-badge">Generated by AI</span>}
-                    </label>
-                    <textarea
-                      id="fatigaMuscular"
-                      name="fatigaMuscular"
-                      value={formData.fatigaMuscular}
-                      onChange={handleChange}
-                      rows={5}
-                    />
-                  </div>
-                )}
-
-                {analysisCheckboxes.fuerzaInercia && (
-                  <div className="form-group">
-                    <label htmlFor="controlFuerzaInercia">
-                      6. Inertia Force Control Analysis
-                      {usedAI && <span className="ai-badge">Generated by AI</span>}
-                    </label>
-                    <textarea
-                      id="controlFuerzaInercia"
-                      name="controlFuerzaInercia"
-                      value={formData.controlFuerzaInercia}
-                      onChange={handleChange}
-                      rows={5}
-                    />
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  className="btn-regenerate"
-                  onClick={() => {
-                    setShowAnalysisFields(false)
-                    setUsedAI(false)
-                    setAiProgress(0)
-                  }}
-                >
-                  {usedAI ? 'Regenerate with AI' : 'Generate with AI'}
-                </button>
-              </div>
-            )}
+            <TextualAnalysisSection
+              patientId={selectedAthlete?.id}
+              patientContext={{
+                name: selectedAthlete?.name,
+                age: selectedAthlete?.birthDate ? calculateAge(selectedAthlete.birthDate) : undefined,
+                sport: selectedAthlete?.sport
+              }}
+              onResultsChange={setAiAnalysisResults}
+              onGeneratingChange={setIsAiGenerating}
+            />
           </div>
 
           {/* SECCIÓN 3 - Conclusiones y Plan */}
@@ -856,13 +436,8 @@ function NewAnalysis() {
             <div className="subsection">
               <h4>Physical Capacities</h4>
               <p className="subsection-description">
-                The AI will estimate these values based on the analysis. You can adjust them manually.
+                Adjust these values manually based on your assessment.
               </p>
-              {!isOnline && (
-                <div className="offline-warning">
-                  ⚠️ AI-based physical capacities analysis not available offline.
-                </div>
-              )}
 
               <div className="capacidades-grid">
                 <div className="capacidad-item">
@@ -1030,9 +605,10 @@ function NewAnalysis() {
             <button
               type="submit"
               className="btn-primary-large"
-              disabled={guardando}
+              disabled={guardando || isAiGenerating}
+              title={isAiGenerating ? 'Wait for AI analysis to finish before saving' : undefined}
             >
-              {guardando ? '⏳ Saving...' : '✓ Save Analysis'}
+              {guardando ? '⏳ Saving...' : isAiGenerating ? 'Waiting for AI...' : '✓ Save Analysis'}
             </button>
           </div>
         </form>

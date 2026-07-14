@@ -53,10 +53,10 @@ export const GENDER_LABELS = {
 export const VALIDATION = {
     MIN_NAME_LENGTH: 3,
     MAX_NAME_LENGTH: 100,
-    MIN_HEIGHT: 50,
-    MAX_HEIGHT: 250,
-    MIN_WEIGHT: 20,
-    MAX_WEIGHT: 300,
+    MIN_HEIGHT: 1.64, // feet (~50cm)
+    MAX_HEIGHT: 8.2,  // feet (~250cm)
+    MIN_WEIGHT: 44,   // pounds (~20kg)
+    MAX_WEIGHT: 661,  // pounds (~300kg)
     MIN_AGE: 5,
     MAX_AGE: 100,
     MAX_IMAGE_SIZE_MB: 5,

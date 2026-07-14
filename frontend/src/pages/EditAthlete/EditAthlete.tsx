@@ -5,7 +5,7 @@ import PageTemplate from '@/components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import { athleteAPI } from '@/services/api'
 import { useAthleteStore } from '@/store/athleteStore'
-import { ROUTES } from '@/constants'
+import { ROUTES, VALIDATION } from '@/constants'
 import './EditAthlete.css'
 
 const normalizeGender = (gender: string | null | undefined): string => {
@@ -356,25 +356,29 @@ function EditAthlete() {
                     <h3>Physical Measurements</h3>
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="height">Height (cm) *</label>
+                            <label htmlFor="height">Height (feet) *</label>
                             <input
                                 type="number"
                                 id="height"
                                 value={formData.height}
                                 onChange={(e) => setFormData(prev => ({ ...prev, height: e.target.value }))}
-                                step="0.1"
+                                step="0.01"
+                                min={VALIDATION.MIN_HEIGHT}
+                                max={VALIDATION.MAX_HEIGHT}
                                 required
                             />
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="weight">Weight (kg) *</label>
+                            <label htmlFor="weight">Weight (pounds) *</label>
                             <input
                                 type="number"
                                 id="weight"
                                 value={formData.weight}
                                 onChange={(e) => setFormData(prev => ({ ...prev, weight: e.target.value }))}
                                 step="0.1"
+                                min={VALIDATION.MIN_WEIGHT}
+                                max={VALIDATION.MAX_WEIGHT}
                                 required
                             />
                         </div>

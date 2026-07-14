@@ -1,9 +1,12 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { IoSparklesOutline } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
-import { analysisAPI } from '@/services/api'
+import MiniChatPanel from '@/components/analysis/MiniChatPanel'
+import { analysisAPI, type AIAnalysisResult } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
+import { useAIAnalysisResults } from '@/hooks'
 import { WeakPointsList } from '@/components/analysis/WeakPointsList'
 import { PhysicalCapacitiesForm } from '@/components/analysis/PhysicalCapacitiesForm'
 import { AnalysisFieldsForm } from '@/components/analysis/AnalysisFieldsForm'
@@ -33,6 +36,12 @@ function EditAnalysis() {
     const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null)
     const [proximoIdPuntoDebil, setProximoIdPuntoDebil] = useState(1)
     const [athleteName, setAthleteName] = useState('')
+    const [aiAnalysisResults, setAiAnalysisResults] = useState<AIAnalysisResult[]>([])
+
+    const { results: aiResults, saveEdit: saveAiEdit } = useAIAnalysisResults(
+        id ? parseInt(id) : 0,
+        aiAnalysisResults
+    )
 
     const [formData, setFormData] = useState({
         fechaEvaluacion: '',
@@ -86,6 +95,8 @@ function EditAnalysis() {
             if (analysis.athlete?.name) {
                 setAthleteName(analysis.athlete.name)
             }
+
+            setAiAnalysisResults(analysis.aiAnalysisResults || [])
 
             setFormData({
                 fechaEvaluacion: analysis.evaluationDate ? new Date(analysis.evaluationDate).toISOString().split('T')[0] : '',
@@ -270,6 +281,25 @@ function EditAnalysis() {
                         formData={formData}
                         onChange={handleChange}
                     />
+
+                    {/* AI-Assisted Textual Analysis (view + inline edit only) */}
+                    {aiResults.length > 0 && (
+                        <div className="ai-results-subsection">
+                            <h4>
+                                <IoSparklesOutline /> AI-Assisted Analysis
+                            </h4>
+                            <div className="ai-results-list">
+                                {aiResults.map(result => (
+                                    <MiniChatPanel
+                                        key={result.id}
+                                        result={result}
+                                        editable
+                                        onSave={(newText) => saveAiEdit(result.id, newText)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* SECCIÓN 3 - Conclusiones y Plan */}

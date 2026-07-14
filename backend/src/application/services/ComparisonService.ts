@@ -112,8 +112,8 @@ export class ComparisonService {
     weight: number
   }) {
     // Use default tolerance values for now
-    const heightTolerance = 10 // cm
-    const weightTolerance = 10 // kg
+    const heightTolerance = 0.33 // feet (~10cm equivalent)
+    const weightTolerance = 22   // pounds (~10kg equivalent)
 
     return {
       gender: athlete.gender,

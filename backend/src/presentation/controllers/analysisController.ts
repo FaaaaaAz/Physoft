@@ -169,7 +169,8 @@ export class AnalysisController {
         speed,
         globalClassification,
         cohortClassification, // AI-generated cohort classification
-        coachRecommendations
+        coachRecommendations,
+        aiAnalysisResults // Textual Analysis AI results (array), JSON string over multipart
       } = req.body
 
       // Validate required fields
@@ -240,6 +241,15 @@ export class AnalysisController {
         )
       }
 
+      // aiAnalysisResults is a native Json column: parse if it arrived as a
+      // JSON string (multipart form field), pass through if already an object/array.
+      let parsedAiAnalysisResults: any = undefined
+      if (aiAnalysisResults !== undefined && aiAnalysisResults !== null && aiAnalysisResults !== '') {
+        parsedAiAnalysisResults = typeof aiAnalysisResults === 'string'
+          ? JSON.parse(aiAnalysisResults)
+          : aiAnalysisResults
+      }
+
       const newAnalysis = await prisma.analysis.create({
         data: {
           athleteId,
@@ -260,6 +270,7 @@ export class AnalysisController {
           globalClassification: calculatedGlobalClassification,
           cohortClassification: cohortClassification || null, // From AI or manual input
           coachRecommendations: coachRecommendations || null,
+          aiAnalysisResults: parsedAiAnalysisResults,
         },
         include: {
           athlete: {
@@ -310,7 +321,8 @@ export class AnalysisController {
         speed,
         globalClassification,
         cohortClassification,
-        coachRecommendations
+        coachRecommendations,
+        aiAnalysisResults
       } = req.body
 
       // Check if analysis exists
@@ -356,6 +368,14 @@ export class AnalysisController {
           ...(globalClassification !== undefined && { globalClassification }),
           ...(cohortClassification !== undefined && { cohortClassification }),
           ...(coachRecommendations !== undefined && { coachRecommendations }),
+          // aiAnalysisResults is a native Json column: accept it directly when
+          // sent as a real array/object (plain JSON PUT body), or parse it if
+          // ever sent as a JSON string.
+          ...(aiAnalysisResults !== undefined && {
+            aiAnalysisResults: typeof aiAnalysisResults === 'string'
+              ? JSON.parse(aiAnalysisResults)
+              : aiAnalysisResults
+          }),
         },
         include: {
           athlete: {

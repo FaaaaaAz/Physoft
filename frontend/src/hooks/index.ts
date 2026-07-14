@@ -13,6 +13,7 @@ export { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from 
 export { useSort } from './useSort'
 export { useWeakPoints } from './useWeakPoints'
 export { useAIAnalysis } from './useAIAnalysis'
+export { useAIAnalysisResults } from './useAIAnalysisResults'
 
 // Export types
 export type { UseFormOptions, UseFormReturn, ValidationSchema } from './useForm'

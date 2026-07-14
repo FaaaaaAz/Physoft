@@ -12,6 +12,7 @@ import morgan from 'morgan'
 import dotenv from 'dotenv'
 import athleteRoutes from './presentation/routes/athleteRoutes'
 import analysisRoutes from './presentation/routes/analysisRoutes'
+import claudeRoutes from './presentation/routes/claudeRoutes'
 
 // Load environment variables
 dotenv.config()
@@ -67,6 +68,9 @@ app.use('/api/athletes', athleteRoutes)
 
 // Analysis routes
 app.use('/api/analyses', analysisRoutes)
+
+// Claude (AI Textual Analysis) routes
+app.use('/api/claude', claudeRoutes)
 
 // 404 route
 app.use((_req: Request, res: Response) => {

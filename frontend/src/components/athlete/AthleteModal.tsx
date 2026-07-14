@@ -112,11 +112,11 @@ function AthleteModal({ athlete, onClose, onDelete, onViewDetails, onEdit }: Ath
                             </div>
                             <div className="info-item">
                                 <span className="info-label">Height</span>
-                                <span className="info-value">{athlete.height || 'N/A'} cm</span>
+                                <span className="info-value">{athlete.height || 'N/A'} ft</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label">Weight</span>
-                                <span className="info-value">{athlete.weight || 'N/A'} kg</span>
+                                <span className="info-value">{athlete.weight || 'N/A'} lbs</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label">Body Type</span>

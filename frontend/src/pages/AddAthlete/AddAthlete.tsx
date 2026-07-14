@@ -18,6 +18,7 @@ import { Form } from '@/components/common/forms/Form'
 import { useForm, useFormMessage } from '../../hooks'
 import { CreateAthleteDTO, athleteAPI } from '../../services/api'
 import { useAthleteStore } from '@/store/athleteStore'
+import { VALIDATION } from '../../constants'
 import type { AthleteFormData } from '../../types/athlete.types'
 import type { ValidationSchema } from '../../types/form.types'
 import './AddAthlete.css'
@@ -90,9 +91,9 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
         {
             validate: (value) => {
                 const num = Number(value)
-                return num >= 50 && num <= 250
+                return num >= VALIDATION.MIN_HEIGHT && num <= VALIDATION.MAX_HEIGHT
             },
-            message: 'Height must be between 50 and 250 cm'
+            message: `Height must be between ${VALIDATION.MIN_HEIGHT} and ${VALIDATION.MAX_HEIGHT} feet`
         }
     ],
     weight: [
@@ -110,9 +111,9 @@ const validationSchema: ValidationSchema<AthleteFormData> = {
         {
             validate: (value) => {
                 const num = Number(value)
-                return num >= 20 && num <= 300
+                return num >= VALIDATION.MIN_WEIGHT && num <= VALIDATION.MAX_WEIGHT
             },
-            message: 'Weight must be between 20 and 300 kg'
+            message: `Weight must be between ${VALIDATION.MIN_WEIGHT} and ${VALIDATION.MAX_WEIGHT} pounds`
         }
     ],
     email: [
@@ -264,7 +265,7 @@ function AddAthlete() {
                             <Form.Field
                                     name="birthDate"
                                     label="Birth Date"
-                                    type="date"
+                                    type="date-ddmmyyyy"
                                     icon={<IoCalendar />}
                                     max={new Date().toISOString().split('T')[0]}
                                 />
@@ -333,17 +334,19 @@ function AddAthlete() {
                         <Form.Row>
                             <Form.Field
                                 name="height"
-                                label="Height (cm)"
+                                label="Height (feet)"
                                 type="number"
-                                placeholder="e.g., 175"
+                                step="0.01"
+                                placeholder="e.g., 5.75"
                                 required
                                 icon={<IoResize />}
                             />
                             <Form.Field
                                 name="weight"
-                                label="Weight (kg)"
+                                label="Weight (pounds)"
                                 type="number"
-                                placeholder="e.g., 70"
+                                step="0.1"
+                                placeholder="e.g., 154"
                                 required
                                 icon={<IoScale />}
                             />

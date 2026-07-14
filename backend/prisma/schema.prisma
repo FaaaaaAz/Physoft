@@ -70,7 +70,10 @@ model Analysis {
   
   // Recommendations
   coachRecommendations    String?
-  
+
+  // AI-assisted Textual Analysis results (per-checkbox prompt + response history)
+  aiAnalysisResults       Json?
+
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
   athlete                 Athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)

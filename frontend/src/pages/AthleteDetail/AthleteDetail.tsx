@@ -199,7 +199,7 @@ function AthleteDetail() {
                         <IoResize className="card-icon" />
                         <div className="card-content">
                             <span className="card-label">HEIGHT</span>
-                            <span className="card-value">{athlete.height ? `${athlete.height} cm` : 'N/A'}</span>
+                            <span className="card-value">{athlete.height ? `${athlete.height} ft` : 'N/A'}</span>
                         </div>
                     </div>
 
@@ -207,7 +207,7 @@ function AthleteDetail() {
                         <IoBarbell className="card-icon" />
                         <div className="card-content">
                             <span className="card-label">WEIGHT</span>
-                            <span className="card-value">{athlete.weight ? `${athlete.weight} kg` : 'N/A'}</span>
+                            <span className="card-value">{athlete.weight ? `${athlete.weight} lbs` : 'N/A'}</span>
                         </div>
                     </div>
 

@@ -1,0 +1,112 @@
+.analysis-file-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analysis-file-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px;
+  border: 2px dashed var(--color-border, #404040);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.analysis-file-dropzone:hover,
+.analysis-file-dropzone.dragging {
+  border-color: var(--color-primary, #14b8a6);
+  background: rgba(20, 184, 166, 0.05);
+}
+
+.analysis-file-dropzone.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.analysis-file-dropzone svg {
+  font-size: 1.6rem;
+  color: var(--color-primary, #14b8a6);
+}
+
+.analysis-file-dropzone span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #ffffff);
+}
+
+.analysis-file-dropzone p {
+  font-size: 0.78rem;
+  color: var(--color-text-muted, #666666);
+  margin: 0;
+}
+
+.analysis-file-error {
+  font-size: 0.82rem;
+  color: var(--color-error, #ef4444);
+  margin: 0;
+}
+
+.analysis-file-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+.analysis-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border, #404040);
+  font-size: 0.82rem;
+}
+
+.analysis-file-chip svg {
+  color: var(--color-primary, #14b8a6);
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.analysis-file-chip-name {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-primary, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.analysis-file-chip-size {
+  color: var(--color-text-muted, #666666);
+  flex-shrink: 0;
+}
+
+.analysis-file-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted, #666666);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.analysis-file-chip-remove:hover {
+  color: var(--color-error, #ef4444);
+  background: rgba(239, 68, 68, 0.1);
+}

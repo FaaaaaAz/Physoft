@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { IoDocument, IoPerson, IoTrash, IoCreate } from 'react-icons/io5'
+import { IoDocument, IoPerson, IoTrash, IoCreate, IoSparklesOutline } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
+import MiniChatPanel from '@/components/analysis/MiniChatPanel'
 import { analysisAPI, Analysis } from '../../services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
+import { useAIAnalysisResults } from '../../hooks'
 import { MESSAGES } from '@/constants'
 import './AnalysisView.css'
 
@@ -15,6 +17,15 @@ function AnalysisView() {
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const aiAnalysisResultsInitial = useMemo(
+    () => analysis?.aiAnalysisResults || [],
+    [analysis?.aiAnalysisResults]
+  )
+  const { results: aiResults, saveEdit: saveAiEdit } = useAIAnalysisResults(
+    analysis?.id || 0,
+    aiAnalysisResultsInitial
+  )
 
   useEffect(() => {
     const loadAnalysis = async () => {
@@ -207,6 +218,25 @@ function AnalysisView() {
             <div className="graphs-grid">
               {graphImages.map((url, index) => (
                 <img key={index} src={url} alt={`Graph ${index + 1}`} className="graph-image" />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* AI-Assisted Textual Analysis */}
+        {aiResults.length > 0 && (
+          <section className="analysis-section">
+            <h2>
+              <IoSparklesOutline /> AI-Assisted Analysis
+            </h2>
+            <div className="ai-results-list">
+              {aiResults.map(result => (
+                <MiniChatPanel
+                  key={result.id}
+                  result={result}
+                  editable
+                  onSave={(newText) => saveAiEdit(result.id, newText)}
+                />
               ))}
             </div>
           </section>

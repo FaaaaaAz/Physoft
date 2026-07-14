@@ -1,0 +1,56 @@
+.date-ddmmyyyy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border, #404040);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.date-ddmmyyyy:focus-within {
+  outline: none;
+  border-color: var(--color-primary, #14b8a6);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.date-ddmmyyyy-disabled {
+  opacity: 0.5;
+}
+
+.date-ddmmyyyy-segment {
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary, #ffffff);
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: center;
+  padding: 0;
+  min-width: 0;
+}
+
+.date-ddmmyyyy-segment:focus {
+  outline: none;
+}
+
+.date-ddmmyyyy-segment::placeholder {
+  color: var(--color-text-muted, #666666);
+}
+
+.date-ddmmyyyy-day,
+.date-ddmmyyyy-month {
+  width: 1.6ch;
+}
+
+.date-ddmmyyyy-year {
+  width: 4.2ch;
+}
+
+.date-ddmmyyyy-sep {
+  color: var(--color-text-muted, #666666);
+  user-select: none;
+}

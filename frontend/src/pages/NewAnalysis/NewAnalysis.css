@@ -146,6 +146,21 @@
   font-style: italic;
 }
 
+.eval-datetime-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.eval-datetime-row .date-ddmmyyyy {
+  flex: 1;
+}
+
+.eval-time-input {
+  width: 8.5rem;
+  flex-shrink: 0;
+}
+
 /* Athlete Search */
 .athlete-search-wrapper {
   position: relative;

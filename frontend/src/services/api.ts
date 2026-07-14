@@ -233,6 +233,21 @@ export function getPhotoUrl(photo: string | null | undefined): string {
 // ANALYSIS API
 // ============================================
 
+// Textual Analysis checkbox types (New Assessment, Section 2)
+export type ChecklistType = 'flexibility' | 'biobit' | 'asymmetry' | 'motorControl' | 'free'
+
+export interface AIAnalysisResult {
+  id: string
+  checkboxType: ChecklistType
+  userPrompt: string | null
+  uploadedFiles: string[]
+  aiResponse: string
+  tokensUsed?: number
+  createdAt: string
+  edited?: boolean
+  editedAt?: string
+}
+
 export interface Analysis {
   id: number
   athleteId: string
@@ -253,6 +268,7 @@ export interface Analysis {
   globalClassification?: string | null  // "low", "medium", "high" - Calculated by comparing with same sport/bodyType
   cohortClassification?: string | null  // "ELITE", "AVANZADO", "INTERMEDIO", "PRINCIPIANTE", "ATENCION_REQUERIDA"
   coachRecommendations?: string | null
+  aiAnalysisResults?: AIAnalysisResult[] | null  // Textual Analysis AI results (native JSON column)
   createdAt: string
   updatedAt: string
   athlete?: {
@@ -282,6 +298,7 @@ export interface CreateAnalysisDTO {
   globalClassification?: string
   coachRecommendations?: string
   graphs?: File[]  // Graph images to upload
+  aiAnalysisResults?: AIAnalysisResult[]
 }
 
 export const analysisAPI = {
@@ -350,6 +367,11 @@ export const analysisAPI = {
       analysis.graphs.forEach((file) => {
         formData.append('graphs', file)
       })
+    }
+
+    // Append Textual Analysis AI results (native Json column on the backend)
+    if (analysis.aiAnalysisResults && analysis.aiAnalysisResults.length > 0) {
+      formData.append('aiAnalysisResults', JSON.stringify(analysis.aiAnalysisResults))
     }
 
     const response = await apiClient.post<{ success: boolean; data: Analysis; message: string }>(
@@ -428,6 +450,66 @@ export const analysisAPI = {
       }
     )
     return response.data
+  }
+}
+
+// ============================================
+// CLAUDE API (Textual Analysis)
+// ============================================
+
+export interface AnalyzeAssessmentParams {
+  checkboxType: ChecklistType
+  userPrompt?: string
+  patientContext?: {
+    name?: string
+    age?: number
+    sport?: string
+    previousAssessmentsSummary?: string
+  }
+  assessmentId?: number
+  patientId: string
+  files: File[]
+}
+
+export interface AnalyzeAssessmentResponse {
+  success: boolean
+  data?: {
+    checkboxType: ChecklistType
+    aiResponse: string
+    tokensUsed: number
+    uploadedFiles: string[]
+  }
+  error?: string
+  message?: string
+}
+
+export const claudeAPI = {
+  // Generate an AI analysis for one Textual Analysis checkbox
+  analyzeAssessment: async (params: AnalyzeAssessmentParams): Promise<AnalyzeAssessmentResponse> => {
+    const formData = new FormData()
+
+    formData.append('checkboxType', params.checkboxType)
+    if (params.userPrompt) formData.append('userPrompt', params.userPrompt)
+    if (params.patientContext) formData.append('patientContext', JSON.stringify(params.patientContext))
+    if (params.assessmentId !== undefined) formData.append('assessmentId', String(params.assessmentId))
+    formData.append('patientId', params.patientId)
+    params.files.forEach((file) => formData.append('files', file))
+
+    try {
+      const response = await apiClient.post<AnalyzeAssessmentResponse>(
+        '/claude/analyze-assessment',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
+      return response.data
+    } catch (error: any) {
+      const message = error.response?.data?.error || error.message || 'Error generating AI analysis'
+      return { success: false, error: message }
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
+import DateInputDDMMYYYY from './DateInputDDMMYYYY'
 
 // Context for Form
 interface FormContextValue {
@@ -122,7 +123,7 @@ function Row({ children, className = '' }: RowProps) {
 interface FieldProps {
     name: string
     label: string
-    type?: 'text' | 'email' | 'tel' | 'number' | 'date' | 'select'
+    type?: 'text' | 'email' | 'tel' | 'number' | 'date' | 'date-ddmmyyyy' | 'select'
     placeholder?: string
     required?: boolean
     disabled?: boolean
@@ -184,6 +185,17 @@ function Field({
                         </option>
                     ))}
                 </select>
+            ) : type === 'date-ddmmyyyy' ? (
+                <DateInputDDMMYYYY
+                    id={name}
+                    value={value}
+                    onChange={(isoDate) => handleChange(name, isoDate)}
+                    onBlur={handleInputBlur}
+                    required={required}
+                    disabled={disabled}
+                    min={min as string}
+                    max={max as string}
+                />
             ) : (
                 <input
                     type={type}
