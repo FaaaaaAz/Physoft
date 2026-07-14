@@ -45,6 +45,22 @@ export function formatDate(
 }
 
 /**
+ * Format a plain 'YYYY-MM-DD' date-only string as 'MM/DD/YYYY' via string
+ * parsing (no `Date` object involved). Avoids the classic off-by-one-day
+ * bug where `new Date('YYYY-MM-DD')` parses as UTC midnight and then shifts
+ * to the previous day once rendered in a negative-UTC-offset timezone.
+ */
+export function formatBirthDateMMDDYYYY(isoDate: string | null | undefined): string {
+  if (!isoDate) return 'N/A'
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate)
+  if (!match) return 'N/A'
+
+  const [, year, month, day] = match
+  return `${month}/${day}/${year}`
+}
+
+/**
  * Format date to month/year for filters
  */
 export function formatMonthYear(date: string | Date): string {

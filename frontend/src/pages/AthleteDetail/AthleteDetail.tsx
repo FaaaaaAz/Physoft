@@ -7,7 +7,7 @@ import { athleteAPI, Athlete, Analysis } from '../../services/api'
 import { useAthleteStore } from '@/store/athleteStore'
 import { useAnalysisStore } from '@/store/analysisStore'
 import { usePentagonChart, usePentagonGuideLines, usePentagonRadialLines } from '../../hooks/usePentagonChart'
-import { calculateAge } from '../../utils/date.utils'
+import { calculateAge, formatBirthDateMMDDYYYY } from '../../utils/date.utils'
 import { translateBodyType, translateClassification, getClassificationBadgeClass } from '../../utils/translation.utils'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import { ROUTES } from '@/constants'
@@ -183,6 +183,14 @@ function AthleteDetail() {
                         <div className="card-content">
                             <span className="card-label">AGE</span>
                             <span className="card-value">{age > 0 ? `${age} years` : 'N/A'}</span>
+                        </div>
+                    </div>
+
+                    <div className="detail-info-card">
+                        <IoCalendar className="card-icon" />
+                        <div className="card-content">
+                            <span className="card-label">BIRTH DATE</span>
+                            <span className="card-value-small">{formatBirthDateMMDDYYYY(athlete.birthDate)}</span>
                         </div>
                     </div>
 

@@ -23,7 +23,12 @@
       "Bash(curl -s \"http://localhost:3000/api/athletes\")",
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\); const list=j.data||j; const p=list.filter\\(a=>a.name==='QA Playwright Patient'\\); console.log\\(p.map\\(a=>\\({name:a.name,birthDate:a.birthDate}\\)\\)\\)}\\)\")",
       "Bash(node verify-date-layout.mjs)",
-      "Bash(node inspect-overflow.mjs)"
+      "Bash(node inspect-overflow.mjs)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\); const list=j.data||j; console.log\\(list.slice\\(0,3\\).map\\(a=>\\({id:a.id,name:a.name,birthDate:a.birthDate,height:a.height,weight:a.weight}\\)\\)\\)}\\)\")",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"http://localhost:3000/api/athletes/cae6d508-e6b6-4f86-8bf7-f61ccf573f9e\")",
+      "Bash(node debug-edit-athlete.mjs)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\); const list=j.data||j; console.log\\('Total:', list.length\\); const nulls = list.filter\\(a=>a.height==null||a.weight==null||a.sport==null\\); console.log\\('Con height/weight/sport null:', nulls.length\\); console.log\\(nulls.map\\(a=>\\({id:a.id,name:a.name,height:a.height,weight:a.weight,sport:a.sport,patientType:a.patientType}\\)\\)\\)}\\)\")",
+      "Bash(node verify-athlete-fixes.mjs)"
     ]
   }
 }

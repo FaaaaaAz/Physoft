@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IoSave, IoCamera } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
+import DateInputMMDDYYYY from '@/components/common/forms/DateInputMMDDYYYY'
 import { athleteAPI } from '@/services/api'
 import { useAthleteStore } from '@/store/athleteStore'
 import { ROUTES, VALIDATION } from '@/constants'
@@ -80,17 +81,27 @@ function EditAthlete() {
                 club: athlete.club || '',
                 position: athlete.position || '',
                 bodyType: normalizeBodyType(athlete.bodyType),
-                height: athlete.height.toString(),
-                weight: athlete.weight.toString(),
+                height: (athlete.height ?? '').toString(),
+                weight: (athlete.weight ?? '').toString(),
                 email: athlete.email || '',
                 phone: athlete.phone || '',
                 photo: null,
                 currentPhotoUrl: athlete.photo || ''
             })
             setIsNonAthlete(athlete.sport === 'None')
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading athlete:', error)
-            setMensaje({ tipo: 'error', texto: 'Error loading patient' })
+            const status = error.response?.status
+            const backendMessage = error.response?.data?.error
+            let texto = 'Error loading patient'
+            if (status === 404) {
+                texto = 'Patient not found. It may have been deleted.'
+            } else if (backendMessage) {
+                texto = backendMessage
+            } else if (error.message) {
+                texto = `Error loading patient: ${error.message}`
+            }
+            setMensaje({ tipo: 'error', texto })
         } finally {
             setLoading(false)
         }
@@ -265,11 +276,10 @@ function EditAthlete() {
 
                         <div className="form-group">
                             <label htmlFor="birthDate">Birth Date</label>
-                            <input
-                                type="date"
+                            <DateInputMMDDYYYY
                                 id="birthDate"
                                 value={formData.birthDate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, birthDate: e.target.value }))}
+                                onChange={(isoDate) => setFormData(prev => ({ ...prev, birthDate: isoDate }))}
                             />
                         </div>
 
