@@ -166,14 +166,19 @@
   position: relative;
 }
 
-.search-icon {
+.athlete-search-icon {
   position: absolute;
-  right: 1rem;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-muted, #666666);
-  font-size: 1.25rem;
+  color: var(--color-primary, #14b8a6);
+  font-size: 1.15rem;
   pointer-events: none;
+}
+
+.athlete-search-wrapper .athlete-search-input {
+  width: 100%;
+  padding-left: 44px;
 }
 
 .athlete-dropdown {

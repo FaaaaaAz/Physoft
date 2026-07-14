@@ -5,7 +5,7 @@ import PageTemplate from '@/components/templates/PageTemplate'
 import { athleteAPI, analysisAPI, Athlete, AIAnalysisResult } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
 import BodyVisualization, { BodyMark } from '@/components/analysis/BodyVisualization'
-import DateInputDDMMYYYY from '@/components/common/forms/DateInputDDMMYYYY'
+import DateInputMMDDYYYY from '@/components/common/forms/DateInputMMDDYYYY'
 import TextualAnalysisSection from '@/components/analysis/TextualAnalysisSection'
 import { calculateAge } from '@/utils/date.utils'
 import './NewAnalysis.css'
@@ -260,7 +260,6 @@ function NewAnalysis() {
       showBackButton={true}
       className="nuevo-analisis-page"
       breadcrumbItems={[
-        { label: 'Home', path: '/dashboard' },
         { label: 'Assessments', path: '/analysis' },
         { label: 'New Assessment' }
       ]}
@@ -285,6 +284,7 @@ function NewAnalysis() {
               <div className="form-group">
                 <label htmlFor="athleteSearch">Patient / Code *</label>
                 <div className="athlete-search-wrapper">
+                  <IoSearch className="athlete-search-icon" />
                   <input
                     type="text"
                     id="athleteSearch"
@@ -294,10 +294,10 @@ function NewAnalysis() {
                       setShowAthleteDropdown(true)
                     }}
                     onFocus={() => setShowAthleteDropdown(true)}
-                    placeholder="Search by code or name"
+                    placeholder="Search by code or name..."
+                    className="athlete-search-input"
                     required
                   />
-                  <IoSearch className="search-icon" />
 
                   {showAthleteDropdown && filteredAthletes.length > 0 && (
                     <div className="athlete-dropdown">
@@ -326,7 +326,7 @@ function NewAnalysis() {
               <div className="form-group">
                 <label htmlFor="fechaEvaluacion">Evaluation Date/Time *</label>
                 <div className="eval-datetime-row">
-                  <DateInputDDMMYYYY
+                  <DateInputMMDDYYYY
                     id="fechaEvaluacion"
                     value={evalDatePart}
                     onChange={handleEvalDateChange}

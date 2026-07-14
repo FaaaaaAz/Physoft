@@ -16,7 +16,6 @@ function Profile() {
             subtitle="Main user information for Physoft"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Home', path: '/dashboard' },
                 { label: 'Profile' }
             ]}
         >

@@ -201,7 +201,7 @@ function AddAthlete() {
             className="add-athlete-page"
             showNavbar={true}
             breadcrumbItems={[
-                { label: 'Home', path: '/dashboard' },
+                { label: 'Patients', path: '/patients' },
                 { label: 'Add Patient' }
             ]}
         >
@@ -265,7 +265,7 @@ function AddAthlete() {
                             <Form.Field
                                     name="birthDate"
                                     label="Birth Date"
-                                    type="date-ddmmyyyy"
+                                    type="date-mmddyyyy"
                                     icon={<IoCalendar />}
                                     max={new Date().toISOString().split('T')[0]}
                                 />

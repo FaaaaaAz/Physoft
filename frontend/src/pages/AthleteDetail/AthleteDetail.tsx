@@ -139,7 +139,6 @@ function AthleteDetail() {
     // Same breadcrumb structure regardless of where the user came from
     // (Dashboard > Recent Activity, All Patients, etc.)
     const breadcrumbItems: BreadcrumbItem[] = [
-        { label: 'Home', path: ROUTES.DASHBOARD },
         { label: 'Patients', path: ROUTES.ALL_PATIENTS },
         { label: athlete.name }
     ]

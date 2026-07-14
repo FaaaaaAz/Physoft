@@ -241,9 +241,8 @@ function EditAnalysis() {
             className="edit-analysis-page"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Home', path: '/dashboard' },
-                { label: 'Analysis', path: '/analysis' },
-                { label: athleteName || 'Analysis', path: `/analysis-view/${id}` },
+                { label: 'Assessments', path: '/analysis' },
+                { label: athleteName || 'Assessment', path: `/analysis-view/${id}` },
                 { label: 'Edit' }
             ]}
         >

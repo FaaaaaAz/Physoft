@@ -1,0 +1,87 @@
+.date-mmddyyyy {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.date-mmddyyyy-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.date-mmddyyyy-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-mmddyyyy-field-year {
+  flex: 1;
+  min-width: 0;
+}
+
+.date-mmddyyyy-segment {
+  /* Opt this input out of the browser's native dark-mode form-control
+     chrome (triggered globally by `color-scheme: dark` on :root). Without
+     this, Chromium paints its own widget over the box, which both looks
+     wrong and can visually swallow the typed digits. */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid var(--color-border, #404040);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary, #ffffff);
+  font-size: 1rem;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  padding: 0.75rem 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.date-mmddyyyy-month,
+.date-mmddyyyy-day {
+  min-width: 3rem;
+}
+
+.date-mmddyyyy-year {
+  min-width: 4.5rem;
+}
+
+.date-mmddyyyy-segment:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.date-mmddyyyy-segment:focus {
+  outline: none;
+  border-color: var(--color-primary, #14b8a6);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.date-mmddyyyy-segment::placeholder {
+  color: var(--color-text-muted, #666666);
+}
+
+.date-mmddyyyy-field-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted, #666666);
+  user-select: none;
+}
+
+.date-mmddyyyy-sep {
+  align-self: center;
+  margin-top: 0.75rem;
+  color: var(--color-text-muted, #666666);
+  font-size: 1.1rem;
+  user-select: none;
+}

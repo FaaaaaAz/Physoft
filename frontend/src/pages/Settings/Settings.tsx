@@ -16,7 +16,6 @@ function Settings() {
             subtitle="Customize your Physoft experience"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Home', path: '/dashboard' },
                 { label: 'Settings' }
             ]}
         >

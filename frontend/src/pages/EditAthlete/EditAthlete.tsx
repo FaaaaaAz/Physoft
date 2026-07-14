@@ -181,7 +181,6 @@ function EditAthlete() {
             className="edit-athlete-page"
             showBackButton={true}
             breadcrumbItems={[
-                { label: 'Home', path: ROUTES.DASHBOARD },
                 { label: 'Patients', path: ROUTES.ALL_PATIENTS },
                 { label: formData.name || 'Patient', path: `/athlete-detail/${id}` },
                 { label: 'Edit' }
