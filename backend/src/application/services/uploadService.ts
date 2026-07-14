@@ -33,6 +33,10 @@ export class UploadService {
                         folder: cloudinaryFolder,
                         public_id: `${resourceId}_${Date.now()}`,
                         resource_type: 'image',
+                        // Force JPEG output regardless of source format, so
+                        // formats browsers can't render directly (e.g. HEIC,
+                        // the default on iPhones) still display correctly.
+                        format: 'jpg',
                         overwrite: true,
                         invalidate: true,
                     },

@@ -6,7 +6,7 @@
 
 import { Router } from 'express'
 import { AnalysisController } from '../controllers/analysisController'
-import { upload, uploadMemory } from '../../middleware/upload'
+import { uploadGraphImages, uploadAiAnalyzeImages } from '../../middleware/upload'
 
 const router = Router()
 
@@ -38,7 +38,7 @@ router.get('/:id', AnalysisController.getById)
  * Create a new analysis with optional graph images
  * Supports multipart/form-data with 'graphs' field for multiple images
  */
-router.post('/', upload.array('graphs', 10), AnalysisController.create)
+router.post('/', uploadGraphImages, AnalysisController.create)
 
 /**
  * PUT /api/analyses/:id
@@ -50,14 +50,14 @@ router.put('/:id', AnalysisController.update)
  * POST /api/analyses/:id/graphs
  * Upload additional graph images to an existing analysis
  */
-router.post('/:id/graphs', upload.array('graphs', 10), AnalysisController.uploadGraphs)
+router.post('/:id/graphs', uploadGraphImages, AnalysisController.uploadGraphs)
 
 /**
  * POST /api/analyses/ai-analyze
  * Analyze images using configured AI provider
  * Expects: images (multipart), analysisTypes (JSON string)
  */
-router.post('/ai-analyze', uploadMemory.array('images', 10), AnalysisController.aiAnalyze)
+router.post('/ai-analyze', uploadAiAnalyzeImages, AnalysisController.aiAnalyze)
 
 /**
  * DELETE /api/analyses/:id

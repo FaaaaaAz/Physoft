@@ -182,7 +182,7 @@ function AddAthlete() {
             }
         } catch (error: any) {
             const errorMsg = error.response?.data?.error || error.message || 'Unknown error'
-            showMessage('error', `❌ Error: ${errorMsg}`)
+            showMessage('error', errorMsg)
         }
     }
 
