@@ -1,9 +1,9 @@
 .date-mmddyyyy {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 6px;
-  width: 100%;
-  box-sizing: border-box;
+  gap: 0.4rem;
+  max-width: 100%;
 }
 
 .date-mmddyyyy-disabled {
@@ -11,19 +11,23 @@
   pointer-events: none;
 }
 
+/* Each field (input + its label) is a fixed-size unit that never shrinks
+   below its own content, regardless of how the parent container behaves. */
 .date-mmddyyyy-field {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  flex: 0 0 auto;
 }
 
-.date-mmddyyyy-field-year {
-  flex: 1;
-  min-width: 0;
-}
-
-.date-mmddyyyy-segment {
+/* Selectors are scoped under `.date-mmddyyyy` (2 classes) rather than just
+   `.date-mmddyyyy-segment` (1 class) on purpose: generic page-level rules
+   like `.form-group input { padding: ...; }` (1 class + 1 element) outrank
+   a single-class selector and were silently overriding this padding/width,
+   clipping the typed digits. The extra class keeps this component's look
+   correct no matter which form/page wraps it. */
+.date-mmddyyyy .date-mmddyyyy-segment {
   /* Opt this input out of the browser's native dark-mode form-control
      chrome (triggered globally by `color-scheme: dark` on :root). Without
      this, Chromium paints its own widget over the box, which both looks
@@ -32,7 +36,7 @@
   -webkit-appearance: none;
   -moz-appearance: textfield;
 
-  width: 100%;
+  display: block;
   box-sizing: border-box;
   border: 2px solid var(--color-border, #404040);
   border-radius: 8px;
@@ -46,27 +50,29 @@
   transition: all 0.2s ease;
 }
 
-.date-mmddyyyy-month,
-.date-mmddyyyy-day {
-  min-width: 3rem;
+/* MM and DD only ever hold 2 digits, so they share one small, equal width.
+   YYYY holds 4 digits and gets a proportionally wider box. */
+.date-mmddyyyy .date-mmddyyyy-month,
+.date-mmddyyyy .date-mmddyyyy-day {
+  width: 3.25rem;
 }
 
-.date-mmddyyyy-year {
-  min-width: 4.5rem;
+.date-mmddyyyy .date-mmddyyyy-year {
+  width: 5rem;
 }
 
-.date-mmddyyyy-segment:hover:not(:disabled) {
+.date-mmddyyyy .date-mmddyyyy-segment:hover:not(:disabled) {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.date-mmddyyyy-segment:focus {
+.date-mmddyyyy .date-mmddyyyy-segment:focus {
   outline: none;
   border-color: var(--color-primary, #14b8a6);
   box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
   background: rgba(255, 255, 255, 0.08);
 }
 
-.date-mmddyyyy-segment::placeholder {
+.date-mmddyyyy .date-mmddyyyy-segment::placeholder {
   color: var(--color-text-muted, #666666);
 }
 
@@ -78,10 +84,39 @@
   user-select: none;
 }
 
+/* Sits only in the input row (never wraps under a field) and is centered
+   on the input's own height, ignoring the label row beneath it. */
 .date-mmddyyyy-sep {
-  align-self: center;
-  margin-top: 0.75rem;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: 0.8rem;
   color: var(--color-text-muted, #666666);
   font-size: 1.1rem;
+  line-height: 1;
   user-select: none;
+}
+
+@media (max-width: 420px) {
+  .date-mmddyyyy {
+    gap: 0.3rem;
+  }
+
+  .date-mmddyyyy .date-mmddyyyy-month,
+  .date-mmddyyyy .date-mmddyyyy-day {
+    width: 2.75rem;
+  }
+
+  .date-mmddyyyy .date-mmddyyyy-year {
+    width: 4.4rem;
+  }
+
+  .date-mmddyyyy .date-mmddyyyy-segment {
+    padding: 0.6rem 0.2rem;
+    font-size: 0.9rem;
+  }
+
+  .date-mmddyyyy-sep {
+    margin-top: 0.65rem;
+    font-size: 1rem;
+  }
 }
