@@ -14,7 +14,10 @@ import athleteRoutes from './presentation/routes/athleteRoutes'
 import analysisRoutes from './presentation/routes/analysisRoutes'
 import claudeRoutes from './presentation/routes/claudeRoutes'
 import authRoutes from './presentation/routes/authRoutes'
-import { authenticate } from './middleware/authenticate'
+// TEMPORARILY DISABLED - Authentication paused until production infrastructure is available.
+// `authenticate` is unused in this file while the three route mounts below go unprotected.
+// The middleware itself is untouched at ./middleware/authenticate.ts — re-import it here to re-enable.
+// import { authenticate } from './middleware/authenticate'
 import { AuthService } from './application/services/authService'
 
 // Load environment variables
@@ -82,14 +85,19 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
 // Auth routes (public)
 app.use('/api/auth', authRoutes)
 
-// Athlete routes (protected)
-app.use('/api/athletes', authenticate, athleteRoutes)
+// TEMPORARILY DISABLED - Authentication paused until production infrastructure is available.
+// `authenticate` removed from the three mounts below so the API behaves exactly as it did
+// before this feature. To re-enable, restore `authenticate,` as the second argument to each
+// app.use() call (see git history / imperative-sauteeing-sedgewick plan for the original code).
 
-// Analysis routes (protected)
-app.use('/api/analyses', authenticate, analysisRoutes)
+// Athlete routes
+app.use('/api/athletes', athleteRoutes)
 
-// Claude (AI Textual Analysis) routes (protected)
-app.use('/api/claude', authenticate, claudeRoutes)
+// Analysis routes
+app.use('/api/analyses', analysisRoutes)
+
+// Claude (AI Textual Analysis) routes
+app.use('/api/claude', claudeRoutes)
 
 // 404 route
 app.use((_req: Request, res: Response) => {

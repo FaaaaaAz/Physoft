@@ -110,7 +110,13 @@
       "Bash(rm -f \"C:\\\\Users\\\\Fabian\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Fabian-Desktop-UPB-Proyectos-personales-Paginas-Web-Physoft-1-Physoft\\\\db1dd501-996c-409f-b504-c1b72bdfea77\\\\scratchpad\\\\produrl.txt\")",
       "Bash(node verify-prod.cjs)",
       "Bash(rm -f verify-prod.cjs)",
-      "Bash(vercel logout *)"
+      "Bash(vercel logout *)",
+      "Bash(curl -s -o /dev/null -w \"GET /api/athletes \\(no token\\): %{http_code}\\\\n\" http://localhost:3000/api/athletes)",
+      "Bash(curl -s -o /dev/null -w \"GET /api/ping: %{http_code}\\\\n\" http://localhost:3000/api/ping)",
+      "Bash(node bypass-verify.mjs)",
+      "Bash(sed -i \"s|Microsoft\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Edge\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Application\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\msedge.exe|Google\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Chrome\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Application\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\chrome.exe|\" bypass-verify.mjs)",
+      "Bash(sed -i \"s|C:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Program Files \\(x86\\)\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Google|C:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Program Files\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Google|\" bypass-verify.mjs)",
+      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 8584 -Force\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\Fabian\\Desktop\\UPB\\Proyectos personales\\Paginas Web\\Physoft_1\\Physoft\\frontend\\src",
