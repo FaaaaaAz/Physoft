@@ -10,6 +10,7 @@ export const APP_CONFIG = {
 
 export const ROUTES = {
     HOME: '/',
+    LOGIN: '/login',
     DASHBOARD: '/dashboard',
     ALL_PATIENTS: '/patients',
     ADD_ATHLETE: '/add-athlete',
@@ -61,6 +62,7 @@ export const VALIDATION = {
     MAX_AGE: 100,
     MAX_IMAGE_SIZE_MB: 5,
     ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    MIN_PASSWORD_LENGTH: 8,
 } as const
 
 export const MESSAGES = {
@@ -71,6 +73,7 @@ export const MESSAGES = {
         ANALYSIS_CREATED: 'Assessment created successfully',
         ANALYSIS_UPDATED: 'Assessment updated successfully',
         ANALYSIS_DELETED: 'Assessment deleted successfully',
+        PASSWORD_CHANGED: 'Password changed successfully',
     },
     ERROR: {
         UNKNOWN: 'An unknown error occurred',
@@ -82,10 +85,13 @@ export const MESSAGES = {
         UPDATING_ATHLETE: 'Error updating patient',
         DELETING_ATHLETE: 'Error deleting patient',
         DELETING_ANALYSIS: 'Error deleting assessment',
+        LOGIN_FAILED: 'Invalid email or password',
+        PASSWORDS_DO_NOT_MATCH: 'New password and confirmation do not match',
     },
     CONFIRM: {
         DELETE_ATHLETE: 'Are you sure you want to delete this patient? This will also delete all of their assessments.',
         DELETE_ANALYSIS: 'Are you sure you want to delete this assessment?',
+        LOGOUT: 'Are you sure you want to log out?',
     },
 } as const
 

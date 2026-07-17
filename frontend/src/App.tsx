@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Welcome from './pages/Welcome/Welcome'
+import ProtectedRoute from './components/ProtectedRoute'
+import RootRedirect from './components/RootRedirect'
+import Login from './pages/Login/Login'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Patients from './pages/Patients/Patients'
 import Home from './pages/Home/Home'
@@ -23,27 +25,31 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Welcome />} />
-        <Route path="/welcome" element={<Welcome />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/patients" element={<Patients />} />
-        <Route path="/analysis" element={<Analysis />} />
-        <Route path="/all-analyses" element={<AllAnalyses />} />
-        <Route path="/athlete-detail/:id" element={<AthleteDetail />} />
-        <Route path="/add-athlete" element={<AddAthlete />} />
-        <Route path="/athletes/edit/:id" element={<EditAthlete />} />
-        <Route path="/new-analysis" element={<NewAnalysis />} />
-        <Route path="/analysis/edit/:id" element={<EditAnalysis />} />
-        <Route path="/analysis-view/:id" element={<AnalysisView />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/protocols" element={<Protocols />} />
-        <Route path="/assistant" element={<Assistant />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/" element={<RootRedirect />} />
+        <Route path="/login" element={<Login />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/analysis" element={<Analysis />} />
+          <Route path="/all-analyses" element={<AllAnalyses />} />
+          <Route path="/athlete-detail/:id" element={<AthleteDetail />} />
+          <Route path="/add-athlete" element={<AddAthlete />} />
+          <Route path="/athletes/edit/:id" element={<EditAthlete />} />
+          <Route path="/new-analysis" element={<NewAnalysis />} />
+          <Route path="/analysis/edit/:id" element={<EditAnalysis />} />
+          <Route path="/analysis-view/:id" element={<AnalysisView />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/protocols" element={<Protocols />} />
+          <Route path="/assistant" element={<Assistant />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
 
         {/* Legacy redirects */}
+        <Route path="/welcome" element={<Navigate to="/login" replace />} />
         <Route path="/all-analysis" element={<Navigate to="/all-analyses" replace />} />
         <Route path="/configuracion" element={<Navigate to="/settings" replace />} />
 
@@ -54,4 +60,3 @@ function App() {
 }
 
 export default App
-

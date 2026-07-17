@@ -13,12 +13,19 @@ import dotenv from 'dotenv'
 import athleteRoutes from './presentation/routes/athleteRoutes'
 import analysisRoutes from './presentation/routes/analysisRoutes'
 import claudeRoutes from './presentation/routes/claudeRoutes'
+import authRoutes from './presentation/routes/authRoutes'
+import { authenticate } from './middleware/authenticate'
+import { AuthService } from './application/services/authService'
 
 // Load environment variables
 dotenv.config()
 
 const app: Application = express()
 const PORT = process.env.PORT || 3000
+
+// Trust the first proxy hop (Vercel) so express-rate-limit and req.ip see
+// the real client IP instead of bucketing every user together.
+app.set('trust proxy', 1)
 
 // ============================================
 // MIDDLEWARES
@@ -63,14 +70,26 @@ app.get('/api/ping', (_req: Request, res: Response) => {
   res.json({ message: 'pong', timestamp: new Date().toISOString() })
 })
 
-// Athlete routes
-app.use('/api/athletes', athleteRoutes)
+// Ensure the initial admin user exists before any route handles a request.
+// Runs once per cold start; on warm invocations the promise is already
+// resolved so this is a no-op microtask. Kept after /api/health and
+// /api/ping so uptime checks don't depend on it succeeding.
+const adminBootstrapPromise = AuthService.bootstrapAdminUser()
+app.use((_req: Request, _res: Response, next: NextFunction) => {
+  adminBootstrapPromise.then(() => next())
+})
 
-// Analysis routes
-app.use('/api/analyses', analysisRoutes)
+// Auth routes (public)
+app.use('/api/auth', authRoutes)
 
-// Claude (AI Textual Analysis) routes
-app.use('/api/claude', claudeRoutes)
+// Athlete routes (protected)
+app.use('/api/athletes', authenticate, athleteRoutes)
+
+// Analysis routes (protected)
+app.use('/api/analyses', authenticate, analysisRoutes)
+
+// Claude (AI Textual Analysis) routes (protected)
+app.use('/api/claude', authenticate, claudeRoutes)
 
 // 404 route
 app.use((_req: Request, res: Response) => {

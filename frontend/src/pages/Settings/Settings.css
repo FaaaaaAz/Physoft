@@ -150,6 +150,17 @@ input:disabled+.toggle-slider {
   transform: translateY(-2px);
 }
 
+.config-btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger-color, #ef4444);
+  color: var(--danger-color, #ef4444);
+}
+
+.config-btn-danger:hover {
+  background: var(--danger-color, #ef4444);
+  color: white;
+}
+
 /* Select */
 .config-select {
   padding: 8px 16px;

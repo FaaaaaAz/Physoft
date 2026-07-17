@@ -1,4 +1,5 @@
 // Barrel export for hooks
+export { useAuth } from './useAuth'
 export { useAthletes, useAthlete } from './useAthletes'
 export { useAnalyses, useAnalysis } from './useAnalyses'
 export { useDebounce } from './useDebounce'
