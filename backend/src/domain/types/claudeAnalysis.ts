@@ -6,14 +6,13 @@
 // without eagerly constructing the Claude client / requiring an API key.
 // ============================================
 
-export type ChecklistType = 'flexibility' | 'biobit' | 'asymmetry' | 'motorControl' | 'free'
+export type ChecklistType = 'biobit' | 'asymmetry' | 'inertialForce' | 'free'
 
-export const CHECKLIST_TYPES: ChecklistType[] = ['flexibility', 'biobit', 'asymmetry', 'motorControl', 'free']
+export const CHECKLIST_TYPES: ChecklistType[] = ['biobit', 'asymmetry', 'inertialForce', 'free']
 
 export const CHECKLIST_LABELS: Record<ChecklistType, string> = {
-    flexibility: 'Flexibility Analysis',
     biobit: 'Biobit Analysis',
     asymmetry: 'Muscular Activation Asymmetry',
-    motorControl: 'Active Motor Control Analysis',
+    inertialForce: 'Inertial Force Analysis',
     free: 'Free'
 }

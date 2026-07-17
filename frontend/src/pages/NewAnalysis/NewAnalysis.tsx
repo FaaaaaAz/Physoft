@@ -1,31 +1,18 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoAdd, IoTrash, IoSearch } from 'react-icons/io5'
+import { IoSearch } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
 import { athleteAPI, analysisAPI, Athlete, AIAnalysisResult } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
-import BodyVisualization, { BodyMark } from '@/components/analysis/BodyVisualization'
+import { useAthleteStore } from '@/store/athleteStore'
 import DateInputMMDDYYYY from '@/components/common/forms/DateInputMMDDYYYY'
 import TextualAnalysisSection from '@/components/analysis/TextualAnalysisSection'
 import FlexibilityAssessmentSection from '@/components/analysis/FlexibilityAssessmentSection'
 import { useFlexibilityAssessmentForm } from '@/hooks'
 import { FLEXIBILITY_EXERCISE_IDS } from '@/services/api'
+import { BODY_TYPES, BODY_TYPE_LABELS, VALIDATION } from '@/constants'
 import { calculateAge } from '@/utils/date.utils'
 import './NewAnalysis.css'
-
-interface PuntoDebil {
-  id: number
-  area: string
-  descripcion: string
-}
-
-interface CapacidadesFisicas {
-  potencia: number
-  resistencia: number
-  fuerza: number
-  flexibilidad: number
-  velocidad: number
-}
 
 function NewAnalysis() {
   const navigate = useNavigate()
@@ -36,6 +23,7 @@ function NewAnalysis() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showAthleteDropdown, setShowAthleteDropdown] = useState(false)
   const { addAnalysis } = useAnalysisStore()
+  const { updateAthlete: updateAthleteInStore } = useAthleteStore()
 
   // Textual Analysis (AI) results, reported up from TextualAnalysisSection
   const [aiAnalysisResults, setAiAnalysisResults] = useState<AIAnalysisResult[]>([])
@@ -47,22 +35,13 @@ function NewAnalysis() {
   const [formData, setFormData] = useState({
     athleteId: '',
     fechaEvaluacion: '',
-    bodyMarks: [] as BodyMark[], // Marcas corporales de zonas afectadas
-
-    // Conclusiones
-    puntosDebiles: [] as PuntoDebil[],
-    capacidadesFisicas: {
-      potencia: 0,
-      resistencia: 0,
-      fuerza: 0,
-      flexibilidad: 0,
-      velocidad: 0
-    } as CapacidadesFisicas,
-    clasificacionCohorte: '',
+    // Editable patient parameters — prefilled from the selected patient and
+    // pushed back to the patient's profile on save (they can change per visit).
+    weight: '',
+    height: '',
+    somatotype: '',
     recomendaciones: ''
   })
-
-  const [proximoIdPuntoDebil, setProximoIdPuntoDebil] = useState(1)
 
   // Evaluation date/time is tracked as separate date (DD/MM/YYYY) + time parts,
   // then combined into formData.fechaEvaluacion ('YYYY-MM-DDTHH:mm') so the
@@ -101,7 +80,14 @@ function NewAnalysis() {
 
   const handleAthleteSelect = (athlete: Athlete) => {
     setSelectedAthlete(athlete)
-    setFormData(prev => ({ ...prev, athleteId: athlete.id }))
+    setFormData(prev => ({
+      ...prev,
+      athleteId: athlete.id,
+      // Prefill the editable parameters from the patient's current profile.
+      weight: athlete.weight != null ? String(athlete.weight) : '',
+      height: athlete.height != null ? String(athlete.height) : '',
+      somatotype: athlete.bodyType || ''
+    }))
     setSearchQuery(`${athlete.accessCode} - ${athlete.name}`)
     setShowAthleteDropdown(false)
   }
@@ -130,53 +116,6 @@ function NewAnalysis() {
     }
   }
 
-  const handleCapacidadChange = (capacidad: keyof CapacidadesFisicas, value: number) => {
-    setFormData(prev => ({
-      ...prev,
-      capacidadesFisicas: {
-        ...prev.capacidadesFisicas,
-        [capacidad]: value
-      }
-    }))
-  }
-
-  const handleAgregarPuntoDebil = () => {
-    const nuevoPunto: PuntoDebil = {
-      id: proximoIdPuntoDebil,
-      area: '',
-      descripcion: ''
-    }
-    setFormData(prev => ({
-      ...prev,
-      puntosDebiles: [...prev.puntosDebiles, nuevoPunto]
-    }))
-    setProximoIdPuntoDebil(prev => prev + 1)
-  }
-
-  const handleEliminarPuntoDebil = (id: number) => {
-    setFormData(prev => ({
-      ...prev,
-      puntosDebiles: prev.puntosDebiles.filter(p => p.id !== id)
-    }))
-  }
-
-  const handlePuntoDebilChange = (id: number, field: 'area' | 'descripcion', value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      puntosDebiles: prev.puntosDebiles.map(p =>
-        p.id === id ? { ...p, [field]: value } : p
-      )
-    }))
-  }
-
-  // Manejar cambios en las marcas corporales
-  const handleBodyMarksChange = (marks: BodyMark[]) => {
-    setFormData(prev => ({
-      ...prev,
-      bodyMarks: marks
-    }))
-  }
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
@@ -185,8 +124,10 @@ function NewAnalysis() {
       return
     }
 
-    console.log('Selected Athlete ID:', formData.athleteId)
-    console.log('Selected Athlete:', selectedAthlete)
+    if (!formData.weight || !formData.height || !formData.somatotype) {
+      setMensaje({ tipo: 'error', texto: 'Weight, height and somatotype are required' })
+      return
+    }
 
     setGuardando(true)
     setMensaje(null)
@@ -203,30 +144,8 @@ function NewAnalysis() {
         submitData.aiAnalysisResults = aiAnalysisResults
       }
 
-      // Preparar puntos débiles para envío
-      const puntosDebilesTexto = formData.puntosDebiles
-        .filter(p => p.area.trim() !== '') // Solo enviar puntos con área definida
-        .map(p => ({ area: p.area, descripcion: p.descripcion }))
-
-      if (puntosDebilesTexto.length > 0) {
-        submitData.weakPoints = JSON.stringify(puntosDebilesTexto)
-      }
-
-      // Capacidades físicas
-      if (formData.capacidadesFisicas.potencia > 0) submitData.power = formData.capacidadesFisicas.potencia
-      if (formData.capacidadesFisicas.resistencia > 0) submitData.endurance = formData.capacidadesFisicas.resistencia
-      if (formData.capacidadesFisicas.fuerza > 0) submitData.strength = formData.capacidadesFisicas.fuerza
-      if (formData.capacidadesFisicas.flexibilidad > 0) submitData.flexibility = formData.capacidadesFisicas.flexibilidad
-      if (formData.capacidadesFisicas.velocidad > 0) submitData.speed = formData.capacidadesFisicas.velocidad
-
-      // Clasificación y recomendaciones
-      if (formData.clasificacionCohorte) submitData.cohortClassification = formData.clasificacionCohorte
+      // Recommendations for coach
       if (formData.recomendaciones) submitData.coachRecommendations = formData.recomendaciones
-
-      // Marcas corporales de zonas afectadas
-      if (formData.bodyMarks.length > 0) {
-        submitData.bodyMarks = JSON.stringify(formData.bodyMarks)
-      }
 
       // Flexibility Assessment: only send exercises the user actually touched
       const flexibilityItems = FLEXIBILITY_EXERCISE_IDS
@@ -246,6 +165,21 @@ function NewAnalysis() {
 
       // Update store with new analysis
       addAnalysis(response.data)
+
+      // Push the (possibly updated) weight/height/somatotype back to the
+      // patient's profile so the Patient Card always reflects the newest
+      // values. Best-effort: the analysis is already saved, so a profile
+      // update failure should not discard it.
+      try {
+        const athleteResponse = await athleteAPI.update(formData.athleteId, {
+          weight: Number(formData.weight),
+          height: Number(formData.height),
+          bodyType: formData.somatotype
+        })
+        updateAthleteInStore(formData.athleteId, athleteResponse.data)
+      } catch (profileError) {
+        console.error('Analysis saved, but updating the patient profile failed:', profileError)
+      }
 
       setMensaje({ tipo: 'success', texto: '✅ Analysis saved successfully' })
 
@@ -363,11 +297,58 @@ function NewAnalysis() {
               </div>
             </div>
 
-            {/* Visualización Corporal - Zonas Afectadas */}
-            <BodyVisualization
-              marks={formData.bodyMarks}
-              onChange={handleBodyMarksChange}
-            />
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="weight">Weight (lbs) *</label>
+                <input
+                  type="number"
+                  id="weight"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  placeholder="e.g., 160"
+                  min={VALIDATION.MIN_WEIGHT}
+                  max={VALIDATION.MAX_WEIGHT}
+                  step="0.1"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="height">Height (ft) *</label>
+                <input
+                  type="number"
+                  id="height"
+                  name="height"
+                  value={formData.height}
+                  onChange={handleChange}
+                  placeholder="e.g., 5.9"
+                  min={VALIDATION.MIN_HEIGHT}
+                  max={VALIDATION.MAX_HEIGHT}
+                  step="0.01"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="somatotype">Somatotype *</label>
+                <select
+                  id="somatotype"
+                  name="somatotype"
+                  className="form-select"
+                  value={formData.somatotype}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select a somatotype</option>
+                  {Object.values(BODY_TYPES).map((type) => (
+                    <option key={type} value={type}>
+                      {BODY_TYPE_LABELS[type]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* SECTION 2 - Flexibility Assessment */}
@@ -409,218 +390,16 @@ function NewAnalysis() {
               onResultsChange={setAiAnalysisResults}
               onGeneratingChange={setIsAiGenerating}
               evaluationDate={formData.fechaEvaluacion}
-              bodyMarks={formData.bodyMarks}
-              flexibilityItems={flexibilityForm.items}
             />
           </div>
 
-          {/* SECCIÓN 4 - Conclusiones y Plan */}
+          {/* SECTION 4 - Conclusions and Plan */}
           <div className="form-section">
             <h3 className="section-title">
               <span className="section-number">4</span>
               Conclusions and plan
             </h3>
 
-            {/* Puntos Débiles */}
-            <div className="subsection">
-              <div className="subsection-header">
-                <h4>Weak Points</h4>
-                <button
-                  type="button"
-                  className="btn-agregar-punto"
-                  onClick={handleAgregarPuntoDebil}
-                >
-                  <IoAdd /> Add weak point
-                </button>
-              </div>
-
-              {formData.puntosDebiles.length === 0 ? (
-                <p className="empty-message">
-                  The AI will identify weak points automatically. You can also add them manually.
-                </p>
-              ) : (
-                <div className="puntos-debiles-lista">
-                  {formData.puntosDebiles.map((punto, index) => (
-                    <div key={punto.id} className="punto-debil-item">
-                        <span className="punto-numero">Weak point {index + 1}</span>
-                      <div className="punto-debil-fields">
-                        <input
-                          type="text"
-                          value={punto.area}
-                          onChange={(e) => handlePuntoDebilChange(punto.id, 'area', e.target.value)}
-                          placeholder="Problem area (e.g., Muscle fatigue)"
-                          className="punto-debil-input area"
-                          required
-                        />
-                        <input
-                          type="text"
-                          value={punto.descripcion}
-                          onChange={(e) => handlePuntoDebilChange(punto.id, 'descripcion', e.target.value)}
-                          placeholder="Description (optional)"
-                          className="punto-debil-input descripcion"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        className="btn-eliminar-punto"
-                        onClick={() => handleEliminarPuntoDebil(punto.id)}
-                      >
-                        <IoTrash />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Capacidades Físicas */}
-            <div className="subsection">
-              <h4>Physical Capacities</h4>
-              <p className="subsection-description">
-                Adjust these values manually based on your assessment.
-              </p>
-
-              <div className="capacidades-grid">
-                <div className="capacidad-item">
-                  <label htmlFor="potencia">Power</label>
-                  <div className="capacidad-input-group">
-                    <input
-                      type="range"
-                      id="potencia"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.potencia}
-                      onChange={(e) => handleCapacidadChange('potencia', Number(e.target.value))}
-                      className="capacidad-slider"
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.potencia}
-                      onChange={(e) => handleCapacidadChange('potencia', Number(e.target.value))}
-                      className="capacidad-number"
-                    />
-                  </div>
-                </div>
-
-                <div className="capacidad-item">
-                  <label htmlFor="resistencia">Endurance</label>
-                  <div className="capacidad-input-group">
-                    <input
-                      type="range"
-                      id="resistencia"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.resistencia}
-                      onChange={(e) => handleCapacidadChange('resistencia', Number(e.target.value))}
-                      className="capacidad-slider"
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.resistencia}
-                      onChange={(e) => handleCapacidadChange('resistencia', Number(e.target.value))}
-                      className="capacidad-number"
-                    />
-                  </div>
-                </div>
-
-                <div className="capacidad-item">
-                  <label htmlFor="fuerza">Strength</label>
-                  <div className="capacidad-input-group">
-                    <input
-                      type="range"
-                      id="fuerza"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.fuerza}
-                      onChange={(e) => handleCapacidadChange('fuerza', Number(e.target.value))}
-                      className="capacidad-slider"
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.fuerza}
-                      onChange={(e) => handleCapacidadChange('fuerza', Number(e.target.value))}
-                      className="capacidad-number"
-                    />
-                  </div>
-                </div>
-
-                <div className="capacidad-item">
-                  <label htmlFor="flexibilidad">Flexibility</label>
-                  <div className="capacidad-input-group">
-                    <input
-                      type="range"
-                      id="flexibilidad"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.flexibilidad}
-                      onChange={(e) => handleCapacidadChange('flexibilidad', Number(e.target.value))}
-                      className="capacidad-slider"
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.flexibilidad}
-                      onChange={(e) => handleCapacidadChange('flexibilidad', Number(e.target.value))}
-                      className="capacidad-number"
-                    />
-                  </div>
-                </div>
-
-                <div className="capacidad-item">
-                  <label htmlFor="velocidad">Speed</label>
-                  <div className="capacidad-input-group">
-                    <input
-                      type="range"
-                      id="velocidad"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.velocidad}
-                      onChange={(e) => handleCapacidadChange('velocidad', Number(e.target.value))}
-                      className="capacidad-slider"
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.capacidadesFisicas.velocidad}
-                      onChange={(e) => handleCapacidadChange('velocidad', Number(e.target.value))}
-                      className="capacidad-number"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Clasificación Cohorte */}
-            <div className="subsection">
-              <h4>Cohort Classification</h4>
-                <p className="subsection-description">
-                AI will determine the classification based on evaluated physical capacities.
-              </p>
-              <select
-                className="form-select"
-                name="clasificacionCohorte"
-                value={formData.clasificacionCohorte}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select a classification</option>
-                <option value="ELITE">Elite</option>
-                <option value="AVANZADO">Advanced</option>
-                <option value="INTERMEDIO">Intermediate</option>
-                <option value="PRINCIPIANTE">Beginner</option>
-                <option value="ATENCION_REQUERIDA">Attention Required</option>
-              </select>
-            </div>
-
-            {/* Recomendaciones */}
             <div className="subsection">
               <h4>Recommendations for Coach</h4>
               <textarea
@@ -628,7 +407,7 @@ function NewAnalysis() {
                 value={formData.recomendaciones}
                 onChange={handleChange}
                 rows={6}
-                  placeholder="Write specific recommendations for the coach..."
+                placeholder="Write specific recommendations for the coach..."
                 className="form-textarea-large"
               />
             </div>

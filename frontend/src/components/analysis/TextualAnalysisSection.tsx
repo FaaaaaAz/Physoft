@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { IoSparklesOutline } from 'react-icons/io5'
-import { analysisAPI, claudeAPI, FLEXIBILITY_EXERCISE_IDS, type AIAnalysisResult } from '@/services/api'
-import type { BodyMark } from './BodyVisualization'
-import type { FlexibilityAssessmentFormState } from '@/hooks/useFlexibilityAssessmentForm'
+import { analysisAPI, claudeAPI, type AIAnalysisResult } from '@/services/api'
 import ChecklistItem, { ChecklistItemState } from './ChecklistItem'
 import { CHECKLIST_TYPES, ChecklistType } from './checklistTypes'
 import './TextualAnalysisSection.css'
@@ -18,13 +16,9 @@ interface TextualAnalysisSectionProps {
     patientContext: PatientContext
     onResultsChange: (results: AIAnalysisResult[]) => void
     onGeneratingChange?: (isGenerating: boolean) => void
-    // Richer clinical context, pulled straight from NewAnalysis.tsx's existing
-    // form state (nothing new computed here) so the backend can build a much
-    // fuller prompt. evaluationDate/bodyMarks are always forwarded; flexibility
-    // ratings are only relevant (and only sent) for the 'flexibility' type.
+    // Evaluation date, forwarded from NewAnalysis's existing form state so the
+    // backend can include it in the clinical context (no prompt building here).
     evaluationDate?: string
-    bodyMarks?: BodyMark[]
-    flexibilityItems?: FlexibilityAssessmentFormState
 }
 
 type ChecklistMap = Record<ChecklistType, ChecklistItemState>
@@ -50,12 +44,13 @@ function TextualAnalysisSection({
     patientContext,
     onResultsChange,
     onGeneratingChange,
-    evaluationDate,
-    bodyMarks,
-    flexibilityItems
+    evaluationDate
 }: TextualAnalysisSectionProps) {
     const [items, setItems] = useState<ChecklistMap>(initialChecklistMap)
     const [previousAssessmentsSummary, setPreviousAssessmentsSummary] = useState<string | undefined>(undefined)
+    // Physiotherapist's clinical notes for the current evaluation. Sent to
+    // Claude with every generation request, regardless of the selected type.
+    const [clinicalNotes, setClinicalNotes] = useState('')
 
     // Best-effort: summarize the patient's recent assessments for AI context.
     // Failures here never block generation.
@@ -119,19 +114,6 @@ function TextualAnalysisSection({
 
         const state = items[type]
 
-        // Only meaningful for the Flexibility Analysis checkbox — the backend
-        // ignores this field for every other type regardless.
-        const flexibilityRatings = type === 'flexibility' && flexibilityItems
-            ? FLEXIBILITY_EXERCISE_IDS.map((exerciseId) => {
-                const item = flexibilityItems[exerciseId]
-                return {
-                    exerciseId,
-                    rating: item.rating,
-                    hasEvidence: Boolean(item.evidenceFile || item.evidenceUrl)
-                }
-            })
-            : undefined
-
         const response = await claudeAPI.analyzeAssessment({
             checkboxType: type,
             userPrompt: state.prompt.trim() || undefined,
@@ -139,8 +121,7 @@ function TextualAnalysisSection({
             patientId: patientId || '',
             files: state.files,
             evaluationDate,
-            bodyMarks,
-            flexibilityRatings
+            clinicalNotes: clinicalNotes.trim() || undefined
         })
 
         if (!response.success || !response.data) {
@@ -186,6 +167,28 @@ function TextualAnalysisSection({
                 ))}
             </div>
 
+            <div className="clinical-notes-block">
+                <h4 className="clinical-notes-title">Additional Clinical Notes &amp; Detected Conditions</h4>
+                <p className="clinical-notes-hint">
+                    Describe injuries, diagnosed conditions, pain, postural alterations or other relevant clinical
+                    findings for this evaluation. Write one point per line — clear, specific descriptions help the AI.
+                    These notes are sent with every analysis you generate below.
+                </p>
+                <textarea
+                    className="clinical-notes-textarea"
+                    value={clinicalNotes}
+                    onChange={(e) => setClinicalNotes(e.target.value)}
+                    rows={5}
+                    placeholder={
+                        'Carpal tunnel syndrome in right hand\n' +
+                        'Increased lumbar lordosis\n' +
+                        'Mild thoracic kyphosis\n' +
+                        'Anterior pelvic tilt\n' +
+                        'Left knee patellar tendinopathy'
+                    }
+                />
+            </div>
+
             <button
                 type="button"
                 className="textual-analysis-generate-btn"
@@ -193,7 +196,7 @@ function TextualAnalysisSection({
                 disabled={!canGenerate}
             >
                 <IoSparklesOutline />
-                {anyLoading ? 'Analyzing...' : 'Generate AI Analysis'}
+                {anyLoading ? 'Analyzing...' : 'Generate Textual Analysis'}
             </button>
         </div>
     )

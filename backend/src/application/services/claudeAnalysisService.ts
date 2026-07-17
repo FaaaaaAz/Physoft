@@ -3,9 +3,7 @@ import { ChecklistType } from '../../domain/types/claudeAnalysis'
 import * as promptBuilder from './claude/promptBuilder'
 import type {
     PatientDemographics,
-    PatientContextFallback,
-    BodyMarkLike,
-    FlexibilityRatingContext
+    PatientContextFallback
 } from './claude/promptBuilder'
 
 interface PatientContext {
@@ -34,8 +32,7 @@ interface AnalyzeAssessmentInput {
     // Richer clinical context, gathered by the controller before calling this service.
     patientDemographics?: PatientDemographics | null
     evaluationDate?: string | null
-    bodyMarks?: BodyMarkLike[] | null
-    flexibilityRatings?: FlexibilityRatingContext[] | null
+    clinicalNotes?: string | null
 }
 
 interface AnalyzeAssessmentResult {
@@ -141,8 +138,7 @@ class ClaudeAnalysisService {
             patientContextFallback: input.patientContext as PatientContextFallback | undefined,
             previousAssessmentsSummary: input.patientContext?.previousAssessmentsSummary,
             evaluationDate: input.evaluationDate,
-            bodyMarks: input.bodyMarks,
-            flexibilityRatings: input.flexibilityRatings,
+            clinicalNotes: input.clinicalNotes,
             hasAttachments: imageFiles.length > 0 || pdfFiles.length > 0
         })
 

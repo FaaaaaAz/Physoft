@@ -45,7 +45,7 @@ function MiniChatPanel({ result, editable = false, onSave }: MiniChatPanelProps)
     return (
         <div className="mini-chat-panel">
             <div className="mini-chat-header">
-                <span className="mini-chat-type">{CHECKLIST_LABELS[result.checkboxType]}</span>
+                <span className="mini-chat-type">{CHECKLIST_LABELS[result.checkboxType] ?? 'Textual Analysis'}</span>
                 <span className="mini-chat-timestamp">
                     {getRelativeTime(result.createdAt)}
                     {result.edited && <span className="mini-chat-edited"> &middot; edited</span>}

@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { getToken, clearToken } from '../utils/tokenStorage'
-import type { BodyMark } from '@/components/analysis/BodyVisualization'
 
 // Base Axios configuration
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
@@ -250,7 +249,7 @@ export function getPhotoUrl(photo: string | null | undefined): string {
 // ============================================
 
 // Textual Analysis checkbox types (New Assessment, Section 2)
-export type ChecklistType = 'flexibility' | 'biobit' | 'asymmetry' | 'motorControl' | 'free'
+export type ChecklistType = 'biobit' | 'asymmetry' | 'inertialForce' | 'free'
 
 export interface AIAnalysisResult {
   id: string
@@ -550,8 +549,10 @@ export interface AnalyzeAssessmentParams {
   // so it can't be looked up server-side by patientId alone). Backend still
   // does all the prompt construction; these are just raw data passthrough.
   evaluationDate?: string
-  bodyMarks?: BodyMark[]
-  flexibilityRatings?: { exerciseId: FlexibilityExerciseId; rating: FlexibilityRating | null; hasEvidence: boolean }[]
+  // Physiotherapist's free-text clinical notes / detected conditions for the
+  // current evaluation. Sent with every Textual Analysis request regardless
+  // of which analysis type is selected.
+  clinicalNotes?: string
 }
 
 export interface AnalyzeAssessmentResponse {
@@ -579,9 +580,8 @@ export const claudeAPI = {
     params.files.forEach((file) => formData.append('files', file))
 
     if (params.evaluationDate) formData.append('evaluationDate', params.evaluationDate)
-    if (params.bodyMarks && params.bodyMarks.length > 0) formData.append('bodyMarks', JSON.stringify(params.bodyMarks))
-    if (params.flexibilityRatings && params.flexibilityRatings.length > 0) {
-      formData.append('flexibilityRatings', JSON.stringify(params.flexibilityRatings))
+    if (params.clinicalNotes && params.clinicalNotes.trim().length > 0) {
+      formData.append('clinicalNotes', params.clinicalNotes.trim())
     }
 
     try {

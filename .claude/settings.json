@@ -137,7 +137,22 @@
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{try{const s=d.split\\('STATUS:'\\)[0]; const j=JSON.parse\\(s\\); console.log\\('count:', j.data?.length\\); if\\(j.data?.[0]\\) console.log\\(JSON.stringify\\(j.data[0],null,2\\)\\)}catch\\(e\\){console.log\\('RAW:',d\\)}}\\)\")",
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{try{const j=JSON.parse\\(d\\); console.log\\(j.data.aiResponse\\)}catch\\(e\\){console.log\\('RAW:',d\\)}}\\)\")",
       "Bash(powershell -NoProfile -Command \"Stop-Process -Id 12312 -Force\")",
-      "Bash(node claude-context-verify.mjs)"
+      "Bash(node claude-context-verify.mjs)",
+      "Bash(rm -f src/application/services/claude/prompts/textual/flexibility.ts)",
+      "Bash(rm -f src/application/services/claude/prompts/textual/motorControl.ts)",
+      "Bash(awk '{print $5}')",
+      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 9872 -Force\")",
+      "Bash(curl -s http://localhost:3000/api/athletes -w \" [%{http_code}]\" -o /dev/null)",
+      "Bash(curl -s -X POST http://localhost:3000/api/claude/analyze-assessment -F checkboxType=flexibility -F patientId=test -F 'files=@../frontend/src/assets/physoft.png;type=image/png' -w '\\\\n[%{http_code}]\\\\n')",
+      "Bash(curl -s -X POST http://localhost:3000/api/claude/analyze-assessment -F checkboxType=motorControl -F patientId=test -F 'files=@../frontend/src/assets/physoft.png;type=image/png' -w '\\\\n[%{http_code}]\\\\n')",
+      "Bash(curl -s http://localhost:3000/api/athletes/ac4cbd9f-6d7c-45ba-bba4-8856bad06297)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const a=JSON.parse\\(d\\).data;console.log\\('name:',a.name,'| weight:',a.weight,'| height:',a.height,'| bodyType:',a.bodyType\\)}\\)\")",
+      "Bash(node assess-verify.mjs)",
+      "Bash(node save-verify.mjs)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const a=JSON.parse\\(d\\).data;console.log\\('weight:',a.weight,'| height:',a.height,'| bodyType:',a.bodyType\\)}\\)\")",
+      "Bash(curl -s -X PUT http://localhost:3000/api/athletes/ac4cbd9f-6d7c-45ba-bba4-8856bad06297 -H 'Content-Type: application/json' -d '{\"weight\":160,\"height\":5.9,\"bodyType\":\"Mesomorph\"}' -o /dev/null -w 'restore athlete: [%{http_code}]\\\\n')",
+      "Bash(curl -s -X DELETE http://localhost:3000/api/analyses/8 -o /dev/null -w \"delete test analysis 8: [%{http_code}]\\\\n\")",
+      "Bash(rm -f assess-verify.mjs save-verify.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Fabian\\Desktop\\UPB\\Proyectos personales\\Paginas Web\\Physoft_1\\Physoft\\frontend\\src",

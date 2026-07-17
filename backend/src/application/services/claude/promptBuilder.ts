@@ -9,34 +9,17 @@
 // ============================================
 
 import { ChecklistType, CHECKLIST_LABELS } from '../../../domain/types/claudeAnalysis'
-import type { FlexibilityExerciseId, FlexibilityRating } from '../../../domain/types/flexibilityAssessment'
 import { COMMON_SYSTEM_PROMPT } from './prompts/common/systemPrompt'
-import { FLEXIBILITY_PROMPT } from './prompts/textual/flexibility'
 import { BIOBIT_PROMPT } from './prompts/textual/biobit'
 import { MUSCULAR_ACTIVATION_PROMPT } from './prompts/textual/muscularActivation'
-import { MOTOR_CONTROL_PROMPT } from './prompts/textual/motorControl'
+import { INERTIAL_FORCE_PROMPT } from './prompts/textual/inertialForce'
 import { FREE_PROMPT } from './prompts/textual/free'
 
 const SPECIALIZED_PROMPTS: Record<ChecklistType, string> = {
-  flexibility: FLEXIBILITY_PROMPT,
   biobit: BIOBIT_PROMPT,
   asymmetry: MUSCULAR_ACTIVATION_PROMPT, // checkboxType 'asymmetry' -> muscularActivation.ts, intentional
-  motorControl: MOTOR_CONTROL_PROMPT,
+  inertialForce: INERTIAL_FORCE_PROMPT,
   free: FREE_PROMPT,
-}
-
-const EXERCISE_LABELS: Record<FlexibilityExerciseId, string> = {
-  forwardFlexion: 'Forward Flexion Test',
-  shoulderMobility: 'Shoulder Mobility Test',
-  butterfly: 'Butterfly Test',
-  deepSquat: 'Deep Squat Test',
-}
-
-const VIEW_LABELS: Record<string, string> = {
-  front: 'front view',
-  back: 'back view',
-  left: 'left side view',
-  right: 'right side view',
 }
 
 export interface PatientDemographics {
@@ -55,16 +38,6 @@ export interface PatientContextFallback {
   sport?: string
 }
 
-export interface BodyMarkLike {
-  viewType: 'front' | 'back' | 'left' | 'right'
-}
-
-export interface FlexibilityRatingContext {
-  exerciseId: FlexibilityExerciseId
-  rating: FlexibilityRating | null
-  hasEvidence: boolean
-}
-
 export interface BuildUserTextInput {
   checkboxType: ChecklistType
   userPrompt?: string | null
@@ -72,8 +45,7 @@ export interface BuildUserTextInput {
   patientContextFallback?: PatientContextFallback | null
   previousAssessmentsSummary?: string | null
   evaluationDate?: string | null
-  bodyMarks?: BodyMarkLike[] | null
-  flexibilityRatings?: FlexibilityRatingContext[] | null
+  clinicalNotes?: string | null
   hasAttachments: boolean
 }
 
@@ -96,16 +68,13 @@ export function buildUserText(input: BuildUserTextInput): string {
   const assessmentText = buildAssessmentContextText(input)
   if (assessmentText) sections.push(section('ASSESSMENT CONTEXT', assessmentText))
 
-  if (input.checkboxType === 'flexibility') {
-    const ratedExercises = (input.flexibilityRatings || []).filter((r) => r.rating !== null)
-    if (ratedExercises.length > 0) {
-      sections.push(
-        section(
-          'MANUAL FLEXIBILITY RATINGS (physiotherapist-entered — verify against the image, do not assume correct)',
-          buildFlexibilityRatingsText(ratedExercises)
-        )
+  if (input.clinicalNotes && input.clinicalNotes.trim().length > 0) {
+    sections.push(
+      section(
+        'ADDITIONAL CLINICAL NOTES & DETECTED CONDITIONS (physiotherapist-entered — complementary context for this evaluation, not the main instruction)',
+        input.clinicalNotes.trim()
       )
-    }
+    )
   }
 
   if (input.userPrompt && input.userPrompt.trim().length > 0) {
@@ -156,39 +125,15 @@ function parseValidDate(value: string | null | undefined): Date | null {
   return isNaN(date.getTime()) ? null : date
 }
 
-function summarizeBodyMarks(marks: BodyMarkLike[] | null | undefined): string | null {
-  if (!marks || marks.length === 0) return null
-
-  const counts: Record<string, number> = {}
-  for (const mark of marks) {
-    counts[mark.viewType] = (counts[mark.viewType] || 0) + 1
-  }
-
-  const parts = Object.entries(counts).map(([view, count]) => `${count} on the ${VIEW_LABELS[view] || view}`)
-  return `${marks.length} total (${parts.join(', ')})`
-}
-
 function buildAssessmentContextText(input: BuildUserTextInput): string | null {
   const lines: string[] = []
 
   const date = parseValidDate(input.evaluationDate)
   if (date) lines.push(`Evaluation date: ${date.toISOString().slice(0, 10)}`)
 
-  const zonesSummary = summarizeBodyMarks(input.bodyMarks)
-  if (zonesSummary) lines.push(`Affected zones marked by the physiotherapist: ${zonesSummary}`)
-
   if (input.previousAssessmentsSummary) lines.push(`Previous assessments: ${input.previousAssessmentsSummary}`)
 
   return lines.length > 0 ? lines.join('\n') : null
-}
-
-function buildFlexibilityRatingsText(ratings: FlexibilityRatingContext[]): string {
-  return ratings
-    .map((r) => {
-      const evidenceNote = r.hasEvidence ? 'evidence photo attached' : 'no evidence photo provided'
-      return `${EXERCISE_LABELS[r.exerciseId]}: ${r.rating} (${evidenceNote})`
-    })
-    .join('\n')
 }
 
 function buildRequestedAnalysisText(input: BuildUserTextInput): string {
