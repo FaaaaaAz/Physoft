@@ -43,7 +43,31 @@
       "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/athletes -F 'name=DELETE VERIFY TEST 2' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160)",
       "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/analyses -F athleteId=09a86357-2e95-453c-af24-2d28a76b1d46 -F evaluationDate=2026-07-14T10:00:00.000Z)",
       "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" -X DELETE \"https://physoft-backend.vercel.app/api/athletes/09a86357-2e95-453c-af24-2d28a76b1d46\")",
-      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"https://physoft-backend.vercel.app/api/athletes/09a86357-2e95-453c-af24-2d28a76b1d46\")"
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"https://physoft-backend.vercel.app/api/athletes/09a86357-2e95-453c-af24-2d28a76b1d46\")",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/athletes -F 'name=REPRO OVERSIZE TEST' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160 -F 'photo=@big-test-photo.jpg;type=image/jpeg')",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/athletes -F 'name=REPRO HEIC TEST' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160 -F 'photo=@test-photo.heic;type=image/heic')",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" \"http://localhost:3000/api/health\")",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST http://localhost:3000/api/athletes -F 'name=LOCAL HEIC TEST' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160 -F 'photo=@test-photo.heic;type=image/heic')",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST http://localhost:3000/api/athletes -F 'name=LOCAL REAL PNG TEST' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160 -F 'photo=@c:/Users/Fabian/Desktop/UPB/Proyectos personales/Paginas Web/Physoft_1/Physoft/frontend/src/assets/physoft.png;type=image/png')",
+      "Bash(echo \"not an image\")",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST http://localhost:3000/api/athletes -F 'name=LOCAL BAD TYPE TEST' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160 -F 'photo=@fake.txt;type=text/plain')",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://physoft-backend.vercel.app/api/athletes -F 'name=PROD REAL IMAGE VERIFY' -F gender=Male -F patientType=Athlete -F sport=Test -F bodyType=Mesomorph -F height=5.9 -F weight=160 -F 'photo=@c:/Users/Fabian/Desktop/UPB/Proyectos personales/Paginas Web/Physoft_1/Physoft/frontend/src/assets/physoft.png;type=image/png')",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" -X DELETE \"https://physoft-backend.vercel.app/api/athletes/0e56efbb-49dc-4da6-9136-31856c5929db\")",
+      "Bash(timeout 30 bash -c 'until curl -sf http://localhost:5173 >/dev/null; do sleep 1; done')",
+      "Bash(npm ls *)",
+      "Read(//c//**)",
+      "Bash(PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install playwright-core@1.55 --no-audit --no-fund)",
+      "Bash(find \"$HOME/AppData/Local/ms-playwright/chromium-1228\" -iname \"*.exe\" 2>/dev/null | head -5)",
+      "Read(//c/Users/Fabian/AppData/Local/ms-playwright/chromium-1228/**)",
+      "Bash(node check.js)",
+      "Bash(node check-responsive.js)",
+      "Bash(taskkill //F //IM node.exe //FI \"WINDOWTITLE eq *vite*\")",
+      "Bash(pkill -f \"vite\")",
+      "Bash(taskkill //F //PID 12376)"
     ]
   }
 }

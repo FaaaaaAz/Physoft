@@ -7,6 +7,7 @@ import { useAnalysisStore } from '@/store/analysisStore'
 import BodyVisualization, { BodyMark } from '@/components/analysis/BodyVisualization'
 import DateInputMMDDYYYY from '@/components/common/forms/DateInputMMDDYYYY'
 import TextualAnalysisSection from '@/components/analysis/TextualAnalysisSection'
+import FlexibilityAssessmentSection from '@/components/analysis/FlexibilityAssessmentSection'
 import { calculateAge } from '@/utils/date.utils'
 import './NewAnalysis.css'
 
@@ -350,10 +351,23 @@ function NewAnalysis() {
             />
           </div>
 
-          {/* SECTION 2 - Textual Analysis with AI */}
+          {/* SECTION 2 - Flexibility Assessment */}
           <div className="form-section">
             <h3 className="section-title">
               <span className="section-number">2</span>
+              Flexibility Assessment
+            </h3>
+            <p className="section-description">
+              Evaluate the patient's functional mobility through four standardized flexibility tests.
+            </p>
+
+            <FlexibilityAssessmentSection />
+          </div>
+
+          {/* SECTION 3 - Textual Analysis with AI */}
+          <div className="form-section">
+            <h3 className="section-title">
+              <span className="section-number">3</span>
               Textual Analysis
             </h3>
             <p className="section-description">
@@ -373,10 +387,10 @@ function NewAnalysis() {
             />
           </div>
 
-          {/* SECCIÓN 3 - Conclusiones y Plan */}
+          {/* SECCIÓN 4 - Conclusiones y Plan */}
           <div className="form-section">
             <h3 className="section-title">
-              <span className="section-number">3</span>
+              <span className="section-number">4</span>
               Conclusions and plan
             </h3>
 

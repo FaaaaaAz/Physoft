@@ -1,0 +1,280 @@
+.flexibility-exercise-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) minmax(150px, 170px);
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border, #404040);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.flexibility-exercise-row:hover {
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+/* Left: exercise name + description */
+.flexibility-exercise-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.flexibility-exercise-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: rgba(20, 184, 166, 0.12);
+  color: var(--color-primary, #14b8a6);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.flexibility-exercise-name {
+  margin: 0 0 0.35rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #ffffff);
+}
+
+.flexibility-exercise-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #666666);
+  line-height: 1.4;
+}
+
+/* Center: Poor / Average / Excellent option cards */
+.flexibility-exercise-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.flexibility-option-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px solid var(--color-border, #404040);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.flexibility-option-card:hover {
+  border-color: var(--color-primary, #14b8a6);
+  transform: translateY(-2px);
+}
+
+.flexibility-option-image-wrap {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+.flexibility-option-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.flexibility-option-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #ffffff);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.flexibility-option-radio {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+/* Rating color coding, reusing the project's semantic state colors */
+.flexibility-option-card.poor .flexibility-option-label {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.flexibility-option-card.average .flexibility-option-label {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+}
+
+.flexibility-option-card.excellent .flexibility-option-label {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+.flexibility-option-card.selected {
+  border-color: var(--color-primary, #14b8a6);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+.flexibility-option-card.poor.selected {
+  border-color: var(--color-error, #ef4444);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.flexibility-option-card.average.selected {
+  border-color: var(--color-warning, #f59e0b);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.flexibility-option-card.excellent.selected {
+  border-color: var(--color-success, #22c55e);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.flexibility-option-card.selected .flexibility-option-radio {
+  background: currentColor;
+  border-color: currentColor;
+}
+
+/* Right: Upload Evidence */
+.flexibility-exercise-evidence {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.flexibility-evidence-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 1rem 0.75rem;
+  border: 2px dashed var(--color-border, #404040);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-primary, #ffffff);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.flexibility-evidence-upload:hover {
+  border-color: var(--color-primary, #14b8a6);
+  background: rgba(20, 184, 166, 0.05);
+}
+
+.flexibility-evidence-upload svg {
+  font-size: 1.5rem;
+  color: var(--color-primary, #14b8a6);
+}
+
+.flexibility-evidence-upload span {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.flexibility-evidence-upload p {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted, #666666);
+}
+
+.flexibility-evidence-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--color-border, #404040);
+}
+
+.flexibility-evidence-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flexibility-evidence-remove {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.flexibility-evidence-remove:hover {
+  background: rgb(220, 38, 38);
+  transform: scale(1.1);
+}
+
+.flexibility-evidence-filename {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--color-text-muted, #666666);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flexibility-evidence-error {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-error, #ef4444);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .flexibility-exercise-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .flexibility-exercise-evidence {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .flexibility-exercise-row {
+    padding: 1.25rem;
+  }
+
+  .flexibility-exercise-options {
+    grid-template-columns: 1fr;
+  }
+
+  .flexibility-exercise-evidence {
+    max-width: 100%;
+  }
+}
