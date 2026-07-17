@@ -14,6 +14,7 @@ export { useSort } from './useSort'
 export { useWeakPoints } from './useWeakPoints'
 export { useAIAnalysis } from './useAIAnalysis'
 export { useAIAnalysisResults } from './useAIAnalysisResults'
+export { useFlexibilityAssessmentForm, getEvidencePreviewSrc } from './useFlexibilityAssessmentForm'
 
 // Export types
 export type { UseFormOptions, UseFormReturn, ValidationSchema } from './useForm'

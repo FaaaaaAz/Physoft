@@ -7,6 +7,7 @@
 import multer from 'multer'
 import path from 'path'
 import { Request, Response, NextFunction } from 'express'
+import { FLEXIBILITY_EXERCISE_IDS } from '../domain/types/flexibilityAssessment'
 
 // Use memory storage for Vercel (filesystem is read-only in serverless)
 // Files are stored in req.file.buffer and uploaded directly to Cloudinary
@@ -65,3 +66,16 @@ function withUploadErrorHandling(
 export const uploadSinglePhoto = withUploadErrorHandling(upload.single('photo'))
 export const uploadGraphImages = withUploadErrorHandling(upload.array('graphs', 10))
 export const uploadAiAnalyzeImages = withUploadErrorHandling(upload.array('images', 10))
+
+// Analysis creation accepts both graph images ('graphs') and, per Flexibility
+// Assessment exercise, an optional evidence photo under its own field name
+// ('flexibilityEvidence_<exerciseId>'), so each file arrives pre-tagged with
+// the exercise it belongs to instead of relying on upload order.
+export const uploadAnalysisCreateFiles = withUploadErrorHandling(
+    upload.fields([
+        { name: 'graphs', maxCount: 10 },
+        ...FLEXIBILITY_EXERCISE_IDS.map((exerciseId) => ({ name: `flexibilityEvidence_${exerciseId}`, maxCount: 1 }))
+    ])
+)
+
+export const uploadFlexibilityEvidence = withUploadErrorHandling(upload.single('evidence'))

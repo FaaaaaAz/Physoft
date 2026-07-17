@@ -74,6 +74,12 @@ model Analysis {
   // AI-assisted Textual Analysis results (per-checkbox prompt + response history)
   aiAnalysisResults       Json?
 
+  // Flexibility Assessment - 4 standardized tests (forwardFlexion, shoulderMobility,
+  // butterfly, deepSquat), each with a LOW/MEDIUM/HIGH rating and an optional
+  // evidence photo. JSON array, e.g.:
+  // [{ exerciseId, rating: "LOW"|"MEDIUM"|"HIGH"|null, evidenceUrl, evidencePublicId }]
+  flexibilityAssessment   Json?
+
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
   athlete                 Athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)

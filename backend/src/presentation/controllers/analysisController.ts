@@ -5,9 +5,21 @@
 // ============================================
 
 import { Request, Response } from 'express'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../../infrastructure/prismaClient'
 import { UploadService } from '../../application/services/uploadService'
 import { ComparisonService } from '../../application/services/ComparisonService'
+import { isFlexibilityExerciseId, normalizeFlexibilityAssessment, FlexibilityAssessmentItem } from '../../domain/types/flexibilityAssessment'
+
+/**
+ * Prisma's Json input types require an index signature that a plain named
+ * interface doesn't structurally provide. This narrow cast (via `unknown`,
+ * not `any`) is the standard escape hatch for writing a strongly-typed
+ * domain shape into a `Json` column.
+ */
+function toInputJson(items: FlexibilityAssessmentItem[]): Prisma.InputJsonValue {
+  return items as unknown as Prisma.InputJsonValue
+}
 
 export class AnalysisController {
   /**
@@ -170,7 +182,8 @@ export class AnalysisController {
         globalClassification,
         cohortClassification, // AI-generated cohort classification
         coachRecommendations,
-        aiAnalysisResults // Textual Analysis AI results (array), JSON string over multipart
+        aiAnalysisResults, // Textual Analysis AI results (array), JSON string over multipart
+        flexibilityAssessment // Flexibility Assessment ratings (array), JSON string over multipart
       } = req.body
 
       // Validate required fields
@@ -205,12 +218,17 @@ export class AnalysisController {
         return null
       }
 
-      // Handle multiple graph images upload
-      let graphImagesArray: string[] = []
+      // Files arrive grouped by field name ('graphs' plus one
+      // 'flexibilityEvidence_<exerciseId>' field per exercise) via uploadAnalysisCreateFiles.
+      const filesByField = (req.files || {}) as { [fieldname: string]: Express.Multer.File[] }
       let tempAnalysisId = `temp_${Date.now()}`
 
-      if (req.files && Array.isArray(req.files)) {
-        const uploadPromises = (req.files as Express.Multer.File[]).map(async (file) => {
+      // Handle multiple graph images upload
+      let graphImagesArray: string[] = []
+      const graphFiles = filesByField['graphs'] || []
+
+      if (graphFiles.length > 0) {
+        const uploadPromises = graphFiles.map(async (file) => {
           const result = await UploadService.uploadPhoto(
             file,
             tempAnalysisId,
@@ -250,6 +268,33 @@ export class AnalysisController {
           : aiAnalysisResults
       }
 
+      // Flexibility Assessment: validate the submitted ratings, then upload
+      // each exercise's evidence photo (if provided) under its own field
+      // name so it maps back to the right exercise unambiguously.
+      let parsedFlexibilityAssessment: FlexibilityAssessmentItem[] | undefined = undefined
+      if (flexibilityAssessment !== undefined && flexibilityAssessment !== null && flexibilityAssessment !== '') {
+        const rawItems = typeof flexibilityAssessment === 'string'
+          ? JSON.parse(flexibilityAssessment)
+          : flexibilityAssessment
+        const normalized = normalizeFlexibilityAssessment(rawItems)
+
+        const withEvidence = await Promise.all(normalized.map(async (item) => {
+          const evidenceFile = filesByField[`flexibilityEvidence_${item.exerciseId}`]?.[0]
+          if (!evidenceFile) return item
+
+          const result = await UploadService.uploadPhoto(
+            evidenceFile,
+            `${tempAnalysisId}_${item.exerciseId}`,
+            `physoft/analysis/${tempAnalysisId}/flexibility`
+          )
+          return { ...item, evidenceUrl: result.url, evidencePublicId: result.publicId || null }
+        }))
+
+        // Drop exercises the user never touched (no rating, no evidence)
+        const meaningful = withEvidence.filter((item) => item.rating !== null || item.evidenceUrl !== null)
+        parsedFlexibilityAssessment = meaningful.length > 0 ? meaningful : undefined
+      }
+
       const newAnalysis = await prisma.analysis.create({
         data: {
           athleteId,
@@ -271,6 +316,7 @@ export class AnalysisController {
           cohortClassification: cohortClassification || null, // From AI or manual input
           coachRecommendations: coachRecommendations || null,
           aiAnalysisResults: parsedAiAnalysisResults,
+          flexibilityAssessment: parsedFlexibilityAssessment ? toInputJson(parsedFlexibilityAssessment) : undefined,
         },
         include: {
           athlete: {
@@ -322,7 +368,8 @@ export class AnalysisController {
         globalClassification,
         cohortClassification,
         coachRecommendations,
-        aiAnalysisResults
+        aiAnalysisResults,
+        flexibilityAssessment
       } = req.body
 
       // Check if analysis exists
@@ -375,6 +422,20 @@ export class AnalysisController {
             aiAnalysisResults: typeof aiAnalysisResults === 'string'
               ? JSON.parse(aiAnalysisResults)
               : aiAnalysisResults
+          }),
+          // flexibilityAssessment is sent as the full array (ratings + the
+          // evidenceUrl/evidencePublicId already known client-side), same
+          // full-replace contract as aiAnalysisResults. Evidence file
+          // mutations themselves go through the dedicated endpoints below.
+          ...(flexibilityAssessment !== undefined && {
+            flexibilityAssessment: (() => {
+              const raw = typeof flexibilityAssessment === 'string'
+                ? JSON.parse(flexibilityAssessment)
+                : flexibilityAssessment
+              if (raw === null) return Prisma.DbNull
+              const normalized = normalizeFlexibilityAssessment(raw)
+              return normalized.length > 0 ? toInputJson(normalized) : Prisma.DbNull
+            })()
           }),
         },
         include: {
@@ -476,6 +537,160 @@ export class AnalysisController {
   }
 
   /**
+   * POST /api/analyses/:id/flexibility-evidence
+   * Upload (or replace) the evidence photo for one Flexibility Assessment exercise
+   */
+  static async uploadFlexibilityEvidence(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const { exerciseId } = req.body
+
+      if (!isFlexibilityExerciseId(exerciseId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid or missing exerciseId',
+        })
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          error: 'No evidence file provided',
+        })
+      }
+
+      const analysis = await prisma.analysis.findUnique({
+        where: { id: parseInt(id) }
+      })
+
+      if (!analysis) {
+        return res.status(404).json({
+          success: false,
+          error: 'Analysis not found',
+        })
+      }
+
+      const currentItems = normalizeFlexibilityAssessment(analysis.flexibilityAssessment)
+      const existing = currentItems.find((item) => item.exerciseId === exerciseId)
+
+      // Replacing an existing evidence photo: delete the previous asset first
+      if (existing?.evidencePublicId) {
+        await UploadService.deletePhoto(existing.evidencePublicId)
+      }
+
+      const uploadResult = await UploadService.uploadPhoto(
+        req.file,
+        `analysis_${id}_${exerciseId}`,
+        `physoft/analysis/${id}/flexibility`
+      )
+
+      const updatedItems = existing
+        ? currentItems.map((item) => item.exerciseId === exerciseId
+          ? { ...item, evidenceUrl: uploadResult.url, evidencePublicId: uploadResult.publicId || null }
+          : item)
+        : [...currentItems, {
+          exerciseId,
+          rating: null,
+          evidenceUrl: uploadResult.url,
+          evidencePublicId: uploadResult.publicId || null
+        }]
+
+      const updatedAnalysis = await prisma.analysis.update({
+        where: { id: parseInt(id) },
+        data: { flexibilityAssessment: toInputJson(updatedItems) },
+        include: {
+          athlete: {
+            select: {
+              id: true,
+              accessCode: true,
+              name: true,
+              sport: true
+            }
+          }
+        }
+      })
+
+      return res.json({
+        success: true,
+        data: updatedAnalysis,
+        message: 'Evidence uploaded successfully',
+      })
+    } catch (error: any) {
+      console.error('Error uploading flexibility evidence:', error)
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Error uploading evidence',
+      })
+    }
+  }
+
+  /**
+   * DELETE /api/analyses/:id/flexibility-evidence/:exerciseId
+   * Remove the evidence photo for one Flexibility Assessment exercise (keeps the rating)
+   */
+  static async deleteFlexibilityEvidence(req: Request, res: Response) {
+    try {
+      const { id, exerciseId } = req.params
+
+      if (!isFlexibilityExerciseId(exerciseId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid exerciseId',
+        })
+      }
+
+      const analysis = await prisma.analysis.findUnique({
+        where: { id: parseInt(id) }
+      })
+
+      if (!analysis) {
+        return res.status(404).json({
+          success: false,
+          error: 'Analysis not found',
+        })
+      }
+
+      const currentItems = normalizeFlexibilityAssessment(analysis.flexibilityAssessment)
+      const existing = currentItems.find((item) => item.exerciseId === exerciseId)
+
+      if (existing?.evidencePublicId) {
+        await UploadService.deletePhoto(existing.evidencePublicId)
+      }
+
+      const updatedItems = currentItems.map((item) =>
+        item.exerciseId === exerciseId ? { ...item, evidenceUrl: null, evidencePublicId: null } : item
+      )
+
+      const updatedAnalysis = await prisma.analysis.update({
+        where: { id: parseInt(id) },
+        data: { flexibilityAssessment: updatedItems.length > 0 ? toInputJson(updatedItems) : Prisma.DbNull },
+        include: {
+          athlete: {
+            select: {
+              id: true,
+              accessCode: true,
+              name: true,
+              sport: true
+            }
+          }
+        }
+      })
+
+      return res.json({
+        success: true,
+        data: updatedAnalysis,
+        message: 'Evidence removed successfully',
+      })
+    } catch (error: any) {
+      console.error('Error deleting flexibility evidence:', error)
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Error deleting evidence',
+      })
+    }
+  }
+
+  /**
    * DELETE /api/analyses/:id
    * Delete an analysis
    */
@@ -515,6 +730,20 @@ export class AnalysisController {
           }
         } catch (e) {
           console.error('Error deleting graph images:', e)
+        }
+      }
+
+      // Delete associated Flexibility Assessment evidence photos from Cloudinary
+      if (analysis.flexibilityAssessment) {
+        try {
+          const items = normalizeFlexibilityAssessment(analysis.flexibilityAssessment)
+          for (const item of items) {
+            if (item.evidencePublicId) {
+              await UploadService.deletePhoto(item.evidencePublicId)
+            }
+          }
+        } catch (e) {
+          console.error('Error deleting flexibility evidence images:', e)
         }
       }
 

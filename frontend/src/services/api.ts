@@ -248,6 +248,19 @@ export interface AIAnalysisResult {
   editedAt?: string
 }
 
+// Flexibility Assessment (New Assessment, Section 2 - 4 standardized tests)
+export const FLEXIBILITY_EXERCISE_IDS = ['forwardFlexion', 'shoulderMobility', 'butterfly', 'deepSquat'] as const
+export type FlexibilityExerciseId = typeof FLEXIBILITY_EXERCISE_IDS[number]
+
+// Internal storage values. The UI labels these Poor/Average/Excellent.
+export type FlexibilityRating = 'LOW' | 'MEDIUM' | 'HIGH'
+
+export interface FlexibilityAssessmentResult {
+  exerciseId: FlexibilityExerciseId
+  rating: FlexibilityRating | null
+  evidenceUrl: string | null
+}
+
 export interface Analysis {
   id: number
   athleteId: string
@@ -269,6 +282,7 @@ export interface Analysis {
   cohortClassification?: string | null  // "ELITE", "AVANZADO", "INTERMEDIO", "PRINCIPIANTE", "ATENCION_REQUERIDA"
   coachRecommendations?: string | null
   aiAnalysisResults?: AIAnalysisResult[] | null  // Textual Analysis AI results (native JSON column)
+  flexibilityAssessment?: FlexibilityAssessmentResult[] | null  // Flexibility Assessment ratings + evidence (native JSON column)
   createdAt: string
   updatedAt: string
   athlete?: {
@@ -299,6 +313,11 @@ export interface CreateAnalysisDTO {
   coachRecommendations?: string
   graphs?: File[]  // Graph images to upload
   aiAnalysisResults?: AIAnalysisResult[]
+  // Flexibility Assessment: ratings for the exercises the user touched (create
+  // and rating-only update), plus, on create only, the evidence photo picked
+  // locally for each exercise (keyed by exerciseId).
+  flexibilityAssessment?: { exerciseId: FlexibilityExerciseId; rating: FlexibilityRating | null; evidenceUrl?: string | null }[]
+  flexibilityEvidenceFiles?: Partial<Record<FlexibilityExerciseId, File>>
 }
 
 export const analysisAPI = {
@@ -374,6 +393,22 @@ export const analysisAPI = {
       formData.append('aiAnalysisResults', JSON.stringify(analysis.aiAnalysisResults))
     }
 
+    // Append Flexibility Assessment ratings (native Json column) and, per
+    // exercise, its evidence photo under its own field name so the backend
+    // can match each file back to the exercise it belongs to.
+    if (analysis.flexibilityAssessment && analysis.flexibilityAssessment.length > 0) {
+      formData.append(
+        'flexibilityAssessment',
+        JSON.stringify(analysis.flexibilityAssessment.map(({ exerciseId, rating }) => ({ exerciseId, rating })))
+      )
+    }
+    if (analysis.flexibilityEvidenceFiles) {
+      for (const exerciseId of FLEXIBILITY_EXERCISE_IDS) {
+        const file = analysis.flexibilityEvidenceFiles[exerciseId]
+        if (file) formData.append(`flexibilityEvidence_${exerciseId}`, file)
+      }
+    }
+
     const response = await apiClient.post<{ success: boolean; data: Analysis; message: string }>(
       '/analyses',
       formData,
@@ -410,6 +445,32 @@ export const analysisAPI = {
     const response = await apiClient.put<{ success: boolean; data: Analysis; message: string }>(
       `/analyses/${id}`,
       analysis
+    )
+    return response.data
+  },
+
+  // Upload (or replace) the evidence photo for one Flexibility Assessment exercise
+  uploadFlexibilityEvidence: async (id: number, exerciseId: FlexibilityExerciseId, evidence: File) => {
+    const formData = new FormData()
+    formData.append('exerciseId', exerciseId)
+    formData.append('evidence', evidence)
+
+    const response = await apiClient.post<{ success: boolean; data: Analysis; message: string }>(
+      `/analyses/${id}/flexibility-evidence`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    return response.data
+  },
+
+  // Remove the evidence photo for one Flexibility Assessment exercise (keeps the rating)
+  deleteFlexibilityEvidence: async (id: number, exerciseId: FlexibilityExerciseId) => {
+    const response = await apiClient.delete<{ success: boolean; data: Analysis; message: string }>(
+      `/analyses/${id}/flexibility-evidence/${exerciseId}`
     )
     return response.data
   },

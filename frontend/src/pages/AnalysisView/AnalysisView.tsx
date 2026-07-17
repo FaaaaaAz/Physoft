@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { IoDocument, IoPerson, IoTrash, IoCreate, IoSparklesOutline } from 'react-icons/io5'
+import { IoDocument, IoPerson, IoTrash, IoCreate, IoSparklesOutline, IoBodyOutline } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import MiniChatPanel from '@/components/analysis/MiniChatPanel'
-import { analysisAPI, Analysis } from '../../services/api'
+import { FLEXIBILITY_EXERCISES } from '@/components/analysis/FlexibilityAssessmentSection'
+import { analysisAPI, Analysis, FlexibilityRating } from '../../services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
 import { useAIAnalysisResults } from '../../hooks'
 import { MESSAGES } from '@/constants'
@@ -78,6 +79,13 @@ function AnalysisView() {
     }
   }
 
+  // Internal storage uses LOW/MEDIUM/HIGH; the UI only ever shows Poor/Average/Excellent.
+  const FLEXIBILITY_RATING_LABELS: Record<FlexibilityRating, string> = {
+    LOW: 'Poor',
+    MEDIUM: 'Average',
+    HIGH: 'Excellent'
+  }
+
   const getClassificationLabel = (classification: string) => {
     if (classification === 'high') return 'Above Average'
     if (classification === 'medium') return 'Average'
@@ -139,6 +147,9 @@ function AnalysisView() {
 
   const weakPoints = parseWeakPoints(analysis.weakPoints)
   const graphImages = parseGraphImages(analysis.graphImages)
+  const flexibilityResults = (analysis.flexibilityAssessment || []).filter(
+    (result) => result.rating !== null || result.evidenceUrl !== null
+  )
 
   return (
     <PageTemplate
@@ -219,6 +230,39 @@ function AnalysisView() {
               {graphImages.map((url, index) => (
                 <img key={index} src={url} alt={`Graph ${index + 1}`} className="graph-image" />
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Flexibility Assessment */}
+        {flexibilityResults.length > 0 && (
+          <section className="analysis-section">
+            <h2>
+              <IoBodyOutline /> Flexibility Assessment
+            </h2>
+            <div className="flexibility-results-grid">
+              {flexibilityResults.map((result) => {
+                const exercise = FLEXIBILITY_EXERCISES.find((e) => e.id === result.exerciseId)
+                return (
+                  <div key={result.exerciseId} className="flexibility-result-item">
+                    <div className="flexibility-result-header">
+                      <h3>{exercise?.name || result.exerciseId}</h3>
+                      {result.rating && (
+                        <span className={`classification-badge classification-${result.rating.toLowerCase()} flexibility-result-badge`}>
+                          {FLEXIBILITY_RATING_LABELS[result.rating]}
+                        </span>
+                      )}
+                    </div>
+                    {result.evidenceUrl && (
+                      <img
+                        src={result.evidenceUrl}
+                        alt={`${exercise?.name || result.exerciseId} evidence`}
+                        className="flexibility-result-evidence"
+                      />
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </section>
         )}

@@ -6,7 +6,12 @@
 
 import { Router } from 'express'
 import { AnalysisController } from '../controllers/analysisController'
-import { uploadGraphImages, uploadAiAnalyzeImages } from '../../middleware/upload'
+import {
+  uploadGraphImages,
+  uploadAiAnalyzeImages,
+  uploadAnalysisCreateFiles,
+  uploadFlexibilityEvidence
+} from '../../middleware/upload'
 
 const router = Router()
 
@@ -35,10 +40,11 @@ router.get('/:id', AnalysisController.getById)
 
 /**
  * POST /api/analyses
- * Create a new analysis with optional graph images
- * Supports multipart/form-data with 'graphs' field for multiple images
+ * Create a new analysis with optional graph images and Flexibility Assessment evidence
+ * Supports multipart/form-data with a 'graphs' field for multiple images and
+ * one 'flexibilityEvidence_<exerciseId>' field per Flexibility Assessment exercise
  */
-router.post('/', uploadGraphImages, AnalysisController.create)
+router.post('/', uploadAnalysisCreateFiles, AnalysisController.create)
 
 /**
  * PUT /api/analyses/:id
@@ -51,6 +57,19 @@ router.put('/:id', AnalysisController.update)
  * Upload additional graph images to an existing analysis
  */
 router.post('/:id/graphs', uploadGraphImages, AnalysisController.uploadGraphs)
+
+/**
+ * POST /api/analyses/:id/flexibility-evidence
+ * Upload or replace the evidence photo for one Flexibility Assessment exercise
+ * Supports multipart/form-data with 'exerciseId' (text) and 'evidence' (file) fields
+ */
+router.post('/:id/flexibility-evidence', uploadFlexibilityEvidence, AnalysisController.uploadFlexibilityEvidence)
+
+/**
+ * DELETE /api/analyses/:id/flexibility-evidence/:exerciseId
+ * Remove the evidence photo for one Flexibility Assessment exercise (keeps the rating)
+ */
+router.delete('/:id/flexibility-evidence/:exerciseId', AnalysisController.deleteFlexibilityEvidence)
 
 /**
  * POST /api/analyses/ai-analyze

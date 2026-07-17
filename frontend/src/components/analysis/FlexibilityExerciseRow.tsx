@@ -1,20 +1,21 @@
 import { useRef, useState } from 'react'
 import { IoCameraOutline, IoClose } from 'react-icons/io5'
+import type { FlexibilityExerciseId, FlexibilityRating } from '@/services/api'
 import './FlexibilityExerciseRow.css'
 
-export type FlexibilityRating = 'poor' | 'average' | 'excellent'
-
 export interface FlexibilityExercise {
-    id: string
+    id: FlexibilityExerciseId
     name: string
     description: string
-    images: Record<FlexibilityRating, string>
+    images: Record<'poor' | 'average' | 'excellent', string>
 }
 
-const RATING_OPTIONS: { value: FlexibilityRating; label: string }[] = [
-    { value: 'poor', label: 'Poor' },
-    { value: 'average', label: 'Average' },
-    { value: 'excellent', label: 'Excellent' }
+// Internally the rating is stored/sent as LOW/MEDIUM/HIGH; these labels and
+// CSS modifiers are UI-only.
+const RATING_OPTIONS: { value: FlexibilityRating; label: string; modifier: 'poor' | 'average' | 'excellent' }[] = [
+    { value: 'LOW', label: 'Poor', modifier: 'poor' },
+    { value: 'MEDIUM', label: 'Average', modifier: 'average' },
+    { value: 'HIGH', label: 'Excellent', modifier: 'excellent' }
 ]
 
 const ACCEPTED_EXTENSIONS = '.jpg,.jpeg,.png'
@@ -24,22 +25,28 @@ interface FlexibilityExerciseRowProps {
     index: number
     exercise: FlexibilityExercise
     rating: FlexibilityRating | null
-    evidence: File | null
+    evidenceFileName: string | null
     evidencePreview: string | null
+    evidenceBusy?: boolean
+    evidenceError?: string | null
     onRatingSelect: (rating: FlexibilityRating) => void
-    onEvidenceChange: (file: File | null) => void
+    onEvidenceSelect: (file: File) => void
+    onEvidenceRemove: () => void
 }
 
 function FlexibilityExerciseRow({
     index,
     exercise,
     rating,
-    evidence,
+    evidenceFileName,
     evidencePreview,
+    evidenceBusy = false,
+    evidenceError = null,
     onRatingSelect,
-    onEvidenceChange
+    onEvidenceSelect,
+    onEvidenceRemove
 }: FlexibilityExerciseRowProps) {
-    const [error, setError] = useState<string | null>(null)
+    const [localError, setLocalError] = useState<string | null>(null)
     const inputRef = useRef<HTMLInputElement>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,18 +55,20 @@ function FlexibilityExerciseRow({
         if (!file) return
 
         if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
-            setError('Only JPG, JPEG or PNG images are allowed.')
+            setLocalError('Only JPG, JPEG or PNG images are allowed.')
             return
         }
 
-        setError(null)
-        onEvidenceChange(file)
+        setLocalError(null)
+        onEvidenceSelect(file)
     }
 
     const handleRemoveEvidence = () => {
-        onEvidenceChange(null)
-        setError(null)
+        setLocalError(null)
+        onEvidenceRemove()
     }
+
+    const error = localError || evidenceError
 
     return (
         <div className="flexibility-exercise-row">
@@ -76,12 +85,12 @@ function FlexibilityExerciseRow({
                     <button
                         key={option.value}
                         type="button"
-                        className={`flexibility-option-card ${option.value} ${rating === option.value ? 'selected' : ''}`}
+                        className={`flexibility-option-card ${option.modifier} ${rating === option.value ? 'selected' : ''}`}
                         onClick={() => onRatingSelect(option.value)}
                         aria-pressed={rating === option.value}
                     >
                         <span className="flexibility-option-image-wrap">
-                            <img src={exercise.images[option.value]} alt={`${exercise.name} - ${option.label}`} />
+                            <img src={exercise.images[option.modifier]} alt={`${exercise.name} - ${option.label}`} />
                         </span>
                         <span className="flexibility-option-label">
                             <span className="flexibility-option-radio" />
@@ -97,6 +106,7 @@ function FlexibilityExerciseRow({
                     type="file"
                     accept={ACCEPTED_EXTENSIONS}
                     onChange={handleFileChange}
+                    disabled={evidenceBusy}
                     style={{ display: 'none' }}
                 />
 
@@ -107,6 +117,7 @@ function FlexibilityExerciseRow({
                             type="button"
                             className="flexibility-evidence-remove"
                             onClick={handleRemoveEvidence}
+                            disabled={evidenceBusy}
                             aria-label="Remove evidence"
                         >
                             <IoClose />
@@ -117,15 +128,16 @@ function FlexibilityExerciseRow({
                         type="button"
                         className="flexibility-evidence-upload"
                         onClick={() => inputRef.current?.click()}
+                        disabled={evidenceBusy}
                     >
                         <IoCameraOutline />
-                        <span>Upload Evidence</span>
+                        <span>{evidenceBusy ? 'Uploading...' : 'Upload Evidence'}</span>
                         <p>Photo (optional)</p>
                     </button>
                 )}
 
-                {evidence && evidencePreview && (
-                    <p className="flexibility-evidence-filename" title={evidence.name}>{evidence.name}</p>
+                {evidenceFileName && evidencePreview && (
+                    <p className="flexibility-evidence-filename" title={evidenceFileName}>{evidenceFileName}</p>
                 )}
 
                 {error && <p className="flexibility-evidence-error">{error}</p>}

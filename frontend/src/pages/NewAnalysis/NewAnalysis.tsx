@@ -8,6 +8,8 @@ import BodyVisualization, { BodyMark } from '@/components/analysis/BodyVisualiza
 import DateInputMMDDYYYY from '@/components/common/forms/DateInputMMDDYYYY'
 import TextualAnalysisSection from '@/components/analysis/TextualAnalysisSection'
 import FlexibilityAssessmentSection from '@/components/analysis/FlexibilityAssessmentSection'
+import { useFlexibilityAssessmentForm } from '@/hooks'
+import { FLEXIBILITY_EXERCISE_IDS } from '@/services/api'
 import { calculateAge } from '@/utils/date.utils'
 import './NewAnalysis.css'
 
@@ -38,6 +40,9 @@ function NewAnalysis() {
   // Textual Analysis (AI) results, reported up from TextualAnalysisSection
   const [aiAnalysisResults, setAiAnalysisResults] = useState<AIAnalysisResult[]>([])
   const [isAiGenerating, setIsAiGenerating] = useState(false)
+
+  // Flexibility Assessment ratings + evidence photos (uploaded on submit, together with the rest of the analysis)
+  const flexibilityForm = useFlexibilityAssessmentForm()
 
   const [formData, setFormData] = useState({
     athleteId: '',
@@ -223,6 +228,20 @@ function NewAnalysis() {
         submitData.bodyMarks = JSON.stringify(formData.bodyMarks)
       }
 
+      // Flexibility Assessment: only send exercises the user actually touched
+      const flexibilityItems = FLEXIBILITY_EXERCISE_IDS
+        .map((exerciseId) => flexibilityForm.items[exerciseId])
+        .filter((item) => item.rating !== null || item.evidenceFile !== null)
+
+      if (flexibilityItems.length > 0) {
+        submitData.flexibilityAssessment = flexibilityItems.map(({ exerciseId, rating }) => ({ exerciseId, rating }))
+        submitData.flexibilityEvidenceFiles = Object.fromEntries(
+          flexibilityItems
+            .filter((item) => item.evidenceFile !== null)
+            .map((item) => [item.exerciseId, item.evidenceFile as File])
+        )
+      }
+
       const response = await analysisAPI.create(submitData)
 
       // Update store with new analysis
@@ -361,7 +380,12 @@ function NewAnalysis() {
               Evaluate the patient's functional mobility through four standardized flexibility tests.
             </p>
 
-            <FlexibilityAssessmentSection />
+            <FlexibilityAssessmentSection
+              items={flexibilityForm.items}
+              onRatingSelect={flexibilityForm.setRating}
+              onEvidenceSelect={flexibilityForm.setEvidenceFile}
+              onEvidenceRemove={(exerciseId) => flexibilityForm.setEvidenceFile(exerciseId, null)}
+            />
           </div>
 
           {/* SECTION 3 - Textual Analysis with AI */}

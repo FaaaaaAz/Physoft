@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
-import FlexibilityExerciseRow, { FlexibilityExercise, FlexibilityRating } from './FlexibilityExerciseRow'
+import type { FlexibilityExerciseId, FlexibilityRating } from '@/services/api'
+import type { FlexibilityAssessmentFormState } from '@/hooks/useFlexibilityAssessmentForm'
+import { getEvidencePreviewSrc } from '@/hooks/useFlexibilityAssessmentForm'
+import FlexibilityExerciseRow, { FlexibilityExercise } from './FlexibilityExerciseRow'
 import './FlexibilityAssessmentSection.css'
 
 import ej1Mal from '@/assets/Flexibility_Assessment/physoft_ej1_mal.png'
@@ -15,7 +17,7 @@ import ej4Mal from '@/assets/Flexibility_Assessment/physoft_ej4_mal.png'
 import ej4Normal from '@/assets/Flexibility_Assessment/physoft_ej4_normal.png'
 import ej4Bien from '@/assets/Flexibility_Assessment/physoft_ej4_bien.png'
 
-const FLEXIBILITY_EXERCISES: FlexibilityExercise[] = [
+export const FLEXIBILITY_EXERCISES: FlexibilityExercise[] = [
     {
         id: 'forwardFlexion',
         name: 'Forward Flexion Test',
@@ -42,67 +44,43 @@ const FLEXIBILITY_EXERCISES: FlexibilityExercise[] = [
     }
 ]
 
-interface ExerciseState {
-    rating: FlexibilityRating | null
-    evidence: File | null
-    evidencePreview: string | null
+interface FlexibilityAssessmentSectionProps {
+    items: FlexibilityAssessmentFormState
+    onRatingSelect: (exerciseId: FlexibilityExerciseId, rating: FlexibilityRating) => void
+    onEvidenceSelect: (exerciseId: FlexibilityExerciseId, file: File) => void
+    onEvidenceRemove: (exerciseId: FlexibilityExerciseId) => void
+    evidenceBusy?: Partial<Record<FlexibilityExerciseId, boolean>>
+    evidenceErrors?: Partial<Record<FlexibilityExerciseId, string | null>>
 }
 
-function emptyExerciseState(): ExerciseState {
-    return { rating: null, evidence: null, evidencePreview: null }
-}
-
-function FlexibilityAssessmentSection() {
-    const [results, setResults] = useState<Record<string, ExerciseState>>(() =>
-        Object.fromEntries(FLEXIBILITY_EXERCISES.map((exercise) => [exercise.id, emptyExerciseState()]))
-    )
-
-    // Revoke object URLs on unmount to avoid leaking memory
-    useEffect(() => {
-        return () => {
-            Object.values(results).forEach((state) => {
-                if (state.evidencePreview) URL.revokeObjectURL(state.evidencePreview)
-            })
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const handleRatingSelect = (exerciseId: string, rating: FlexibilityRating) => {
-        setResults((prev) => ({
-            ...prev,
-            [exerciseId]: { ...prev[exerciseId], rating }
-        }))
-    }
-
-    const handleEvidenceChange = (exerciseId: string, file: File | null) => {
-        setResults((prev) => {
-            const previous = prev[exerciseId]
-            if (previous.evidencePreview) URL.revokeObjectURL(previous.evidencePreview)
-            return {
-                ...prev,
-                [exerciseId]: {
-                    ...previous,
-                    evidence: file,
-                    evidencePreview: file ? URL.createObjectURL(file) : null
-                }
-            }
-        })
-    }
-
+function FlexibilityAssessmentSection({
+    items,
+    onRatingSelect,
+    onEvidenceSelect,
+    onEvidenceRemove,
+    evidenceBusy,
+    evidenceErrors
+}: FlexibilityAssessmentSectionProps) {
     return (
         <div className="flexibility-assessment-section">
-            {FLEXIBILITY_EXERCISES.map((exercise, index) => (
-                <FlexibilityExerciseRow
-                    key={exercise.id}
-                    index={index + 1}
-                    exercise={exercise}
-                    rating={results[exercise.id].rating}
-                    evidence={results[exercise.id].evidence}
-                    evidencePreview={results[exercise.id].evidencePreview}
-                    onRatingSelect={(rating) => handleRatingSelect(exercise.id, rating)}
-                    onEvidenceChange={(file) => handleEvidenceChange(exercise.id, file)}
-                />
-            ))}
+            {FLEXIBILITY_EXERCISES.map((exercise, index) => {
+                const item = items[exercise.id]
+                return (
+                    <FlexibilityExerciseRow
+                        key={exercise.id}
+                        index={index + 1}
+                        exercise={exercise}
+                        rating={item.rating}
+                        evidenceFileName={item.evidenceFile?.name ?? null}
+                        evidencePreview={getEvidencePreviewSrc(item)}
+                        evidenceBusy={evidenceBusy?.[exercise.id]}
+                        evidenceError={evidenceErrors?.[exercise.id]}
+                        onRatingSelect={(rating) => onRatingSelect(exercise.id, rating)}
+                        onEvidenceSelect={(file) => onEvidenceSelect(exercise.id, file)}
+                        onEvidenceRemove={() => onEvidenceRemove(exercise.id)}
+                    />
+                )
+            })}
         </div>
     )
 }

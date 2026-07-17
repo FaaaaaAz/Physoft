@@ -253,6 +253,48 @@
   border: 2px solid #ef4444;
 }
 
+.flexibility-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.flexibility-result-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.flexibility-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.flexibility-result-header h3 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.05rem;
+}
+
+.flexibility-result-badge {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.flexibility-result-evidence {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 .recommendations-text {
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.03);

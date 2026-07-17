@@ -67,7 +67,17 @@
       "Bash(node check-responsive.js)",
       "Bash(taskkill //F //IM node.exe //FI \"WINDOWTITLE eq *vite*\")",
       "Bash(pkill -f \"vite\")",
-      "Bash(taskkill //F //PID 12376)"
+      "Bash(taskkill //F //PID 12376)",
+      "Bash(powershell -Command \"Get-Process 'Docker Desktop' -ErrorAction SilentlyContinue\")",
+      "Bash(\"/c/Program Files/Docker/Docker/Docker Desktop.exe\")",
+      "Bash(disown)",
+      "Bash(docker start *)",
+      "Bash(timeout 30 bash -c 'until curl -sf http://localhost:3000 >/dev/null 2>&1 || curl -s http://localhost:3000/api >/dev/null 2>&1; do sleep 1; done')",
+      "Bash(curl -s http://localhost:3000/api/analyses)",
+      "Bash(node flex-e2e.js)",
+      "Bash(node check-404.js)",
+      "Bash(node check-404-full.js)",
+      "Bash(awk '{print $NF}')"
     ]
   }
 }

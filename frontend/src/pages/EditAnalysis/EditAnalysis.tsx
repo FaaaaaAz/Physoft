@@ -4,12 +4,13 @@ import { IoSparklesOutline } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
 import MiniChatPanel from '@/components/analysis/MiniChatPanel'
-import { analysisAPI, type AIAnalysisResult } from '@/services/api'
+import { analysisAPI, FLEXIBILITY_EXERCISE_IDS, type AIAnalysisResult, type FlexibilityAssessmentResult, type FlexibilityExerciseId } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
-import { useAIAnalysisResults } from '@/hooks'
+import { useAIAnalysisResults, useFlexibilityAssessmentForm } from '@/hooks'
 import { WeakPointsList } from '@/components/analysis/WeakPointsList'
 import { PhysicalCapacitiesForm } from '@/components/analysis/PhysicalCapacitiesForm'
 import { AnalysisFieldsForm } from '@/components/analysis/AnalysisFieldsForm'
+import FlexibilityAssessmentSection from '@/components/analysis/FlexibilityAssessmentSection'
 import './EditAnalysis.css'
 
 interface PuntoDebil {
@@ -42,6 +43,15 @@ function EditAnalysis() {
         id ? parseInt(id) : 0,
         aiAnalysisResults
     )
+
+    // Flexibility Assessment: ratings are deferred to the main Save Changes
+    // submit (like every other field on this page); evidence photo
+    // upload/replace/remove persist immediately, mirroring how AI results
+    // save inline above.
+    const [flexibilityInitial, setFlexibilityInitial] = useState<FlexibilityAssessmentResult[] | null>(null)
+    const flexibilityForm = useFlexibilityAssessmentForm(flexibilityInitial)
+    const [flexibilityEvidenceBusy, setFlexibilityEvidenceBusy] = useState<Partial<Record<FlexibilityExerciseId, boolean>>>({})
+    const [flexibilityEvidenceErrors, setFlexibilityEvidenceErrors] = useState<Partial<Record<FlexibilityExerciseId, string | null>>>({})
 
     const [formData, setFormData] = useState({
         fechaEvaluacion: '',
@@ -97,6 +107,7 @@ function EditAnalysis() {
             }
 
             setAiAnalysisResults(analysis.aiAnalysisResults || [])
+            setFlexibilityInitial(analysis.flexibilityAssessment || null)
 
             setFormData({
                 fechaEvaluacion: analysis.evaluationDate ? new Date(analysis.evaluationDate).toISOString().split('T')[0] : '',
@@ -168,6 +179,51 @@ function EditAnalysis() {
         }))
     }
 
+    const handleFlexibilityEvidenceSelect = async (exerciseId: FlexibilityExerciseId, file: File) => {
+        if (!id) return
+        setFlexibilityEvidenceErrors(prev => ({ ...prev, [exerciseId]: null }))
+        setFlexibilityEvidenceBusy(prev => ({ ...prev, [exerciseId]: true }))
+        try {
+            const response = await analysisAPI.uploadFlexibilityEvidence(parseInt(id), exerciseId, file)
+            const saved = response.data.flexibilityAssessment?.find(item => item.exerciseId === exerciseId)
+            flexibilityForm.setEvidenceUrl(exerciseId, saved?.evidenceUrl ?? null)
+            updateAnalysisInStore(parseInt(id), response.data)
+        } catch (error: any) {
+            setFlexibilityEvidenceErrors(prev => ({
+                ...prev,
+                [exerciseId]: error.response?.data?.error || 'Error uploading evidence'
+            }))
+        } finally {
+            setFlexibilityEvidenceBusy(prev => ({ ...prev, [exerciseId]: false }))
+        }
+    }
+
+    const handleFlexibilityEvidenceRemove = async (exerciseId: FlexibilityExerciseId) => {
+        if (!id) return
+
+        // Nothing persisted yet (shouldn't normally happen here since uploads
+        // are immediate, but keep this a pure local clear if it does)
+        if (!flexibilityForm.items[exerciseId].evidenceUrl) {
+            flexibilityForm.setEvidenceFile(exerciseId, null)
+            return
+        }
+
+        setFlexibilityEvidenceErrors(prev => ({ ...prev, [exerciseId]: null }))
+        setFlexibilityEvidenceBusy(prev => ({ ...prev, [exerciseId]: true }))
+        try {
+            const response = await analysisAPI.deleteFlexibilityEvidence(parseInt(id), exerciseId)
+            flexibilityForm.setEvidenceUrl(exerciseId, null)
+            updateAnalysisInStore(parseInt(id), response.data)
+        } catch (error: any) {
+            setFlexibilityEvidenceErrors(prev => ({
+                ...prev,
+                [exerciseId]: error.response?.data?.error || 'Error removing evidence'
+            }))
+        } finally {
+            setFlexibilityEvidenceBusy(prev => ({ ...prev, [exerciseId]: false }))
+        }
+    }
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         if (!id) return
@@ -207,6 +263,20 @@ function EditAnalysis() {
             // Clasificación y recomendaciones
             if (formData.clasificacionCohorte) updateData.cohortClassification = formData.clasificacionCohorte
             if (formData.recomendaciones) updateData.coachRecommendations = formData.recomendaciones
+
+            // Flexibility Assessment ratings (evidence photos are already
+            // persisted immediately via the dedicated endpoint on select/remove)
+            const flexibilityItems = FLEXIBILITY_EXERCISE_IDS
+                .map(exerciseId => flexibilityForm.items[exerciseId])
+                .filter(item => item.rating !== null || item.evidenceUrl !== null)
+
+            if (flexibilityItems.length > 0) {
+                updateData.flexibilityAssessment = flexibilityItems.map(({ exerciseId, rating, evidenceUrl }) => ({
+                    exerciseId,
+                    rating,
+                    evidenceUrl
+                }))
+            }
 
             const response = await analysisAPI.update(parseInt(id), updateData)
 
@@ -268,10 +338,30 @@ function EditAnalysis() {
                     </div>
                 </div>
 
-                {/* SECCIÓN 2 - Análisis Textual */}
+                {/* SECTION 2 - Flexibility Assessment */}
                 <div className="form-section">
                     <h3 className="section-title">
                         <span className="section-number">2</span>
+                        Flexibility Assessment
+                    </h3>
+                    <p className="section-description">
+                        Evaluate the patient's functional mobility through four standardized flexibility tests.
+                    </p>
+
+                    <FlexibilityAssessmentSection
+                        items={flexibilityForm.items}
+                        onRatingSelect={flexibilityForm.setRating}
+                        onEvidenceSelect={handleFlexibilityEvidenceSelect}
+                        onEvidenceRemove={handleFlexibilityEvidenceRemove}
+                        evidenceBusy={flexibilityEvidenceBusy}
+                        evidenceErrors={flexibilityEvidenceErrors}
+                    />
+                </div>
+
+                {/* SECCIÓN 3 - Análisis Textual */}
+                <div className="form-section">
+                    <h3 className="section-title">
+                        <span className="section-number">3</span>
                         Textual Analysis
                     </h3>
 
@@ -301,10 +391,10 @@ function EditAnalysis() {
                     )}
                 </div>
 
-                {/* SECCIÓN 3 - Conclusiones y Plan */}
+                {/* SECCIÓN 4 - Conclusiones y Plan */}
                 <div className="form-section">
                     <h3 className="section-title">
-                        <span className="section-number">3</span>
+                        <span className="section-number">4</span>
                         Conclusions and Plan
                     </h3>
 
