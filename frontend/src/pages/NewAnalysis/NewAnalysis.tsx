@@ -408,6 +408,9 @@ function NewAnalysis() {
               }}
               onResultsChange={setAiAnalysisResults}
               onGeneratingChange={setIsAiGenerating}
+              evaluationDate={formData.fechaEvaluacion}
+              bodyMarks={formData.bodyMarks}
+              flexibilityItems={flexibilityForm.items}
             />
           </div>
 

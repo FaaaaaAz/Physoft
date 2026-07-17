@@ -1,5 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { ChecklistType, CHECKLIST_LABELS } from '../../domain/types/claudeAnalysis'
+import { ChecklistType } from '../../domain/types/claudeAnalysis'
+import * as promptBuilder from './claude/promptBuilder'
+import type {
+    PatientDemographics,
+    PatientContextFallback,
+    BodyMarkLike,
+    FlexibilityRatingContext
+} from './claude/promptBuilder'
 
 interface PatientContext {
     name?: string
@@ -24,20 +31,16 @@ interface AnalyzeAssessmentInput {
     patientContext?: PatientContext
     imageFiles: ImageFile[]
     pdfFiles: PdfFile[]
+    // Richer clinical context, gathered by the controller before calling this service.
+    patientDemographics?: PatientDemographics | null
+    evaluationDate?: string | null
+    bodyMarks?: BodyMarkLike[] | null
+    flexibilityRatings?: FlexibilityRatingContext[] | null
 }
 
 interface AnalyzeAssessmentResult {
     aiResponse: string
     tokensUsed: number
-}
-
-// Clinical framing for the 4 predefined checkbox types. "free" has no predefined
-// meaning by design -- all direction there comes from the clinician's own prompt.
-const CLINICAL_CONTEXT: Record<Exclude<ChecklistType, 'free'>, string> = {
-    flexibility: 'Flexibility Analysis: focus on joint range of motion, muscle relaxation/elasticity, and any restrictions or asymmetries in flexibility visible in the attached material.',
-    biobit: 'Biobit Analysis: focus on muscle activation patterns, timing, and coordination visible in the attached material.',
-    asymmetry: 'Muscular Activation Asymmetry: focus on bilateral (left vs. right) comparison, identifying imbalances in activation, timing, or magnitude between corresponding muscle groups.',
-    motorControl: 'Active Motor Control Analysis: focus on neuromuscular stability, movement quality, and control patterns visible in the attached material.'
 }
 
 class ClaudeAnalysisService {
@@ -56,12 +59,12 @@ class ClaudeAnalysisService {
     }
 
     async analyzeAssessment(input: AnalyzeAssessmentInput): Promise<AnalyzeAssessmentResult> {
-        const { checkboxType, userPrompt, patientContext, imageFiles, pdfFiles } = input
+        const { checkboxType, imageFiles, pdfFiles } = input
 
-        const system = this.buildSystemPrompt(checkboxType)
-        const content = this.buildUserContentBlocks(checkboxType, userPrompt, patientContext, imageFiles, pdfFiles)
+        const system = promptBuilder.getSystemPrompt(checkboxType)
+        const content = this.buildUserContentBlocks(input)
 
-        console.log(`[Claude] Analyzing "${CHECKLIST_LABELS[checkboxType]}" — ${imageFiles.length} image(s), ${pdfFiles.length} PDF(s)`)
+        console.log(`[Claude] Analyzing "${checkboxType}" — ${imageFiles.length} image(s), ${pdfFiles.length} PDF(s)`)
 
         try {
             const response = await this.client.messages.create({
@@ -105,27 +108,8 @@ class ClaudeAnalysisService {
         }
     }
 
-    private buildSystemPrompt(checkboxType: ChecklistType): string {
-        const base = 'You are a clinical assistant supporting a licensed physiotherapist/kinesiologist ' +
-            'in interpreting patient assessment data (images and/or documents). ' +
-            'Respond in clear, professional clinical prose as if writing a note for a colleague — ' +
-            'no JSON, no markdown headers, no bullet-point templates. Reference specific evidence from ' +
-            'the attached files where possible. Be concise but substantive (a few focused paragraphs).'
-
-        if (checkboxType === 'free') {
-            return base + ' The clinician will provide their own specific instructions for this analysis — follow them directly.'
-        }
-
-        return `${base}\n\nClinical context for this analysis: ${CLINICAL_CONTEXT[checkboxType]}`
-    }
-
-    private buildUserContentBlocks(
-        checkboxType: ChecklistType,
-        userPrompt: string | null | undefined,
-        patientContext: PatientContext | undefined,
-        imageFiles: ImageFile[],
-        pdfFiles: PdfFile[]
-    ): Anthropic.MessageParam['content'] {
+    private buildUserContentBlocks(input: AnalyzeAssessmentInput): Anthropic.MessageParam['content'] {
+        const { pdfFiles, imageFiles } = input
         const blocks: Anthropic.MessageParam['content'] = []
 
         for (const pdf of pdfFiles) {
@@ -150,33 +134,19 @@ class ClaudeAnalysisService {
             } as Anthropic.ImageBlockParam)
         }
 
-        const textParts: string[] = []
+        const text = promptBuilder.buildUserText({
+            checkboxType: input.checkboxType,
+            userPrompt: input.userPrompt,
+            patientDemographics: input.patientDemographics,
+            patientContextFallback: input.patientContext as PatientContextFallback | undefined,
+            previousAssessmentsSummary: input.patientContext?.previousAssessmentsSummary,
+            evaluationDate: input.evaluationDate,
+            bodyMarks: input.bodyMarks,
+            flexibilityRatings: input.flexibilityRatings,
+            hasAttachments: imageFiles.length > 0 || pdfFiles.length > 0
+        })
 
-        if (patientContext && (patientContext.name || patientContext.age || patientContext.sport || patientContext.previousAssessmentsSummary)) {
-            const parts: string[] = []
-            if (patientContext.name) parts.push(`Name: ${patientContext.name}`)
-            if (patientContext.age !== undefined) parts.push(`Age: ${patientContext.age}`)
-            if (patientContext.sport) parts.push(`Sport: ${patientContext.sport}`)
-            textParts.push(`Patient context — ${parts.join(', ')}.`)
-            if (patientContext.previousAssessmentsSummary) {
-                textParts.push(`Previous assessments: ${patientContext.previousAssessmentsSummary}`)
-            }
-        }
-
-        if (checkboxType === 'free') {
-            textParts.push(`Requested analysis: ${userPrompt}`)
-        } else {
-            textParts.push(`Please perform a ${CHECKLIST_LABELS[checkboxType]} based on the attached file(s).`)
-            if (userPrompt && userPrompt.trim().length > 0) {
-                textParts.push(`Additional focus requested by the clinician: ${userPrompt.trim()}`)
-            }
-        }
-
-        if (imageFiles.length === 0 && pdfFiles.length === 0) {
-            textParts.push('(No files were attached — base the analysis on the prompt and patient context alone.)')
-        }
-
-        blocks.push({ type: 'text', text: textParts.join('\n\n') })
+        blocks.push({ type: 'text', text })
 
         return blocks
     }

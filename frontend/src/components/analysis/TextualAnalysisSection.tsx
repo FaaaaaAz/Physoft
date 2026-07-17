@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { IoSparklesOutline } from 'react-icons/io5'
-import { analysisAPI, claudeAPI, type AIAnalysisResult } from '@/services/api'
+import { analysisAPI, claudeAPI, FLEXIBILITY_EXERCISE_IDS, type AIAnalysisResult } from '@/services/api'
+import type { BodyMark } from './BodyVisualization'
+import type { FlexibilityAssessmentFormState } from '@/hooks/useFlexibilityAssessmentForm'
 import ChecklistItem, { ChecklistItemState } from './ChecklistItem'
 import { CHECKLIST_TYPES, ChecklistType } from './checklistTypes'
 import './TextualAnalysisSection.css'
@@ -16,6 +18,13 @@ interface TextualAnalysisSectionProps {
     patientContext: PatientContext
     onResultsChange: (results: AIAnalysisResult[]) => void
     onGeneratingChange?: (isGenerating: boolean) => void
+    // Richer clinical context, pulled straight from NewAnalysis.tsx's existing
+    // form state (nothing new computed here) so the backend can build a much
+    // fuller prompt. evaluationDate/bodyMarks are always forwarded; flexibility
+    // ratings are only relevant (and only sent) for the 'flexibility' type.
+    evaluationDate?: string
+    bodyMarks?: BodyMark[]
+    flexibilityItems?: FlexibilityAssessmentFormState
 }
 
 type ChecklistMap = Record<ChecklistType, ChecklistItemState>
@@ -36,7 +45,15 @@ function isEligible(type: ChecklistType, state: ChecklistItemState): boolean {
     return state.files.length > 0 || state.prompt.trim().length > 0
 }
 
-function TextualAnalysisSection({ patientId, patientContext, onResultsChange, onGeneratingChange }: TextualAnalysisSectionProps) {
+function TextualAnalysisSection({
+    patientId,
+    patientContext,
+    onResultsChange,
+    onGeneratingChange,
+    evaluationDate,
+    bodyMarks,
+    flexibilityItems
+}: TextualAnalysisSectionProps) {
     const [items, setItems] = useState<ChecklistMap>(initialChecklistMap)
     const [previousAssessmentsSummary, setPreviousAssessmentsSummary] = useState<string | undefined>(undefined)
 
@@ -101,12 +118,29 @@ function TextualAnalysisSection({ patientId, patientContext, onResultsChange, on
         updateItem(type, { loading: true, error: null })
 
         const state = items[type]
+
+        // Only meaningful for the Flexibility Analysis checkbox — the backend
+        // ignores this field for every other type regardless.
+        const flexibilityRatings = type === 'flexibility' && flexibilityItems
+            ? FLEXIBILITY_EXERCISE_IDS.map((exerciseId) => {
+                const item = flexibilityItems[exerciseId]
+                return {
+                    exerciseId,
+                    rating: item.rating,
+                    hasEvidence: Boolean(item.evidenceFile || item.evidenceUrl)
+                }
+            })
+            : undefined
+
         const response = await claudeAPI.analyzeAssessment({
             checkboxType: type,
             userPrompt: state.prompt.trim() || undefined,
             patientContext: { ...patientContext, previousAssessmentsSummary },
             patientId: patientId || '',
-            files: state.files
+            files: state.files,
+            evaluationDate,
+            bodyMarks,
+            flexibilityRatings
         })
 
         if (!response.success || !response.data) {

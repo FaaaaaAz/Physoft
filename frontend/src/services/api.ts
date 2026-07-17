@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getToken, clearToken } from '../utils/tokenStorage'
+import type { BodyMark } from '@/components/analysis/BodyVisualization'
 
 // Base Axios configuration
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
@@ -545,6 +546,12 @@ export interface AnalyzeAssessmentParams {
   assessmentId?: number
   patientId: string
   files: File[]
+  // Richer clinical context (New Assessment form state — not yet persisted,
+  // so it can't be looked up server-side by patientId alone). Backend still
+  // does all the prompt construction; these are just raw data passthrough.
+  evaluationDate?: string
+  bodyMarks?: BodyMark[]
+  flexibilityRatings?: { exerciseId: FlexibilityExerciseId; rating: FlexibilityRating | null; hasEvidence: boolean }[]
 }
 
 export interface AnalyzeAssessmentResponse {
@@ -570,6 +577,12 @@ export const claudeAPI = {
     if (params.assessmentId !== undefined) formData.append('assessmentId', String(params.assessmentId))
     formData.append('patientId', params.patientId)
     params.files.forEach((file) => formData.append('files', file))
+
+    if (params.evaluationDate) formData.append('evaluationDate', params.evaluationDate)
+    if (params.bodyMarks && params.bodyMarks.length > 0) formData.append('bodyMarks', JSON.stringify(params.bodyMarks))
+    if (params.flexibilityRatings && params.flexibilityRatings.length > 0) {
+      formData.append('flexibilityRatings', JSON.stringify(params.flexibilityRatings))
+    }
 
     try {
       const response = await apiClient.post<AnalyzeAssessmentResponse>(
