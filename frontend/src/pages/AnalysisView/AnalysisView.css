@@ -1,46 +1,3 @@
-.analysis-view-actions {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.btn-back,
-.btn-edit {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-}
-
-.btn-back {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--color-border, #404040);
-  color: var(--color-text, #e5e5e5);
-}
-
-.btn-back:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--color-primary, #14b8a6);
-}
-
-.btn-edit {
-  background: var(--color-primary, #14b8a6);
-  color: white;
-}
-
-.btn-edit:hover {
-  background: var(--color-primary-dark, #0d9488);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
-}
-
 .analysis-view-container {
   display: flex;
   flex-direction: column;
@@ -53,13 +10,6 @@
   padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.ai-results-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 1rem;
 }
 
 .analysis-section h2 {
@@ -77,7 +27,7 @@
   gap: 1rem;
 }
 
-.athlete-info-grid>div {
+.athlete-info-grid > div {
   padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
@@ -85,251 +35,13 @@
   color: var(--color-text-secondary);
 }
 
-.athlete-info-grid>div strong {
+.athlete-info-grid > div strong {
   color: var(--color-text-primary);
   margin-right: 0.5rem;
 }
 
-.graphs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.graph-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.graph-image:hover {
-  transform: scale(1.05);
-}
-
-.analysis-item {
-  margin-bottom: 2rem;
-}
-
-.analysis-item h3 {
-  color: var(--color-primary);
-  font-size: 1.25rem;
-  margin-bottom: 0.75rem;
-}
-
-.analysis-item p {
-  color: var(--color-text-secondary);
-  line-height: 1.8;
-  white-space: pre-wrap;
-}
-
-.capacities-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.capacity-item {
-  display: grid;
-  grid-template-columns: 120px 1fr 80px;
-  align-items: center;
-  gap: 1rem;
-}
-
-.capacity-label {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.capacity-bar {
-  height: 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-}
-
-.capacity-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-primary), #0d9488);
-  border-radius: 12px;
-  transition: width 0.5s ease;
-  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
-}
-
-.capacity-value {
-  font-weight: 600;
-  color: var(--color-primary);
-  text-align: right;
-}
-
-.weak-points-list {
-  list-style: none;
-  padding: 0;
-}
-
-.weak-points-list li {
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  background: rgba(239, 68, 68, 0.1);
-  border-left: 4px solid #ef4444;
-  border-radius: 8px;
-  color: #fca5a5;
-}
-
-.classification-badge {
-  display: inline-block;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  font-size: 1.25rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.classification-item {
-  margin-bottom: 1rem;
-}
-
-.classification-item h3 {
-  color: var(--color-primary);
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-.classification-description {
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
-/* Global Classification badges */
-.classification-high {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 2px solid #10b981;
-}
-
-.classification-medium {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  border: 2px solid #f59e0b;
-}
-
-.classification-low {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 2px solid #ef4444;
-}
-
-/* Cohort Classification badges */
-.cohort-elite {
-  background: rgba(168, 85, 247, 0.15);
-  color: #c084fc;
-  border: 2px solid #a855f7;
-}
-
-.cohort-avanzado {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 2px solid #3b82f6;
-}
-
-.cohort-intermedio {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  border: 2px solid #f59e0b;
-}
-
-.cohort-principiante {
-  background: rgba(249, 115, 22, 0.15);
-  color: #fb923c;
-  border: 2px solid #f97316;
-}
-
-.cohort-atencion_requerida {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 2px solid #ef4444;
-}
-
-.flexibility-results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-}
-
-.flexibility-result-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 1.25rem;
-}
-
-.flexibility-result-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.flexibility-result-header h3 {
-  margin: 0;
-  color: var(--color-primary);
-  font-size: 1.05rem;
-}
-
-.flexibility-result-badge {
-  padding: 0.35rem 0.85rem;
-  font-size: 0.8rem;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-.flexibility-result-evidence {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.recommendations-text {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-  line-height: 1.8;
-  color: var(--color-text-secondary);
-  white-space: pre-wrap;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
 @media (max-width: 768px) {
-  .analysis-view-actions {
-    flex-direction: column;
-  }
-
-  .btn-back,
-  .btn-edit {
-    width: 100%;
-    justify-content: center;
-  }
-
   .athlete-info-grid {
     grid-template-columns: 1fr;
-  }
-
-  .graphs-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .capacity-item {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
-  .capacity-value {
-    text-align: left;
   }
 }

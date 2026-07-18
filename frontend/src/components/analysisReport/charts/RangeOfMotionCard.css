@@ -1,0 +1,43 @@
+.rom-table-wrap {
+  flex: 1;
+  overflow-x: auto;
+}
+
+.rom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.rom-table th {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  color: var(--color-text-muted, #737373);
+  font-weight: 600;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.rom-table td {
+  padding: 0.6rem;
+  color: var(--color-text-secondary, #a3a3a3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.rom-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rom-table td:first-child {
+  color: var(--color-text-primary, #ffffff);
+  font-weight: 600;
+}
+
+.rom-pct {
+  color: var(--color-primary, #14b8a6) !important;
+  font-weight: 700;
+}

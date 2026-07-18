@@ -1,0 +1,40 @@
+.muscular-balance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.muscular-balance-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 42px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.muscular-balance-label {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary, #a3a3a3);
+}
+
+.muscular-balance-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.muscular-balance-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--color-primary, #14b8a6), #0d9488);
+  transition: width 0.5s ease;
+}
+
+.muscular-balance-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #ffffff);
+  text-align: right;
+}

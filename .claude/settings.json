@@ -155,7 +155,19 @@
       "Bash(rm -f assess-verify.mjs save-verify.mjs)",
       "Bash(curl -s -i -X POST http://localhost:3000/api/claude/analyze-assessment -F \"patientId=test\")",
       "Bash(curl -s -X POST http://localhost:3000/api/claude/analyze-assessment -F \"patientId=test\")",
-      "Bash(curl -s -o /dev/null -w \"GET /api/athletes: %{http_code}\\\\n\" http://localhost:3000/api/athletes)"
+      "Bash(curl -s -o /dev/null -w \"GET /api/athletes: %{http_code}\\\\n\" http://localhost:3000/api/athletes)",
+      "Bash(break)",
+      "Bash(curl -s http://localhost:3000/api/ping -o /dev/null -w \"backend: %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5173 -o /dev/null -w \"frontend: %{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:3000/api/analyses\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);const list=j.data||[];console.log\\('count:',list.length\\);list.slice\\(0,5\\).forEach\\(a=>console.log\\(a.id, a.athlete?.name, a.athlete?.sport\\)\\)}\\)\")",
+      "Bash(node report-verify.mjs 7)",
+      "Bash(curl -s http://localhost:3000/api/analyses/7)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const a=JSON.parse\\(d\\).data;console.log\\('athleteId:', a.athlete?.id, '| sport:', a.athlete?.sport\\)}\\)\")",
+      "Bash(curl -s -X PUT http://localhost:3000/api/athletes/ac4cbd9f-6d7c-45ba-bba4-8856bad06297 -H \"Content-Type: application/json\" -d '{\"sport\":\"Golf\"}' -o /dev/null -w \"set sport=Golf: [%{http_code}]\\\\n\")",
+      "Bash(node report-verify2.mjs)",
+      "Bash(curl -s -X PUT http://localhost:3000/api/athletes/ac4cbd9f-6d7c-45ba-bba4-8856bad06297 -H \"Content-Type: application/json\" -d '{\"sport\":\"Test\"}' -o /dev/null -w \"restore sport=Test: [%{http_code}]\\\\n\")",
+      "Bash(rm -f report-verify.mjs report-verify2.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Fabian\\Desktop\\UPB\\Proyectos personales\\Paginas Web\\Physoft_1\\Physoft\\frontend\\src",

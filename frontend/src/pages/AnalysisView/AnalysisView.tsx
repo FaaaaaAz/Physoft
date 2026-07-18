@@ -1,14 +1,16 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { IoDocument, IoPerson, IoTrash, IoCreate, IoSparklesOutline, IoBodyOutline } from 'react-icons/io5'
+import { IoPerson, IoTrash, IoCreate } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
-import MiniChatPanel from '@/components/analysis/MiniChatPanel'
-import { FLEXIBILITY_EXERCISES } from '@/components/analysis/FlexibilityAssessmentSection'
-import { analysisAPI, Analysis, FlexibilityRating } from '../../services/api'
+import { analysisAPI, Analysis } from '../../services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
-import { useAIAnalysisResults } from '../../hooks'
 import { MESSAGES } from '@/constants'
+import ExecutiveSummaryCard from '@/components/analysisReport/ExecutiveSummaryCard'
+import CapacityProfileGrid from '@/components/analysisReport/CapacityProfileGrid'
+import MainChartsSection from '@/components/analysisReport/MainChartsSection'
+import SportReportSection from '@/components/analysisReport/SportReportSection'
+import DetailedAnalysisSection from '@/components/analysisReport/DetailedAnalysisSection'
 import './AnalysisView.css'
 
 function AnalysisView() {
@@ -18,15 +20,6 @@ function AnalysisView() {
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(true)
-
-  const aiAnalysisResultsInitial = useMemo(
-    () => analysis?.aiAnalysisResults || [],
-    [analysis?.aiAnalysisResults]
-  )
-  const { results: aiResults, saveEdit: saveAiEdit } = useAIAnalysisResults(
-    analysis?.id || 0,
-    aiAnalysisResultsInitial
-  )
 
   useEffect(() => {
     const loadAnalysis = async () => {
@@ -60,49 +53,6 @@ function AnalysisView() {
 
     loadAnalysis()
   }, [id])
-
-  const parseWeakPoints = (weakPoints: string | null | undefined): string[] => {
-    if (!weakPoints) return []
-    try {
-      return JSON.parse(weakPoints)
-    } catch {
-      return []
-    }
-  }
-
-  const parseGraphImages = (graphImages: string | null | undefined): string[] => {
-    if (!graphImages) return []
-    try {
-      return JSON.parse(graphImages)
-    } catch {
-      return []
-    }
-  }
-
-  // Internal storage uses LOW/MEDIUM/HIGH; the UI only ever shows Poor/Average/Excellent.
-  const FLEXIBILITY_RATING_LABELS: Record<FlexibilityRating, string> = {
-    LOW: 'Poor',
-    MEDIUM: 'Average',
-    HIGH: 'Excellent'
-  }
-
-  const getClassificationLabel = (classification: string) => {
-    if (classification === 'high') return 'Above Average'
-    if (classification === 'medium') return 'Average'
-    if (classification === 'low') return 'Below Average'
-    return classification
-  }
-
-  const getCohortLabel = (cohort: string) => {
-    const labels: Record<string, string> = {
-      'ELITE': 'Elite',
-      'AVANZADO': 'Advanced',
-      'INTERMEDIO': 'Intermediate',
-      'PRINCIPIANTE': 'Beginner',
-      'ATENCION_REQUERIDA': 'Needs Attention'
-    }
-    return labels[cohort] || cohort
-  }
 
   const handleDelete = async () => {
     if (!id || !analysis) return
@@ -144,12 +94,6 @@ function AnalysisView() {
       </PageTemplate>
     )
   }
-
-  const weakPoints = parseWeakPoints(analysis.weakPoints)
-  const graphImages = parseGraphImages(analysis.graphImages)
-  const flexibilityResults = (analysis.flexibilityAssessment || []).filter(
-    (result) => result.rating !== null || result.evidenceUrl !== null
-  )
 
   return (
     <PageTemplate
@@ -200,7 +144,7 @@ function AnalysisView() {
       </div>
 
       <div className="analysis-view-container">
-        {/* Athlete Information */}
+        {/* Patient Information */}
         {analysis.athlete && (
           <section className="analysis-section">
             <h2>
@@ -220,236 +164,12 @@ function AnalysisView() {
           </section>
         )}
 
-        {/* Graphs */}
-        {graphImages.length > 0 && (
-          <section className="analysis-section">
-            <h2>
-              <IoDocument /> Assessment Graphs
-            </h2>
-            <div className="graphs-grid">
-              {graphImages.map((url, index) => (
-                <img key={index} src={url} alt={`Graph ${index + 1}`} className="graph-image" />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Flexibility Assessment */}
-        {flexibilityResults.length > 0 && (
-          <section className="analysis-section">
-            <h2>
-              <IoBodyOutline /> Flexibility Assessment
-            </h2>
-            <div className="flexibility-results-grid">
-              {flexibilityResults.map((result) => {
-                const exercise = FLEXIBILITY_EXERCISES.find((e) => e.id === result.exerciseId)
-                return (
-                  <div key={result.exerciseId} className="flexibility-result-item">
-                    <div className="flexibility-result-header">
-                      <h3>{exercise?.name || result.exerciseId}</h3>
-                      {result.rating && (
-                        <span className={`classification-badge classification-${result.rating.toLowerCase()} flexibility-result-badge`}>
-                          {FLEXIBILITY_RATING_LABELS[result.rating]}
-                        </span>
-                      )}
-                    </div>
-                    {result.evidenceUrl && (
-                      <img
-                        src={result.evidenceUrl}
-                        alt={`${exercise?.name || result.exerciseId} evidence`}
-                        className="flexibility-result-evidence"
-                      />
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* AI-Assisted Textual Analysis */}
-        {aiResults.length > 0 && (
-          <section className="analysis-section">
-            <h2>
-              <IoSparklesOutline /> AI-Assisted Analysis
-            </h2>
-            <div className="ai-results-list">
-              {aiResults.map(result => (
-                <MiniChatPanel
-                  key={result.id}
-                  result={result}
-                  editable
-                  onSave={(newText) => saveAiEdit(result.id, newText)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Textual Analyses */}
-        <section className="analysis-section">
-          <h2>Detailed Analysis</h2>
-
-          {analysis.flexibilityAnalysis && (
-            <div className="analysis-item">
-              <h3>1. Flexibility Analysis</h3>
-              <p>{analysis.flexibilityAnalysis}</p>
-            </div>
-          )}
-
-          {analysis.biobitAnalysis && (
-            <div className="analysis-item">
-              <h3>2. Biobit Analysis</h3>
-              <p>{analysis.biobitAnalysis}</p>
-            </div>
-          )}
-
-          {analysis.muscularAsymmetry && (
-            <div className="analysis-item">
-              <h3>3. Muscular Asymmetry in Activation</h3>
-              <p>{analysis.muscularAsymmetry}</p>
-            </div>
-          )}
-
-          {analysis.activeMotorControl && (
-            <div className="analysis-item">
-              <h3>4. Active Motor Control Analysis</h3>
-              <p>{analysis.activeMotorControl}</p>
-            </div>
-          )}
-
-          {analysis.functionalMuscleFatigue && (
-            <div className="analysis-item">
-              <h3>5. Functional Muscle Fatigue Analysis</h3>
-              <p>{analysis.functionalMuscleFatigue}</p>
-            </div>
-          )}
-
-          {analysis.inertiaForceControl && (
-            <div className="analysis-item">
-              <h3>6. Inertial Force Control Analysis</h3>
-              <p>{analysis.inertiaForceControl}</p>
-            </div>
-          )}
-        </section>
-
-        {/* Physical Capacities */}
-        <section className="analysis-section">
-          <h2>Physical Capacities</h2>
-          <div className="capacities-grid">
-            {analysis.power !== null && analysis.power !== undefined && (
-              <div className="capacity-item">
-                <div className="capacity-label">Power</div>
-                <div className="capacity-bar">
-                  <div className="capacity-fill" style={{ width: `${analysis.power}%` }} />
-                </div>
-                <div className="capacity-value">{analysis.power}/100</div>
-              </div>
-            )}
-
-            {analysis.endurance !== null && analysis.endurance !== undefined && (
-              <div className="capacity-item">
-                <div className="capacity-label">Endurance</div>
-                <div className="capacity-bar">
-                  <div className="capacity-fill" style={{ width: `${analysis.endurance}%` }} />
-                </div>
-                <div className="capacity-value">{analysis.endurance}/100</div>
-              </div>
-            )}
-
-            {analysis.strength !== null && analysis.strength !== undefined && (
-              <div className="capacity-item">
-                <div className="capacity-label">Strength</div>
-                <div className="capacity-bar">
-                  <div className="capacity-fill" style={{ width: `${analysis.strength}%` }} />
-                </div>
-                <div className="capacity-value">{analysis.strength}/100</div>
-              </div>
-            )}
-
-            {analysis.flexibility !== null && analysis.flexibility !== undefined && (
-              <div className="capacity-item">
-                <div className="capacity-label">Flexibility</div>
-                <div className="capacity-bar">
-                  <div className="capacity-fill" style={{ width: `${analysis.flexibility}%` }} />
-                </div>
-                <div className="capacity-value">{analysis.flexibility}/100</div>
-              </div>
-            )}
-
-            {analysis.speed !== null && analysis.speed !== undefined && (
-              <div className="capacity-item">
-                <div className="capacity-label">Speed</div>
-                <div className="capacity-bar">
-                  <div className="capacity-fill" style={{ width: `${analysis.speed}%` }} />
-                </div>
-                <div className="capacity-value">{analysis.speed}/100</div>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Weak Points */}
-        {weakPoints.length > 0 && (
-          <section className="analysis-section">
-            <h2>Identified Weak Points</h2>
-            <ul className="weak-points-list">
-              {weakPoints.map((point, index) => (
-                <li key={index}>
-                  {typeof point === 'string' ? (
-                    point
-                  ) : (
-                    <>
-                      <strong>{(point as any).area}</strong>
-                      {(point as any).descripcion ? `: ${(point as any).descripcion}` : null}
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* Classifications */}
-        {(analysis.globalClassification || analysis.cohortClassification) && (
-          <section className="analysis-section">
-            <h2>Classifications</h2>
-
-            {/* Global Classification - Based on comparison with same sport/bodyType */}
-            {analysis.globalClassification && (
-              <div className="classification-item">
-                <h3>Global Classification</h3>
-                <p className="classification-description">
-                  Based on comparison with patients of the same sport and body type
-                </p>
-                <div className={`classification-badge classification-${analysis.globalClassification}`}>
-                  {getClassificationLabel(analysis.globalClassification)}
-                </div>
-              </div>
-            )}
-
-            {/* Cohort Classification - Elite, Avanzado, etc. */}
-            {analysis.cohortClassification && (
-              <div className="classification-item" style={{ marginTop: '1.5rem' }}>
-                <h3>Cohort Classification</h3>
-                <p className="classification-description">
-                  Overall patient level based on physical capacities
-                </p>
-                <div className={`classification-badge cohort-${analysis.cohortClassification.toLowerCase()}`}>
-                  {getCohortLabel(analysis.cohortClassification)}
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Recommendations */}
-        {analysis.coachRecommendations && (
-          <section className="analysis-section">
-            <h2>Coach Recommendations</h2>
-            <p className="recommendations-text">{analysis.coachRecommendations}</p>
-          </section>
-        )}
+        {/* Executive musculoskeletal report — UI only, mock data (see components/analysisReport) */}
+        <ExecutiveSummaryCard />
+        <CapacityProfileGrid />
+        <MainChartsSection />
+        <SportReportSection sport={analysis.athlete?.sport} />
+        <DetailedAnalysisSection />
       </div>
     </PageTemplate>
   )

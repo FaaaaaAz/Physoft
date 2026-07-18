@@ -1,0 +1,57 @@
+/* Shared wrapper for all 7 Main Charts cards */
+
+.chart-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+.chart-card-header {
+  margin-bottom: 1rem;
+}
+
+.chart-card-header h3 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #ffffff);
+  margin: 0 0 2px;
+}
+
+.chart-card-header p {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #737373);
+  margin: 0;
+}
+
+.chart-card-tooltip {
+  background: var(--color-bg-secondary, #1a1a1a);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: var(--color-text-primary, #ffffff);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.chart-card-footer {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.chart-card-footer-label {
+  color: var(--color-text-secondary, #a3a3a3);
+}
+
+.chart-card-footer-value {
+  font-weight: 700;
+  color: var(--color-primary, #14b8a6);
+}
