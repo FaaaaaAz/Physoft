@@ -152,7 +152,10 @@
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const a=JSON.parse\\(d\\).data;console.log\\('weight:',a.weight,'| height:',a.height,'| bodyType:',a.bodyType\\)}\\)\")",
       "Bash(curl -s -X PUT http://localhost:3000/api/athletes/ac4cbd9f-6d7c-45ba-bba4-8856bad06297 -H 'Content-Type: application/json' -d '{\"weight\":160,\"height\":5.9,\"bodyType\":\"Mesomorph\"}' -o /dev/null -w 'restore athlete: [%{http_code}]\\\\n')",
       "Bash(curl -s -X DELETE http://localhost:3000/api/analyses/8 -o /dev/null -w \"delete test analysis 8: [%{http_code}]\\\\n\")",
-      "Bash(rm -f assess-verify.mjs save-verify.mjs)"
+      "Bash(rm -f assess-verify.mjs save-verify.mjs)",
+      "Bash(curl -s -i -X POST http://localhost:3000/api/claude/analyze-assessment -F \"patientId=test\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/claude/analyze-assessment -F \"patientId=test\")",
+      "Bash(curl -s -o /dev/null -w \"GET /api/athletes: %{http_code}\\\\n\" http://localhost:3000/api/athletes)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Fabian\\Desktop\\UPB\\Proyectos personales\\Paginas Web\\Physoft_1\\Physoft\\frontend\\src",
