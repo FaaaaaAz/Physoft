@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { IoClose, IoLockClosed } from 'react-icons/io5'
 import { authAPI } from '../../../services/authApi'
 import { VALIDATION, MESSAGES } from '../../../constants'
+import { ButtonLoadingContent } from './ButtonSpinner'
 import './ChangePasswordModal.css'
 
 interface ChangePasswordModalProps {
@@ -127,7 +128,7 @@ function ChangePasswordModal({ isOpen, onClose, onSuccess }: ChangePasswordModal
                             Cancel
                         </button>
                         <button type="submit" className="cpm-btn cpm-btn-confirm" disabled={isSubmitting}>
-                            {isSubmitting ? 'Updating...' : 'Update Password'}
+                            {isSubmitting ? <ButtonLoadingContent text="Updating..." /> : 'Update Password'}
                         </button>
                     </div>
                 </form>

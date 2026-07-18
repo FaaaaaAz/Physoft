@@ -22,8 +22,8 @@ function MainChartsSection() {
                 <ProgressOverTimeCard />
                 <MuscularBalanceCard />
                 <LoadDistributionCard />
-                <RangeOfMotionCard />
                 <BodyCompositionCard />
+                <RangeOfMotionCard />
             </div>
         </section>
     )

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { IoLogInOutline, IoAlertCircle } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
+import { ButtonLoadingContent } from '../../components/common/feedback/ButtonSpinner'
 import { useAuth } from '../../hooks'
 import { ROUTES, MESSAGES } from '../../constants'
 import physoftLogo from '@/assets/physoft.png'
@@ -87,8 +88,14 @@ function Login() {
                         </div>
 
                         <button type="submit" className="login-button" disabled={isSubmitting}>
-                            <span>{isSubmitting ? 'Signing in...' : 'Login'}</span>
-                            {!isSubmitting && <IoLogInOutline className="button-icon" />}
+                            {isSubmitting ? (
+                                <ButtonLoadingContent text="Signing in..." />
+                            ) : (
+                                <>
+                                    <span>Login</span>
+                                    <IoLogInOutline className="button-icon" />
+                                </>
+                            )}
                         </button>
                     </form>
 

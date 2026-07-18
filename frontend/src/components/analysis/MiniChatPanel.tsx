@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { IoCreateOutline, IoCheckmark, IoClose } from 'react-icons/io5'
 import type { AIAnalysisResult } from '@/services/api'
+import { ButtonLoadingContent } from '@/components/common/feedback/ButtonSpinner'
 import { getRelativeTime } from '../../utils/date.utils'
 import { CHECKLIST_LABELS } from './checklistTypes'
 import './MiniChatPanel.css'
@@ -86,7 +87,7 @@ function MiniChatPanel({ result, editable = false, onSave }: MiniChatPanelProps)
                                 onClick={saveEdit}
                                 disabled={saving || draft.trim().length === 0}
                             >
-                                <IoCheckmark /> {saving ? 'Saving...' : 'Save'}
+                                {saving ? <ButtonLoadingContent text="Saving..." /> : <><IoCheckmark /> Save</>}
                             </button>
                             <button
                                 type="button"

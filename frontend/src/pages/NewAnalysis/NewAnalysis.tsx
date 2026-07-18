@@ -2,6 +2,7 @@ import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoSearch } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
+import { ButtonLoadingContent } from '@/components/common/feedback/ButtonSpinner'
 import { athleteAPI, analysisAPI, Athlete, AIAnalysisResult } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
 import { useAthleteStore } from '@/store/athleteStore'
@@ -428,7 +429,7 @@ function NewAnalysis() {
               disabled={guardando || isAiGenerating}
               title={isAiGenerating ? 'Wait for AI analysis to finish before saving' : undefined}
             >
-              {guardando ? '⏳ Saving...' : isAiGenerating ? 'Waiting for AI...' : '✓ Save Analysis'}
+              {guardando ? <ButtonLoadingContent text="Saving..." /> : isAiGenerating ? 'Waiting for AI...' : '✓ Save Analysis'}
             </button>
           </div>
         </form>

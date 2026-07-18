@@ -3,3 +3,12 @@
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 1.25rem;
 }
+
+/* Range of Motion sits alone on its row — span it full-width and center a
+   wider card so its table gets room to breathe instead of scrolling. */
+.main-charts-grid .chart-card-rom {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+}

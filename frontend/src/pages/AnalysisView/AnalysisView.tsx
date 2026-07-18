@@ -3,9 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { IoPerson, IoTrash, IoCreate } from 'react-icons/io5'
 import PageTemplate from '../../components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
+import { ButtonLoadingContent } from '@/components/common/feedback/ButtonSpinner'
 import { analysisAPI, Analysis } from '../../services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
 import { MESSAGES } from '@/constants'
+import { patientSnapshotMock } from '@/components/analysisReport/mockPatientSnapshot'
 import ExecutiveSummaryCard from '@/components/analysisReport/ExecutiveSummaryCard'
 import CapacityProfileGrid from '@/components/analysisReport/CapacityProfileGrid'
 import MainChartsSection from '@/components/analysisReport/MainChartsSection'
@@ -20,6 +22,7 @@ function AnalysisView() {
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const loadAnalysis = async () => {
@@ -61,12 +64,14 @@ function AnalysisView() {
       return
     }
 
+    setDeleting(true)
     try {
       await deleteAnalysis(parseInt(id))
       navigate('/analysis')
     } catch (error) {
       console.error('Error deleting analysis:', error)
       alert(MESSAGES.ERROR.DELETING_ANALYSIS)
+      setDeleting(false)
     }
   }
 
@@ -115,6 +120,7 @@ function AnalysisView() {
             </button>
             <button
               onClick={handleDelete}
+              disabled={deleting}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -126,18 +132,19 @@ function AnalysisView() {
                 padding: '0.75rem 1.5rem',
                 fontSize: '0.95rem',
                 fontWeight: '600',
-                cursor: 'pointer',
+                cursor: deleting ? 'not-allowed' : 'pointer',
+                opacity: deleting ? 0.6 : 1,
                 transition: 'all 0.2s ease',
                 whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#dc2626'
+                if (!deleting) e.currentTarget.style.backgroundColor = '#dc2626'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#ef4444'
               }}
             >
-              <IoTrash /> Delete Analysis
+              {deleting ? <ButtonLoadingContent text="Deleting..." /> : <><IoTrash /> Delete Analysis</>}
             </button>
           </div>
         </div>
@@ -159,6 +166,15 @@ function AnalysisView() {
               </div>
               <div>
                 <strong>Sport:</strong> {analysis.athlete.sport}
+              </div>
+              <div>
+                <strong>Weight:</strong> {patientSnapshotMock.weight}
+              </div>
+              <div>
+                <strong>Height:</strong> {patientSnapshotMock.height}
+              </div>
+              <div>
+                <strong>Somatotype:</strong> {patientSnapshotMock.somatotype}
               </div>
             </div>
           </section>

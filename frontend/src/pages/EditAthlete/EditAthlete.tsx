@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IoSave, IoCamera } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
+import { ButtonLoadingContent } from '@/components/common/feedback/ButtonSpinner'
 import DateInputMMDDYYYY from '@/components/common/forms/DateInputMMDDYYYY'
 import { athleteAPI } from '@/services/api'
 import { useAthleteStore } from '@/store/athleteStore'
@@ -423,8 +424,14 @@ function EditAthlete() {
                 {/* Submit Button */}
                 <div className="form-actions">
                     <button type="submit" className="btn-primary" disabled={saving}>
-                        <IoSave />
-                        {saving ? 'Saving...' : 'Save Changes'}
+                        {saving ? (
+                            <ButtonLoadingContent text="Saving..." />
+                        ) : (
+                            <>
+                                <IoSave />
+                                Save Changes
+                            </>
+                        )}
                     </button>
                 </div>
             </form>

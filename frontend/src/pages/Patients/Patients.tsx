@@ -34,6 +34,7 @@ function Patients() {
     const [athleteAnalyses, setAthleteAnalyses] = useState<Record<string, Analysis[]>>({})
     const [error, setError] = useState('')
     const [athleteToDelete, setAthleteToDelete] = useState<string | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
     const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null)
 
     // A page that just created/updated a patient (e.g. AddAthlete) can hand
@@ -138,16 +139,20 @@ function Patients() {
     const confirmDeleteAthlete = useCallback(async () => {
         if (!athleteToDelete) return
         const id = athleteToDelete
-        setAthleteToDelete(null)
 
+        setIsDeleting(true)
         try {
             await deleteAthlete(id)
             setSelectedAthlete(null)
+            setAthleteToDelete(null)
             setToast({ type: 'success', message: MESSAGES.SUCCESS.ATHLETE_DELETED })
         } catch (err: any) {
             console.error('Error deleting athlete:', err)
             const backendMessage = err.response?.data?.error
             setToast({ type: 'error', message: backendMessage || MESSAGES.ERROR.DELETING_ATHLETE })
+            setAthleteToDelete(null)
+        } finally {
+            setIsDeleting(false)
         }
     }, [deleteAthlete, athleteToDelete])
 
@@ -235,6 +240,7 @@ function Patients() {
                 message={MESSAGES.CONFIRM.DELETE_ATHLETE}
                 confirmLabel="Delete"
                 danger
+                loading={isDeleting}
                 onConfirm={confirmDeleteAthlete}
                 onCancel={() => setAthleteToDelete(null)}
             />

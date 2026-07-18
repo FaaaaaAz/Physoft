@@ -1,0 +1,33 @@
+.button-loading-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  animation: button-loading-fade-in 0.18s ease;
+}
+
+.button-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.85;
+  flex-shrink: 0;
+  animation: button-spinner-spin 0.7s linear infinite;
+}
+
+@keyframes button-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes button-loading-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

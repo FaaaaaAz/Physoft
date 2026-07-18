@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { IoSparklesOutline } from 'react-icons/io5'
 import { analysisAPI, claudeAPI, type AIAnalysisResult } from '@/services/api'
+import { ButtonLoadingContent } from '@/components/common/feedback/ButtonSpinner'
 import ChecklistItem, { ChecklistItemState } from './ChecklistItem'
 import { CHECKLIST_TYPES, ChecklistType } from './checklistTypes'
 import './TextualAnalysisSection.css'
@@ -195,8 +196,14 @@ function TextualAnalysisSection({
                 onClick={handleGenerate}
                 disabled={!canGenerate}
             >
-                <IoSparklesOutline />
-                {anyLoading ? 'Analyzing...' : 'Generate Textual Analysis'}
+                {anyLoading ? (
+                    <ButtonLoadingContent text="Analyzing..." />
+                ) : (
+                    <>
+                        <IoSparklesOutline />
+                        Generate Textual Analysis
+                    </>
+                )}
             </button>
         </div>
     )

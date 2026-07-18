@@ -6,7 +6,7 @@ function RangeOfMotionCard() {
     const { rows, overallAverage } = rangeOfMotionMock
 
     return (
-        <div className="chart-card">
+        <div className="chart-card chart-card-rom">
             <div className="chart-card-header">
                 <h3>Range of Motion Analysis</h3>
             </div>

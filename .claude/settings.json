@@ -167,7 +167,15 @@
       "Bash(curl -s -X PUT http://localhost:3000/api/athletes/ac4cbd9f-6d7c-45ba-bba4-8856bad06297 -H \"Content-Type: application/json\" -d '{\"sport\":\"Golf\"}' -o /dev/null -w \"set sport=Golf: [%{http_code}]\\\\n\")",
       "Bash(node report-verify2.mjs)",
       "Bash(curl -s -X PUT http://localhost:3000/api/athletes/ac4cbd9f-6d7c-45ba-bba4-8856bad06297 -H \"Content-Type: application/json\" -d '{\"sport\":\"Test\"}' -o /dev/null -w \"restore sport=Test: [%{http_code}]\\\\n\")",
-      "Bash(rm -f report-verify.mjs report-verify2.mjs)"
+      "Bash(rm -f report-verify.mjs report-verify2.mjs)",
+      "Bash(timeout 40 bash -c 'until curl -sf http://localhost:3000 >/dev/null 2>&1 || curl -s http://localhost:3000 >/dev/null 2>&1; do sleep 1; done')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/api/health)",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(node -e \"const {chromium}=require\\('playwright'\\); \\(async\\(\\)=>{const b=await chromium.launch\\(\\); console.log\\('launched ok'\\); await b.close\\(\\);}\\)\\(\\).catch\\(e=>{console.error\\('FAIL',e.message\\); process.exit\\(1\\)}\\)\")",
+      "Bash(ps -p 1475 -o pid,ppid,etime,cmd)",
+      "Bash(wmic process *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Fabian\\Desktop\\UPB\\Proyectos personales\\Paginas Web\\Physoft_1\\Physoft\\frontend\\src",

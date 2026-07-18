@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IoSparklesOutline } from 'react-icons/io5'
 import PageTemplate from '@/components/templates/PageTemplate'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner'
+import { ButtonLoadingContent } from '@/components/common/feedback/ButtonSpinner'
 import MiniChatPanel from '@/components/analysis/MiniChatPanel'
 import { analysisAPI, FLEXIBILITY_EXERCISE_IDS, type AIAnalysisResult, type FlexibilityAssessmentResult, type FlexibilityExerciseId } from '@/services/api'
 import { useAnalysisStore } from '@/store/analysisStore'
@@ -448,7 +449,7 @@ function EditAnalysis() {
                 {/* Submit Button */}
                 <div className="form-actions">
                     <button type="submit" className="btn-primary-large" disabled={saving}>
-                        {saving ? '⏳ Saving...' : '✓ Save Changes'}
+                        {saving ? <ButtonLoadingContent text="Saving..." /> : '✓ Save Changes'}
                     </button>
                 </div>
             </form>

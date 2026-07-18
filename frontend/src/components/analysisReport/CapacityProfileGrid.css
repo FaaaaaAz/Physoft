@@ -1,7 +1,20 @@
 .capacity-profile-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(4, minmax(150px, 210px));
+  justify-content: center;
   gap: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .capacity-profile-grid {
+    grid-template-columns: repeat(2, minmax(150px, 210px));
+  }
+}
+
+@media (max-width: 420px) {
+  .capacity-profile-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .capacity-profile-card {

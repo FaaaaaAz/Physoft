@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from 'react'
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
 import DateInputMMDDYYYY from './DateInputMMDDYYYY'
+import { ButtonLoadingContent } from '../feedback/ButtonSpinner'
 
 // Context for Form
 interface FormContextValue {
@@ -251,7 +252,7 @@ function SubmitButton({
             disabled={isSubmitting}
         >
             {isSubmitting ? (
-                <>⏳ {loadingText}</>
+                <ButtonLoadingContent text={loadingText} />
             ) : (
                 <>{icon} {children}</>
             )}
