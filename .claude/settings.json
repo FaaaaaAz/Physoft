@@ -175,7 +175,15 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5173/)",
       "Bash(node -e \"const {chromium}=require\\('playwright'\\); \\(async\\(\\)=>{const b=await chromium.launch\\(\\); console.log\\('launched ok'\\); await b.close\\(\\);}\\)\\(\\).catch\\(e=>{console.error\\('FAIL',e.message\\); process.exit\\(1\\)}\\)\")",
       "Bash(ps -p 1475 -o pid,ppid,etime,cmd)",
-      "Bash(wmic process *)"
+      "Bash(wmic process *)",
+      "Bash(node -e \"require.resolve\\('playwright'\\); console.log\\('resolved ok'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"backend:%{http_code}\\\\n\" http://localhost:3000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"frontend:%{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(echo \"launched docker desktop, pid $!\")",
+      "Bash(timeout 120 bash -c 'until docker ps >/dev/null 2>&1; do sleep 3; done')",
+      "Bash(timeout 60 bash -c 'until docker ps --filter \"name=physoft-postgres\" --format \"{{.Status}}\" | grep -q \"Up\"; do sleep 2; done')",
+      "Bash(timeout 40 bash -c 'until curl -sf http://localhost:3000/api/health >/dev/null 2>&1; do sleep 1; done')",
+      "Bash(timeout 40 bash -c 'until curl -sf http://localhost:5173/ >/dev/null 2>&1; do sleep 1; done')"
     ],
     "additionalDirectories": [
       "C:\\Users\\Fabian\\Desktop\\UPB\\Proyectos personales\\Paginas Web\\Physoft_1\\Physoft\\frontend\\src",

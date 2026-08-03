@@ -12,6 +12,7 @@ import ExecutiveSummaryCard from '@/components/analysisReport/ExecutiveSummaryCa
 import CapacityProfileGrid from '@/components/analysisReport/CapacityProfileGrid'
 import MainChartsSection from '@/components/analysisReport/MainChartsSection'
 import SportReportSection from '@/components/analysisReport/SportReportSection'
+import { hasSportReport } from '@/components/analysisReport/mockSportAnalysis'
 import DetailedAnalysisSection from '@/components/analysisReport/DetailedAnalysisSection'
 import './AnalysisView.css'
 
@@ -184,7 +185,7 @@ function AnalysisView() {
         <ExecutiveSummaryCard />
         <CapacityProfileGrid />
         <MainChartsSection />
-        <SportReportSection sport={analysis.athlete?.sport} />
+        {hasSportReport(analysis.athlete?.sport) && <SportReportSection sport={analysis.athlete?.sport} />}
         <DetailedAnalysisSection />
       </div>
     </PageTemplate>

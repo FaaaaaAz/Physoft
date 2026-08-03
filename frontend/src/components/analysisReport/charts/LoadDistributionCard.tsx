@@ -1,4 +1,4 @@
-import LoadDistributionImage from '@/assets/Result_Assessment/DistribucionDeCarga.png'
+import LoadDistributionImage from '@/assets/Result_Assessment/LoadDistribution.png'
 import './ChartCard.css'
 import './LoadDistributionCard.css'
 

@@ -8,10 +8,40 @@
 // ============================================
 
 import GolfImage from '@/assets/Result_Assessment/Golf.png'
+import TennisImage from '@/assets/Result_Assessment/Tennis.png'
+import PingPongImage from '@/assets/Result_Assessment/PingPong.png'
+import PoloImage from '@/assets/Result_Assessment/Polo.png'
+import AmericanFootballImage from '@/assets/Result_Assessment/AmericanFootball.png'
+import BaseballBatterImage from '@/assets/Result_Assessment/BaseballBatter.png'
+import BaseballPitcherImage from '@/assets/Result_Assessment/BaseballPitcher.png'
+import SoccerGoalkeeperImage from '@/assets/Result_Assessment/SoccerGoalkeeper.png'
+import SoccerPlayerImage from '@/assets/Result_Assessment/SoccerPlayer.png'
 
-/** Sport name (as stored on Athlete.sport) -> illustrative image. Only Golf exists today. */
+/** Sport name (as stored on Athlete.sport) -> illustrative image. Add one entry here per new sport. */
 export const SPORT_IMAGES: Record<string, string> = {
-    Golf: GolfImage
+    Golf: GolfImage,
+    Tennis: TennisImage,
+    'Ping Pong': PingPongImage,
+    'Table Tennis': PingPongImage,
+    Polo: PoloImage,
+    'American Football': AmericanFootballImage,
+    'Baseball Batter': BaseballBatterImage,
+    'Baseball Pitcher': BaseballPitcherImage,
+    'Soccer Goalkeeper': SoccerGoalkeeperImage,
+    'Soccer Player': SoccerPlayerImage
+}
+
+/** Sentinel value AddAthlete/EditAthlete store on Athlete.sport for patients who aren't athletes. */
+const NON_ATHLETE_SPORT = 'None'
+
+/**
+ * True when the patient has an actual sport recorded — false for patients
+ * with no sport or the "not an athlete" sentinel. Callers use this to decide
+ * whether to render the Sport Report section at all (as opposed to an
+ * unsupported-but-present sport, which still renders with a placeholder).
+ */
+export function hasSportReport(sport?: string | null): boolean {
+    return Boolean(sport && sport !== NON_ATHLETE_SPORT)
 }
 
 /**
